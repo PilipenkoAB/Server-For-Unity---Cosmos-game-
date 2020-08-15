@@ -1168,13 +1168,14 @@ namespace Server
         // Process answer from client
 
         static private string ProcessLoginRequest(String[] recievedMessage) {
-            Console.WriteLine("recieved login require");
+
             string login = recievedMessage[1];
             string password = recievedMessage[2];
             string hashedPasswordFromDB = "";
             string playerId = "";
             string answerToClient = "";
 
+            Console.WriteLine("Recieved login require from " + login);
 
             using var connectionToDB = new SQLiteConnection(connectionToDBString);
             connectionToDB.Open();
@@ -1263,6 +1264,9 @@ namespace Server
 
             return answerToClient;
         }
+
+
+
 
 
         // Other functions 
