@@ -1,4 +1,9 @@
-﻿using System;
+﻿/*
+  Created by Aleksandr Pilipenko
+*/
+
+
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
