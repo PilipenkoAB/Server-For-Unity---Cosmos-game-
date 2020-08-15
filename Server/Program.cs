@@ -1,7 +1,7 @@
 ﻿/*
   Created by Aleksandr Pilipenko
 
-  2020
+  2020 year
 */
 
 
