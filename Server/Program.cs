@@ -1264,7 +1264,7 @@ namespace Server
 
 
         // Request to DB to recieve value from SINGLE column
-        static private string RequestToGetSingleValueFromDB(string queryString, string stringType) {
+        static private string RequestToGetSingleValueFromDB(string queryString, string readerValueType) {
             string queryResult = "";
 
             using var connectionToDB = new SQLiteConnection(connectionToDBString);
@@ -1281,11 +1281,11 @@ namespace Server
                     while (reader.Read())
                     {
                         // if requested value in DB is string - get string, if requested value in DB int - get int
-                        if (stringType == "string")
+                        if (readerValueType == "string")
                         {
                             queryResult = reader.GetString(0);
                         }
-                        else if (stringType == "int")
+                        else if (readerValueType == "int")
                         {
                             queryResult = Convert.ToString(reader.GetInt32(0));
                         }
@@ -1305,6 +1305,58 @@ namespace Server
 
             return queryResult;
         }
+
+
+
+        // Request to DB to recieve value from SINGLE and MULTIPLE column
+        static private string[] RequestToGetValueFromDB(string queryString, string[] readerValueType) 
+        {
+            int readerValueTypeLenght = readerValueType.Length;
+
+            string[] queryResult = new string[readerValueTypeLenght]; 
+
+            using var connectionToDB = new SQLiteConnection(connectionToDBString);
+            connectionToDB.Open();
+            using var cmd = new SQLiteCommand(queryString, connectionToDB);
+            try
+            {
+                using SQLiteDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        for (int i = 0; i < readerValueTypeLenght; i++)
+                        {
+                         //transfer all to string and then figure out what is what after returning the value after function
+                            if(readerValueType[i] == "string") {
+                                queryResult[i] = reader.GetString(i);
+                            }
+                            else if(readerValueType[i] == "int")
+                            {
+                                queryResult[i] = Convert.ToString(reader.GetInt32(i));
+                            } 
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("RequestToGetValueFromDB - No rows found.");
+                }
+                reader.Close();
+            }
+            catch
+            {
+                Console.WriteLine("error with recieveing information from login table RequestToGetValueFromDB");
+            }
+            connectionToDB.Close();
+
+            return queryResult;
+        }
+
+
+
+
 
 
         // Other functions 
