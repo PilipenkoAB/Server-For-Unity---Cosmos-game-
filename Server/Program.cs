@@ -317,104 +317,7 @@ namespace Server
             // login
             else if (recievedMessage[0] == "1")
             {
-                Console.WriteLine("recieved login require");
-                string login = recievedMessage[1];
-                string password = recievedMessage[2];
-                string hashedPasswordFromDB = "";
-                string playerId = "";
-
-                using var connectionToDB = new SQLiteConnection(connectionToDBString);
-                connectionToDB.Open();
-                // checking password == password from login 
-                string stm = "SELECT Password  FROM Account where Login ='" + login + "'";
-
-                using var cmd = new SQLiteCommand(stm, connectionToDB);
-
-                // try to get information from DB
-                try
-                {
-                    using SQLiteDataReader rdr = cmd.ExecuteReader();
-
-                    while (rdr.Read())
-                    {
-                        hashedPasswordFromDB = rdr.GetString(0);
-                    }
-
-                }
-                catch
-                {
-                    Console.WriteLine("error with recieveing information from login table (password, id)");
-                }
-
-                string hashedPasswordFromPlayer = PasswordHash(password);  // getting hashed password
-
-                // Update player information - add session token and set start ship slot == 0
-                if (hashedPasswordFromPlayer == hashedPasswordFromDB)
-                {
-                    var rand = new Random();
-                    int randomNumber = rand.Next(000000, 999999);
-
-                    string sessionToken = login + Convert.ToString(randomNumber);
-                    //Console.WriteLine("session token = " + sessionToken);
-
-                    // add information to the DB
-                    string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
-
-                    using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
-
-                    try
-                    {
-                        commandUpdate.ExecuteNonQuery();
-
-                        // get Player ID
-                        string stm1 = "SELECT AccountId  FROM Account where Login ='" + login + "' AND SessionToken ='" + sessionToken + "'";
-                        using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
-                        using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
-
-                        while (rdr1.Read())
-                        {
-                            playerId = Convert.ToString(rdr1.GetInt32(0));
-                        }
-
-
-                        // check if cache for player is exist or not. if exist - update session token, if not exist - create new cache information
-                        if (playerCache.ContainsKey(playerId))
-                        {
-                            playerCache[playerId][0] = sessionToken;
-                        }
-                        else
-                        {
-                            // crete cache for keeping login information for all connections after login 
-                            List<string> cacheLoginList = new List<string>();
-                            cacheLoginList.Add(sessionToken); // session token
-                            cacheLoginList.Add("-1");          // battle session
-
-                            playerCache.Add(playerId, cacheLoginList);
-                        }
-
-                        answerToClient = playerId + ";" + sessionToken;
-
-                        Console.WriteLine("Player - " + login + " login SUCCESSEFUL");
-
-                    }
-                    catch
-                    {
-                        Console.WriteLine("ERROR updating login table with session token and creation cache information");
-                    }
-
-
-
-                }
-                else
-                {
-
-                    Console.WriteLine("login UNSUCCESSEFUL (pass incorrect)");
-                }
-
-
-                connectionToDB.Close();
-
-
+                answerToClient = ProcessLoginRequest(recievedMessage);
             }
 
             // Garage manupulations
@@ -1260,6 +1163,107 @@ namespace Server
 
             return answerToClient;
         }
+
+
+        // Process answer from client
+
+        static private string ProcessLoginRequest(String[] recievedMessage) {
+            Console.WriteLine("recieved login require");
+            string login = recievedMessage[1];
+            string password = recievedMessage[2];
+            string hashedPasswordFromDB = "";
+            string playerId = "";
+            string answerToClient = "";
+
+
+            using var connectionToDB = new SQLiteConnection(connectionToDBString);
+            connectionToDB.Open();
+            // checking password == password from login 
+            string stm = "SELECT Password  FROM Account where Login ='" + login + "'";
+
+            using var cmd = new SQLiteCommand(stm, connectionToDB);
+
+            // try to get information from DB
+            try
+            {
+                using SQLiteDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    hashedPasswordFromDB = rdr.GetString(0);
+                }
+
+            }
+            catch
+            {
+                Console.WriteLine("error with recieveing information from login table (password, id)");
+            }
+
+            string hashedPasswordFromPlayer = PasswordHash(password);  // getting hashed password
+
+            // Update player information - add session token and set start ship slot == 0
+            if (hashedPasswordFromPlayer == hashedPasswordFromDB)
+            {
+                var rand = new Random();
+                int randomNumber = rand.Next(000000, 999999);
+
+                string sessionToken = login + Convert.ToString(randomNumber);
+                //Console.WriteLine("session token = " + sessionToken);
+
+                // add information to the DB
+                string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
+
+                using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
+
+                try
+                {
+                    commandUpdate.ExecuteNonQuery();
+
+                    // get Player ID
+                    string stm1 = "SELECT AccountId  FROM Account where Login ='" + login + "' AND SessionToken ='" + sessionToken + "'";
+                    using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
+                    using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
+
+                    while (rdr1.Read())
+                    {
+                        playerId = Convert.ToString(rdr1.GetInt32(0));
+                    }
+
+
+                    // check if cache for player is exist or not. if exist - update session token, if not exist - create new cache information
+                    if (playerCache.ContainsKey(playerId))
+                    {
+                        playerCache[playerId][0] = sessionToken;
+                    }
+                    else
+                    {
+                        // crete cache for keeping login information for all connections after login 
+                        List<string> cacheLoginList = new List<string>();
+                        cacheLoginList.Add(sessionToken); // session token
+                        cacheLoginList.Add("-1");          // battle session
+
+                        playerCache.Add(playerId, cacheLoginList);
+                    }
+
+                    answerToClient = playerId + ";" + sessionToken;
+
+                    Console.WriteLine("Player - " + login + " login SUCCESSEFUL");
+                }
+                catch
+                {
+                    Console.WriteLine("ERROR updating login table with session token and creation cache information");
+                }
+            }
+            else
+            {
+                Console.WriteLine("login UNSUCCESSEFUL (pass incorrect)");
+            }
+
+            connectionToDB.Close();
+
+            return answerToClient;
+        }
+
 
         // Other functions 
 
