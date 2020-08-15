@@ -1295,6 +1295,7 @@ namespace Server
                 {
                     Console.WriteLine("RequestToGetSingleValueFromDB - No rows found.");
                 }
+                reader.Close();
             }
             catch
             {
