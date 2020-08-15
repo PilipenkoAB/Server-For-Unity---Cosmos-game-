@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Text;
 using System.Data;
+using System.Runtime.InteropServices;
 
 namespace Server
 {
@@ -1177,96 +1178,132 @@ namespace Server
 
             Console.WriteLine("Recieved login require from " + login);
 
-            using var connectionToDB = new SQLiteConnection(connectionToDBString);
-            connectionToDB.Open();
-            // checking password == password from login 
-            string stm = "SELECT Password  FROM Account where Login ='" + login + "'";
+            string queryString = "SELECT Password  FROM Account where Login ='" + login + "'";
+            string stringType = "string";
+            hashedPasswordFromDB = RequestToGetSingleValueFromDB(queryString, stringType);
 
-            using var cmd = new SQLiteCommand(stm, connectionToDB);
-
-            // try to get information from DB
-            try
+            if (hashedPasswordFromDB == "")
             {
-                using SQLiteDataReader rdr = cmd.ExecuteReader();
+                Console.WriteLine("Player with that Login - " + login + " does not exist!");
+                answerToClient = "000";
+            }
+            else 
+            {
+                using var connectionToDB = new SQLiteConnection(connectionToDBString);
+                connectionToDB.Open();
 
-                while (rdr.Read())
+                //
+
+                string hashedPasswordFromPlayer = PasswordHash(password);  // getting hashed password
+
+                // Update player information - add session token and set start ship slot == 0
+                if (hashedPasswordFromPlayer == hashedPasswordFromDB)
                 {
-                    hashedPasswordFromDB = rdr.GetString(0);
+                    var rand = new Random();
+                    int randomNumber = rand.Next(000000, 999999);
+
+                    string sessionToken = login + Convert.ToString(randomNumber);
+                    //Console.WriteLine("session token = " + sessionToken);
+
+                    // add information to the DB
+                    string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
+
+                    using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
+
+                    try
+                    {
+                        commandUpdate.ExecuteNonQuery();
+
+                        // get Player ID
+                        string stm1 = "SELECT AccountId  FROM Account where Login ='" + login + "' AND SessionToken ='" + sessionToken + "'";
+                        using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
+                        using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
+
+                        while (rdr1.Read())
+                        {
+                            playerId = Convert.ToString(rdr1.GetInt32(0));
+                        }
+
+
+                        // check if cache for player is exist or not. if exist - update session token, if not exist - create new cache information
+                        if (playerCache.ContainsKey(playerId))
+                        {
+                            playerCache[playerId][0] = sessionToken;
+                        }
+                        else
+                        {
+                            // crete cache for keeping login information for all connections after login 
+                            List<string> cacheLoginList = new List<string>();
+                            cacheLoginList.Add(sessionToken); // session token
+                            cacheLoginList.Add("-1");          // battle session
+
+                            playerCache.Add(playerId, cacheLoginList);
+                        }
+
+                        answerToClient = playerId + ";" + sessionToken;
+
+                        Console.WriteLine("Player - " + login + " login SUCCESSEFUL");
+                    }
+                    catch
+                    {
+                        Console.WriteLine("ERROR updating login table with session token and creation cache information");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("login UNSUCCESSEFUL (pass incorrect)");
+                    answerToClient = "001";
                 }
 
-            }
-            catch
-            {
-                Console.WriteLine("error with recieveing information from login table (password, id)");
+                connectionToDB.Close();
             }
 
-            string hashedPasswordFromPlayer = PasswordHash(password);  // getting hashed password
-
-            // Update player information - add session token and set start ship slot == 0
-            if (hashedPasswordFromPlayer == hashedPasswordFromDB)
-            {
-                var rand = new Random();
-                int randomNumber = rand.Next(000000, 999999);
-
-                string sessionToken = login + Convert.ToString(randomNumber);
-                //Console.WriteLine("session token = " + sessionToken);
-
-                // add information to the DB
-                string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
-
-                using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
-
-                try
-                {
-                    commandUpdate.ExecuteNonQuery();
-
-                    // get Player ID
-                    string stm1 = "SELECT AccountId  FROM Account where Login ='" + login + "' AND SessionToken ='" + sessionToken + "'";
-                    using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
-                    using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
-
-                    while (rdr1.Read())
-                    {
-                        playerId = Convert.ToString(rdr1.GetInt32(0));
-                    }
-
-
-                    // check if cache for player is exist or not. if exist - update session token, if not exist - create new cache information
-                    if (playerCache.ContainsKey(playerId))
-                    {
-                        playerCache[playerId][0] = sessionToken;
-                    }
-                    else
-                    {
-                        // crete cache for keeping login information for all connections after login 
-                        List<string> cacheLoginList = new List<string>();
-                        cacheLoginList.Add(sessionToken); // session token
-                        cacheLoginList.Add("-1");          // battle session
-
-                        playerCache.Add(playerId, cacheLoginList);
-                    }
-
-                    answerToClient = playerId + ";" + sessionToken;
-
-                    Console.WriteLine("Player - " + login + " login SUCCESSEFUL");
-                }
-                catch
-                {
-                    Console.WriteLine("ERROR updating login table with session token and creation cache information");
-                }
-            }
-            else
-            {
-                Console.WriteLine("login UNSUCCESSEFUL (pass incorrect)");
-            }
-
-            connectionToDB.Close();
-
+            Console.WriteLine("!debug! answer to the clien" + answerToClient);
             return answerToClient;
         }
 
 
+        // Request to DB to recieve value from SINGLE column
+        static private string RequestToGetSingleValueFromDB(string queryString, string stringType) {
+            string queryResult = "";
 
+            using var connectionToDB = new SQLiteConnection(connectionToDBString);
+            connectionToDB.Open();
+            using var cmd = new SQLiteCommand(queryString, connectionToDB);
+
+            try
+            {
+                using SQLiteDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+
+                    while (reader.Read())
+                    {
+                        // if requested value in DB is string - get string, if requested value in DB int - get int
+                        if (stringType == "string")
+                        {
+                            queryResult = reader.GetString(0);
+                        }
+                        else if (stringType == "int")
+                        {
+                            queryResult = Convert.ToString(reader.GetInt32(0));
+                        }
+                    }
+                }
+                else 
+                {
+                    Console.WriteLine("RequestToGetSingleValueFromDB - No rows found.");
+                }
+            }
+            catch
+            {
+                Console.WriteLine("error with recieveing information from login table RequestToGetSingleValueFromDB"); 
+            }
+            connectionToDB.Close();
+
+            return queryResult;
+        }
 
 
         // Other functions 
