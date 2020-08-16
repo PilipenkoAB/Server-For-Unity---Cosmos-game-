@@ -1178,11 +1178,18 @@ namespace Server
 
             Console.WriteLine("Recieved login require from " + login);
 
-            string queryString = "SELECT Password  FROM Account where Login ='" + login + "'";
-            string stringType = "string";
-            hashedPasswordFromDB = RequestToGetSingleValueFromDB(queryString, stringType);
+            string queryString = "SELECT Password  FROM Account where Login = @login ";
 
-            if (hashedPasswordFromDB == "")
+            //------------
+            string[,] queryParameters = new string[,] { { "login", login } };
+            //------------
+
+            string[] stringType = new string[] {"string"};
+            hashedPasswordFromDB = RequestToGetValueFromDB(queryString, stringType, queryParameters)[0];
+
+
+
+            if (hashedPasswordFromDB == null)
             {
                 Console.WriteLine("Player with that Login - " + login + " does not exist!");
                 answerToClient = "000";
@@ -1264,60 +1271,64 @@ namespace Server
 
 
         // Request to DB to recieve value from SINGLE column
-        static private string RequestToGetSingleValueFromDB(string queryString, string readerValueType) {
-            string queryResult = "";
+        //static private string RequestToGetSingleValueFromDB(string queryString, string readerValueType) {
+        //    string queryResult = "";
 
-            using var connectionToDB = new SQLiteConnection(connectionToDBString);
-            connectionToDB.Open();
-            using var cmd = new SQLiteCommand(queryString, connectionToDB);
+        //    using var connectionToDB = new SQLiteConnection(connectionToDBString);
+        //    connectionToDB.Open();
+        //    using var cmd = new SQLiteCommand(queryString, connectionToDB);
 
-            try
-            {
-                using SQLiteDataReader reader = cmd.ExecuteReader();
+        //    try
+        //    {
+        //        using SQLiteDataReader reader = cmd.ExecuteReader();
 
-                if (reader.HasRows)
-                {
+        //        if (reader.HasRows)
+        //        {
 
-                    while (reader.Read())
-                    {
-                        // if requested value in DB is string - get string, if requested value in DB int - get int
-                        if (readerValueType == "string")
-                        {
-                            queryResult = reader.GetString(0);
-                        }
-                        else if (readerValueType == "int")
-                        {
-                            queryResult = Convert.ToString(reader.GetInt32(0));
-                        }
-                    }
-                }
-                else 
-                {
-                    Console.WriteLine("RequestToGetSingleValueFromDB - No rows found.");
-                }
-                reader.Close();
-            }
-            catch
-            {
-                Console.WriteLine("error with recieveing information from login table RequestToGetSingleValueFromDB"); 
-            }
-            connectionToDB.Close();
+        //            while (reader.Read())
+        //            {
+        //                // if requested value in DB is string - get string, if requested value in DB int - get int
+        //                if (readerValueType == "string")
+        //                {
+        //                    queryResult = reader.GetString(0);
+        //                }
+        //                else if (readerValueType == "int")
+        //                {
+        //                    queryResult = Convert.ToString(reader.GetInt32(0));
+        //                }
+        //            }
+        //        }
+        //        else 
+        //        {
+        //            Console.WriteLine("RequestToGetSingleValueFromDB - No rows found.");
+        //        }
+        //        reader.Close();
+        //    }
+        //    catch
+        //    {
+        //        Console.WriteLine("error with recieveing information from login table RequestToGetSingleValueFromDB"); 
+        //    }
+        //    connectionToDB.Close();
 
-            return queryResult;
-        }
+        //    return queryResult;
+        //}
 
 
 
         // Request to DB to recieve value from SINGLE and MULTIPLE column
-        static private string[] RequestToGetValueFromDB(string queryString, string[] readerValueType) 
+        static private string[] RequestToGetValueFromDB(string queryString, string[] readerValueType, string[,] queryParameters) 
         {
-            int readerValueTypeLenght = readerValueType.Length;
-
-            string[] queryResult = new string[readerValueTypeLenght]; 
+            string[] queryResult = new string[readerValueType.Length]; 
 
             using var connectionToDB = new SQLiteConnection(connectionToDBString);
             connectionToDB.Open();
             using var cmd = new SQLiteCommand(queryString, connectionToDB);
+            //---------------
+            for (int i = 0; i < queryParameters.Length/2; i++)
+            {
+                cmd.Parameters.AddWithValue("@" + queryParameters[i, i], queryParameters[i, i+1]);
+            }
+            //------------------
             try
             {
                 using SQLiteDataReader reader = cmd.ExecuteReader();
@@ -1326,7 +1337,7 @@ namespace Server
                 {
                     while (reader.Read())
                     {
-                        for (int i = 0; i < readerValueTypeLenght; i++)
+                        for (int i = 0; i < readerValueType.Length; i++)
                         {
                          //transfer all to string and then figure out what is what after returning the value after function
                             if(readerValueType[i] == "string") {
