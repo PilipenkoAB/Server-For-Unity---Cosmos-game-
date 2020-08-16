@@ -351,11 +351,8 @@ namespace Server
             string queryString = "SELECT Password  FROM Account where Login = @login ";
             string[,] queryParameters = new string[,] { { "login", login } };
             string[] stringType = new string[] {"string"};
-            hashedPasswordFromDB = RequestToGetValueFromDB(queryString, stringType, queryParameters)[0];
 
-            //----------- transfer to list
-
-            //-----------
+            hashedPasswordFromDB = RequestToGetValueFromDB(queryString, stringType, queryParameters)[0][0];
 
             if (hashedPasswordFromDB == null)
             {
@@ -445,12 +442,13 @@ namespace Server
             string playerId = recievedMessage[1];
             string sessionToken = recievedMessage[2];
 
-            Console.WriteLine("Garage request for cache authorization from - " + playerId + " with session token - " + sessionToken);
 
             if (CacheAuthorization(playerId, sessionToken))
             {
                 answerToClient = ProcessGarageRequestAfterAuthorization(recievedMessage);
             }
+
+            Console.WriteLine("Garage request for cache authorization from - " + playerId + " with session token - " + sessionToken + " . answer - " + answerToClient);
 
             return answerToClient;
         }
@@ -591,101 +589,54 @@ namespace Server
             int weapon3 = -1;
             int weapon4 = -1;
             int weapon5 = -1;
-            int slot1Ship = -1; // what id ship in slot \activeSlot+0
-            int slot2Ship = -1; // what id ship in slot \activeSlot+1
-            int slot3Ship = -1; // what id ship in slot \activeSlot+2
 
 
-
-
-            // for DB 
-            List<int> accountShipId = new List<int>();
-            List<int> slots = new List<int>();
-            List<int> shipsID = new List<int>();
 
             //-------------------------------------
-            //List<string> accountShipId = new List<string>();
-            //List<string> slots = new List<string>();
-            //List<string> shipsID = new List<string>();
+            string queryString = @"SELECT Garage.slot, Ship.ShipId, AccountShip.AccountShipId 
+                            FROM Garage, Ship, AccountShip 
+                            WHERE Garage.AccountId = @playerID AND Garage.AccountShipId = AccountShip.AccountShipId
+                            AND AccountShip.ShipId = Ship.ShipId ORDER BY Garage.slot ASC";
+            string[,] queryParameters = new string[,] { { "playerId", playerId } };
+            string[] stringType = new string[] { "int", "int", "int" };
 
-            //string queryString = @"SELECT Garage.slot, Ship.ShipId, AccountShip.AccountShipId 
-            //                FROM Garage, Ship, AccountShip 
-            //                WHERE Garage.AccountId = @playerID AND Garage.AccountShipId = AccountShip.AccountShipId
-            //                AND AccountShip.ShipId = Ship.ShipId ORDER BY Garage.slot ASC";
-            //string[,] queryParameters = new string[,] { { "playerId", playerId } };
-            //string[] stringType = new string[] { "int", "int", "int" };
-            //slots = RequestToGetValueFromDB(queryString, stringType, queryParameters)[0];
+            List<string> slots = RequestToGetValueFromDB(queryString, stringType, queryParameters)[0];
+            List<string> shipsID = RequestToGetValueFromDB(queryString, stringType, queryParameters)[1];
+            List<string> accountShipId = RequestToGetValueFromDB(queryString, stringType, queryParameters)[2];
 
-            //slots.Add(rdr1.GetInt32(0));
-            //shipsID.Add(rdr1.GetInt32(1));
-            //accountShipId.Add(rdr1.GetInt32(2));
 
-            //// select first three slots with ship's ID
-            //if (slots.Count == 1)
-            //{
-            //    slotShip[0] = shipsID[0];
-            //}
-            //else if (slots.Count == 2)
-            //{
-            //    slotShip[0] = shipsID[0];
-            //    slotShip[1] = shipsID[1];
-            //}
-            //else if (slots.Count >= 3)
-            //{
-            //    slotShip[0] = shipsID[0];
-            //    slotShip[1] = shipsID[1];
-            //    slotShip[2] = shipsID[2];
-            //}
+            // select first three slots with ship's ID
+            if (slots.Count == 1)
+            {
+                slotShip[0] = Convert.ToInt32(shipsID[0]);
+            }
+            else if (slots.Count == 2)
+            {
+                slotShip[0] = Convert.ToInt32(shipsID[0]);
+                slotShip[1] = Convert.ToInt32(shipsID[1]);
+            }
+            else if (slots.Count >= 3)
+            {
+                slotShip[0] = Convert.ToInt32(shipsID[0]);
+                slotShip[1] = Convert.ToInt32(shipsID[1]);
+                slotShip[2] = Convert.ToInt32(shipsID[2]);
+            }
 
             //--------------------------------------
             //--------------------------------------
+
+
+
 
             using var connectionToDB = new SQLiteConnection(connectionToDBString);
             connectionToDB.Open();
 
-            // getting ships models from the players garage
-            string stm1 = @"SELECT Garage.slot, Ship.ShipId, AccountShip.AccountShipId 
-                            FROM Garage, Ship, AccountShip 
-                            WHERE Garage.AccountId = @playerID AND Garage.AccountShipId = AccountShip.AccountShipId
-                            AND AccountShip.ShipId = Ship.ShipId ORDER BY Garage.slot ASC";
-            using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
-            cmd1.Parameters.AddWithValue("@playerID", playerId);
+            string stm1 = "";
+           
 
             try
             {
-                using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
-                while (rdr1.Read())
-                {
-                    slots.Add(rdr1.GetInt32(0));
-                    shipsID.Add(rdr1.GetInt32(1));
-                    accountShipId.Add(rdr1.GetInt32(2));
-                }
-
-
-                // select first three slots with ship's ID
-                if (slots.Count == 1)
-                {
-                    slot1Ship = shipsID[0];
-                }
-                else if (slots.Count == 2)
-                {
-                    slot1Ship = shipsID[0];
-                    slot2Ship = shipsID[1];
-                }
-                else if (slots.Count >= 3)
-                {
-                    slot1Ship = shipsID[0];
-                    slot2Ship = shipsID[1];
-                    slot3Ship = shipsID[2];
-                }
-
-
-
-
-
-
-
-
+                
 
                 //----------------------------------------------------------
 
@@ -1244,7 +1195,7 @@ namespace Server
 
 
             // Anwer to client
-            answerToClient = slot1Ship + ";" + slot2Ship + ";" + slot3Ship + ";" + engineSlot + ";" + cockpitSlot + ";" + bigSlot1Type + ";" + bigSlot1 + ";" + bigSlot2Type + ";" + bigSlot2 + ";" + bigSlot3Type + ";" + bigSlot3 + ";" + bigSlot4Type + ";" + bigSlot4 + ";" + bigSlot5Type + ";" + bigSlot5 + ";" + mediumSlot1 + ";" + mediumSlot2 + ";" + mediumSlot3 + ";" + mediumSlot4 + ";" + mediumSlot5 + ";" + smallSlot1 + ";" + smallSlot2 + ";" + smallSlot3 + ";" + smallSlot4 + ";" + smallSlot5 + ";" + weapon1 + ";" + weapon2 + ";" + weapon3 + ";" + weapon4 + ";" + weapon5;
+            answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] + ";" + engineSlot + ";" + cockpitSlot + ";" + bigSlot1Type + ";" + bigSlot1 + ";" + bigSlot2Type + ";" + bigSlot2 + ";" + bigSlot3Type + ";" + bigSlot3 + ";" + bigSlot4Type + ";" + bigSlot4 + ";" + bigSlot5Type + ";" + bigSlot5 + ";" + mediumSlot1 + ";" + mediumSlot2 + ";" + mediumSlot3 + ";" + mediumSlot4 + ";" + mediumSlot5 + ";" + smallSlot1 + ";" + smallSlot2 + ";" + smallSlot3 + ";" + smallSlot4 + ";" + smallSlot5 + ";" + weapon1 + ";" + weapon2 + ";" + weapon3 + ";" + weapon4 + ";" + weapon5;
             // answerToClient = slot1Ship + ";" + slot2Ship + ";" + slot3Ship;
 
             return answerToClient;
@@ -1357,19 +1308,27 @@ namespace Server
 
 
         // Request to DB to recieve value from SINGLE and MULTIPLE column (SELECT QUERY)
-        static private string[] RequestToGetValueFromDB(string queryString, string[] readerValueType, string[,] queryParameters) 
+        static private List<string>[] RequestToGetValueFromDB(string queryString, string[] readerValueType, string[,] queryParameters) 
         {
-            string[] queryResult = new string[readerValueType.Length]; 
+            //------------------
+            List<string>[] queryResult = new List<string>[readerValueType.Length];
+
+            for (int i = 0; i < readerValueType.Length; i++)
+            {
+                queryResult[i] = new List<string>();
+            }
+            
+            //------------------
+            // string[] queryResult = new string[readerValueType.Length]; 
 
             using var connectionToDB = new SQLiteConnection(connectionToDBString);
             connectionToDB.Open();
             using var cmd = new SQLiteCommand(queryString, connectionToDB);
-            //---------------
+
             for (int i = 0; i < queryParameters.Length/2; i++)
             {
                 cmd.Parameters.AddWithValue("@" + queryParameters[i, i], queryParameters[i, i+1]);
             }
-            //------------------
             try
             {
                 using SQLiteDataReader reader = cmd.ExecuteReader();
@@ -1382,17 +1341,19 @@ namespace Server
                         {
                          //transfer all to string and then figure out what is what after returning the value after function
                             if(readerValueType[i] == "string") {
-                                queryResult[i] = reader.GetString(i);
+                                queryResult[i].Add(reader.GetString(i));
                             }
                             else if(readerValueType[i] == "int")
                             {
-                                queryResult[i] = Convert.ToString(reader.GetInt32(i));
+                                queryResult[i].Add(Convert.ToString(reader.GetInt32(i)));
                             } 
                         }
+                        Console.WriteLine("DEBUG - queryResult[0][0] " + queryResult[0][0]);
                     }
                 }
                 else
                 {
+                    queryResult[0].Add(null); // return null value ? maybe fill all answer with null value in future????
                     Console.WriteLine("RequestToGetValueFromDB - No rows found.");
                 }
                 reader.Close();
