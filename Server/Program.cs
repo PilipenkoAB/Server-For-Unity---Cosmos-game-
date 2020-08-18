@@ -660,17 +660,19 @@ namespace Server
             string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
             List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-            // 0 - 9 including starts from 4 because of select * - maybe change for exact stuff?
-            for (int i = 0; i < 6; i++)
+            // starts from 4 - because item type starts from 4 in DB
+            for (int i = 0; i < requestAnswer[0].Count; i++)
             {
-                if (Convert.ToInt32(requestAnswer[i+4][0]) != 0)
+                for (int ii = 0; ii < 6; ii++)
                 {
-                    answerType = ""+i;
-                    answerItemTypeId = requestAnswer[i + 4][0];
+                    if (Convert.ToInt32(requestAnswer[ii + 4][i]) != 0)
+                    {
+                        answerType = "" + ii;
+                        answerItemTypeId = requestAnswer[ii + 4][i];
+                    }
                 }
-            }
-
-            answerToClient = answerToClient + requestAnswer[0][0] + ";" + answerType + ";" + answerItemTypeId + ";";
+                answerToClient = answerToClient + requestAnswer[0][0] + ";" + answerType + ";" + answerItemTypeId + ";";
+            }          
             answerToClient = answerToClient.Remove(answerToClient.Length - 1);
 
             return answerToClient;
