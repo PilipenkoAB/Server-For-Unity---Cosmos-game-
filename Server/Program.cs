@@ -468,85 +468,24 @@ namespace Server
             else if (codeActivity == "1")
             {
                 Console.WriteLine("Battle 1v1 AI");
+
                 string sessionID = StartSession1v1AI(Convert.ToInt32(playerId));
 
-                // add information about the sessionBattleID to cache
+                // add information about the sessionBattleID to Server Battle cache
                 if (playerCache.ContainsKey(playerId))
                 {
                     playerCache[playerId][1] = sessionID;
                 }
-
-                //TEST
                 answerToClient = sessionID;
             }
             else if (codeActivity == "2")
             {
-                Console.WriteLine("Inventory information ");
-
-                using var connectionToDB = new SQLiteConnection(connectionToDBString);
-
-                connectionToDB.Open();
-
-                string stm1 = "SELECT * FROM AccountItem WHERE AccountItem.AccountId = @playerID";
-                using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
-                cmd1.Parameters.AddWithValue("@playerID", playerId);
-
-                string answerType = "";
-                string answerItemTypeId = "";
-                try
-                {
-                    using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
-
-                    answerToClient = "";
-                    while (rdr1.Read())
-                    {
-                        // 0 - 9 including 
-                        // Console.WriteLine("0" + rdr1.GetInt32(0));
-
-                        if (rdr1.GetInt32(4) != 0)
-                        {
-                            answerType = "0";
-                            answerItemTypeId = Convert.ToString(rdr1.GetInt32(4));
-                        }
-                        else if (rdr1.GetInt32(5) != 0)
-                        {
-                            answerType = "1";
-                            answerItemTypeId = Convert.ToString(rdr1.GetInt32(5));
-                        }
-                        else if (rdr1.GetInt32(6) != 0)
-                        {
-                            answerType = "2";
-                            answerItemTypeId = Convert.ToString(rdr1.GetInt32(6));
-                        }
-                        else if (rdr1.GetInt32(7) != 0)
-                        {
-                            answerType = "3";
-                            answerItemTypeId = Convert.ToString(rdr1.GetInt32(7));
-                        }
-                        else if (rdr1.GetInt32(8) != 0)
-                        {
-                            answerType = "4";
-                            answerItemTypeId = Convert.ToString(rdr1.GetInt32(8));
-                        }
-                        else if (rdr1.GetInt32(9) != 0)
-                        {
-                            answerType = "5";
-                            answerItemTypeId = Convert.ToString(rdr1.GetInt32(9));
-                        }
-                        answerToClient = answerToClient + Convert.ToString(rdr1.GetInt32(0) + ";" + answerType + ";" + answerItemTypeId + ";");
-                    }
-                    answerToClient = answerToClient.Remove(answerToClient.Length - 1);
-                }
-                catch (InvalidCastException e)
-                {
-                    Console.WriteLine("ERROR - " + e);
-                }
-
-                connectionToDB.Close();
+                answerToClient = RecieveGarageInventory(recievedMessage); 
             }
             return answerToClient;
         }
 
+        // code activite = 0 from ProcessGarageRequestAfterAuthorization
         static private string ReceiveGarageMainInformation(String[] recievedMessage)
         {
             string answerToClient = "";
@@ -705,9 +644,38 @@ namespace Server
             return answerToClient;
         }
 
+        // code activite = 2 from ProcessGarageRequestAfterAuthorization
+        static private string RecieveGarageInventory(String[] recievedMessage)
+        {
+            string answerToClient = "";
 
+            string playerId = recievedMessage[1];
 
-        //
+            Console.WriteLine("Inventory information ");
+            string answerType = "";
+            string answerItemTypeId = "";
+
+            string queryString = "SELECT * FROM AccountItem WHERE AccountItem.AccountId = @playerID";
+            string[,]  queryParameters = new string[,] { { "playerID", playerId } };
+            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
+            List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            // 0 - 9 including starts from 4 because of select * - maybe change for exact stuff?
+            for (int i = 0; i < 6; i++)
+            {
+                if (Convert.ToInt32(requestAnswer[i+4][0]) != 0)
+                {
+                    answerType = ""+i;
+                    answerItemTypeId = requestAnswer[i + 4][0];
+                }
+            }
+
+            answerToClient = answerToClient + requestAnswer[0][0] + ";" + answerType + ";" + answerItemTypeId + ";";
+            answerToClient = answerToClient.Remove(answerToClient.Length - 1);
+
+            return answerToClient;
+        }
+
 
 
 
@@ -896,6 +864,7 @@ namespace Server
 
             return answer;
         }
+
 
         // GarageMainInformation - > BigSlotProcess subfunction
         static private int[] GarageMainInformationBigSlotProcess(int bigSlotNumber, int bigSlot, string accountShipId)
