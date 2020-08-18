@@ -629,38 +629,34 @@ namespace Server
             weapon[3] = Convert.ToInt32(requestAnswer[21][0]);
             weapon[4] = Convert.ToInt32(requestAnswer[22][0]);
 
-
-
             
                 // check system if some module installed - what id of the module 
-                if (engineSlot > 0)
-                {
-                   queryString = @"SELECT Engine.EngineId
-                                    FROM AccountShip, AccountItem, Engine
-                                    WHERE AccountShip.AccountShipId = @accountShipId 
-                                    and AccountShip.EngineSlot = AccountItem.AccountItemId 
-                                    and AccountItem.EngineId = Engine.EngineId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int"};
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    engineSlot = Convert.ToInt32(requestAnswer[0][0]);
-                }
+            if (engineSlot > 0)
+            {
+                queryString = @"SELECT Engine.EngineId
+                                FROM AccountShip, AccountItem, Engine
+                                WHERE AccountShip.AccountShipId = @accountShipId 
+                                and AccountShip.EngineSlot = AccountItem.AccountItemId 
+                                and AccountItem.EngineId = Engine.EngineId";
+                queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
+                stringType = new string[] { "int"};
+                requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+                engineSlot = Convert.ToInt32(requestAnswer[0][0]);
+            }
 
-                if (cockpitSlot > 0)
-                {
-                    queryString = @"SELECT Cockpit.CockpitId
-                                    FROM AccountShip, AccountItem, Cockpit
-                                    WHERE AccountShip.AccountShipId = @accountShipId
-                                    and AccountShip.CockpitSlot = AccountItem.AccountItemId 
-                                    and AccountItem.CockpitId = Cockpit.CockpitId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int" };
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    cockpitSlot = Convert.ToInt32(requestAnswer[0][0]);
-                }
+            if (cockpitSlot > 0)
+            {
+                queryString = @"SELECT Cockpit.CockpitId
+                               FROM AccountShip, AccountItem, Cockpit
+                               WHERE AccountShip.AccountShipId = @accountShipId
+                               and AccountShip.CockpitSlot = AccountItem.AccountItemId 
+                               and AccountItem.CockpitId = Cockpit.CockpitId";
+                queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
+                stringType = new string[] { "int" };
+                requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+                cockpitSlot = Convert.ToInt32(requestAnswer[0][0]);
+            }
 
-
-            //---------------------------
             for (int i = 0; i < bigSlot.Length; i++)
             {
                 if (bigSlot[i] > 0)
@@ -672,418 +668,36 @@ namespace Server
                 }
             }
 
-
-            //----------------------------
-            //using var connectionToDB = new SQLiteConnection(connectionToDBString);
-            //connectionToDB.Open();
-
-            //string stm1 = "";
-
-            //try
-            //{
-
-            //    if (bigSlot[0] > 0)
-            //    {
-            //        int shieldId = 0;
-            //        int weaponControlId = 0;
-            //        // get infromation about bigSlot1
-            //        stm1 = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
-            //                        FROM AccountShip, AccountItem, BigSlot
-            //                        WHERE AccountShip.AccountShipId = @accountShipId
-            //                        and AccountShip.BigSlot1 = AccountItem.AccountItemId 
-            //                        and AccountItem.BigSlotId = BigSlot.BigSlotId";
-
-            //        using var cmd3 = new SQLiteCommand(stm1, connectionToDB);
-            //        cmd3.Parameters.AddWithValue("@accountShipId", accountShipId[0]);
-            //        try
-            //        {
-            //            using SQLiteDataReader rdr2 = cmd3.ExecuteReader();
-            //            while (rdr2.Read())
-            //            {
-            //                shieldId = rdr2.GetInt32(0);
-            //                weaponControlId = rdr2.GetInt32(1);
-            //            }
-
-            //            if (shieldId > 0)
-            //            {
-            //                bigSlotType[0] = 1;
-            //                stm1 = @"SELECT Shield.ShieldId
-            //                        FROM Shield
-            //                        WHERE Shield.ShieldId = @shieldId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@shieldId", shieldId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[0] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-            //            else if (weaponControlId > 0)
-            //            {
-            //                bigSlotType[0] = 2;
-            //                stm1 = @"SELECT WeaponContol.WeaponControlId
-            //                        FROM WeaponContol
-            //                        WHERE WeaponContol.WeaponControlId = @weaponControlId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@weaponControlId", weaponControlId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[0] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-
-
-            //        }
-            //        catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //    }
-
-            //    if (bigSlot[1] > 0)
-            //    {
-            //        int shieldId = 0;
-            //        int weaponControlId = 0;
-            //        // get infromation about bigSlot1
-            //        stm1 = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
-            //                        FROM AccountShip, AccountItem, BigSlot
-            //                        WHERE AccountShip.AccountShipId = @accountShipId
-            //                        and AccountShip.BigSlot2 = AccountItem.AccountItemId 
-            //                        and AccountItem.BigSlotId = BigSlot.BigSlotId";
-
-            //        using var cmd3 = new SQLiteCommand(stm1, connectionToDB);
-            //        cmd3.Parameters.AddWithValue("@accountShipId", accountShipId[0]);
-            //        try
-            //        {
-            //            using SQLiteDataReader rdr2 = cmd3.ExecuteReader();
-            //            while (rdr2.Read())
-            //            {
-            //                shieldId = rdr2.GetInt32(0);
-            //                weaponControlId = rdr2.GetInt32(1);
-            //            }
-
-            //            if (shieldId > 0)
-            //            {
-            //                bigSlotType[1] = 1;
-            //                stm1 = @"SELECT Shield.ShieldId
-            //                        FROM Shield
-            //                        WHERE Shield.ShieldId = @shieldId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@shieldId", shieldId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[1] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-            //            else if (weaponControlId > 0)
-            //            {
-            //                bigSlotType[1] = 2;
-            //                stm1 = @"SELECT WeaponContol.WeaponControlId
-            //                        FROM WeaponContol
-            //                        WHERE WeaponContol.WeaponControlId = @weaponControlId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@weaponControlId", weaponControlId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[1] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-
-
-            //        }
-            //        catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //    }
-
-            //    if (bigSlot[2] > 0)
-            //    {
-            //        int shieldId = 0;
-            //        int weaponControlId = 0;
-            //        // get infromation about bigSlot1
-            //        stm1 = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
-            //                        FROM AccountShip, AccountItem, BigSlot
-            //                        WHERE AccountShip.AccountShipId = @accountShipId
-            //                        and AccountShip.BigSlot3 = AccountItem.AccountItemId 
-            //                        and AccountItem.BigSlotId = BigSlot.BigSlotId";
-
-            //        using var cmd3 = new SQLiteCommand(stm1, connectionToDB);
-            //        cmd3.Parameters.AddWithValue("@accountShipId", accountShipId[0]);
-            //        try
-            //        {
-            //            using SQLiteDataReader rdr2 = cmd3.ExecuteReader();
-            //            while (rdr2.Read())
-            //            {
-            //                shieldId = rdr2.GetInt32(0);
-            //                weaponControlId = rdr2.GetInt32(1);
-            //            }
-
-            //            if (shieldId > 0)
-            //            {
-            //                bigSlotType[2] = 1;
-            //                stm1 = @"SELECT Shield.ShieldId
-            //                        FROM Shield
-            //                        WHERE Shield.ShieldId = @shieldId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@shieldId", shieldId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[2] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-            //            else if (weaponControlId > 0)
-            //            {
-            //                bigSlotType[2] = 2;
-            //                stm1 = @"SELECT WeaponContol.WeaponControlId
-            //                        FROM WeaponContol
-            //                        WHERE WeaponContol.WeaponControlId = @weaponControlId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@weaponControlId", weaponControlId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[2] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-
-
-            //        }
-            //        catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //    }
-
-            //    if (bigSlot[3] > 0)
-            //    {
-            //        int shieldId = 0;
-            //        int weaponControlId = 0;
-            //        // get infromation about bigSlot1
-            //        stm1 = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
-            //                        FROM AccountShip, AccountItem, BigSlot
-            //                        WHERE AccountShip.AccountShipId = @accountShipId
-            //                        and AccountShip.BigSlot4 = AccountItem.AccountItemId 
-            //                        and AccountItem.BigSlotId = BigSlot.BigSlotId";
-
-            //        using var cmd3 = new SQLiteCommand(stm1, connectionToDB);
-            //        cmd3.Parameters.AddWithValue("@accountShipId", accountShipId[0]);
-            //        try
-            //        {
-            //            using SQLiteDataReader rdr2 = cmd3.ExecuteReader();
-            //            while (rdr2.Read())
-            //            {
-            //                shieldId = rdr2.GetInt32(0);
-            //                weaponControlId = rdr2.GetInt32(1);
-            //            }
-
-            //            if (shieldId > 0)
-            //            {
-            //                bigSlotType[3] = 1;
-            //                stm1 = @"SELECT Shield.ShieldId
-            //                        FROM Shield
-            //                        WHERE Shield.ShieldId = @shieldId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@shieldId", shieldId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[3] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-            //            else if (weaponControlId > 0)
-            //            {
-            //                bigSlotType[3] = 2;
-            //                stm1 = @"SELECT WeaponContol.WeaponControlId
-            //                        FROM WeaponContol
-            //                        WHERE WeaponContol.WeaponControlId = @weaponControlId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@weaponControlId", weaponControlId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[3] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-
-
-            //        }
-            //        catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //    }
-
-            //    if (bigSlot[4] > 0)
-            //    {
-            //        int shieldId = 0;
-            //        int weaponControlId = 0;
-            //        // get infromation about bigSlot1
-            //        stm1 = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
-            //                        FROM AccountShip, AccountItem, BigSlot
-            //                        WHERE AccountShip.AccountShipId = @accountShipId
-            //                        and AccountShip.BigSlot5 = AccountItem.AccountItemId 
-            //                        and AccountItem.BigSlotId = BigSlot.BigSlotId";
-
-            //        using var cmd3 = new SQLiteCommand(stm1, connectionToDB);
-            //        cmd3.Parameters.AddWithValue("@accountShipId", accountShipId[0]);
-            //        try
-            //        {
-            //            using SQLiteDataReader rdr2 = cmd3.ExecuteReader();
-            //            while (rdr2.Read())
-            //            {
-            //                shieldId = rdr2.GetInt32(0);
-            //                weaponControlId = rdr2.GetInt32(1);
-            //            }
-
-            //            if (shieldId > 0)
-            //            {
-            //                bigSlotType[4] = 1;
-            //                stm1 = @"SELECT Shield.ShieldId
-            //                        FROM Shield
-            //                        WHERE Shield.ShieldId = @shieldId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@shieldId", shieldId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[4] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-            //            else if (weaponControlId > 0)
-            //            {
-            //                bigSlotType[4] = 2;
-            //                stm1 = @"SELECT WeaponContol.WeaponControlId
-            //                        FROM WeaponContol
-            //                        WHERE WeaponContol.WeaponControlId = @weaponControlId";
-            //                using var cmd4 = new SQLiteCommand(stm1, connectionToDB);
-            //                cmd4.Parameters.AddWithValue("@weaponControlId", weaponControlId);
-            //                try
-            //                {
-            //                    using SQLiteDataReader rdr3 = cmd4.ExecuteReader();
-            //                    while (rdr3.Read())
-            //                    {
-            //                        bigSlot[4] = rdr3.GetInt32(0);
-            //                    }
-            //                }
-            //                catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //            }
-
-
-            //        }
-            //        catch (InvalidCastException e) { Console.WriteLine("ERROR - " + e); }
-            //    }
-
-
-            //}
-            //catch (InvalidCastException e)
-            //{
-            //    Console.WriteLine("ERROR - " + e);
-            //}
-
-            //connectionToDB.Close();
-            //----------------------------------
-            //---------------------------------
-
-                if (mediumSlot[0] > 0) { }
-                if (mediumSlot[1] > 0) { }
-                if (mediumSlot[2] > 0) { }
-                if (mediumSlot[3] > 0) { }
-                if (mediumSlot[4] > 0) { }
-                if (smallSlot[0] > 0) { }
-                if (smallSlot[1] > 0) { }
-                if (smallSlot[2] > 0) { }
-                if (smallSlot[3] > 0) { }
-                if (smallSlot[4] > 0) { }
-
-                if (weapon[0] > 0)
+            for (int i = 0; i < mediumSlot.Length; i++)
+            {
+                if (mediumSlot[i] > 0)
                 {
+                }
+            }
+
+            for (int i = 0; i < smallSlot.Length; i++)
+            {
+                if (smallSlot[i] > 0)
+                {
+                }
+            }
+
+            for (int i = 0; i < weapon.Length; i++)
+            {
+                if (weapon[i] > 0)
+                {
+                    int weaponNumber = i + 1;
                     queryString = @"SELECT Weapon.WeaponId
                                     FROM AccountShip, AccountItem, Weapon
                                     WHERE AccountShip.AccountShipId = @accountShipId
-                                    and AccountShip.Weapon1 = AccountItem.AccountItemId
+                                    and AccountShip.Weapon" + weaponNumber + @" = AccountItem.AccountItemId
                                     and AccountItem.WeaponId = Weapon.WeaponId";
                     queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                     stringType = new string[] { "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    weapon[0] = Convert.ToInt32(requestAnswer[0][0]);
+                    weapon[i] = Convert.ToInt32(requestAnswer[0][0]);
                 }
-                if (weapon[1] > 0)
-                {
-                    queryString = @"SELECT Weapon.WeaponId
-                                    FROM AccountShip, AccountItem, Weapon
-                                    WHERE AccountShip.AccountShipId = @accountShipId
-                                    and AccountShip.Weapon2 = AccountItem.AccountItemId
-                                    and AccountItem.WeaponId = Weapon.WeaponId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int" };
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    weapon[1] = Convert.ToInt32(requestAnswer[0][0]);
-                }
-                if (weapon[2] > 0)
-                {
-                    queryString = @"SELECT Weapon.WeaponId
-                                    FROM AccountShip, AccountItem, Weapon
-                                    WHERE AccountShip.AccountShipId = @accountShipId
-                                    and AccountShip.Weapon3 = AccountItem.AccountItemId
-                                    and AccountItem.WeaponId = Weapon.WeaponId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int" };
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    weapon[2] = Convert.ToInt32(requestAnswer[0][0]);
-                }
-                if (weapon[3] > 0)
-                {
-                    queryString = @"SELECT Weapon.WeaponId
-                                    FROM AccountShip, AccountItem, Weapon
-                                    WHERE AccountShip.AccountShipId = @accountShipId
-                                    and AccountShip.Weapon4 = AccountItem.AccountItemId
-                                    and AccountItem.WeaponId = Weapon.WeaponId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int" };
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    weapon[3] = Convert.ToInt32(requestAnswer[0][0]);
-                }
-                if (weapon[4] > 0)
-                {
-                    queryString = @"SELECT Weapon.WeaponId
-                                    FROM AccountShip, AccountItem, Weapon
-                                    WHERE AccountShip.AccountShipId = @accountShipId
-                                    and AccountShip.Weapon5 = AccountItem.AccountItemId
-                                    and AccountItem.WeaponId = Weapon.WeaponId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int" };
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    weapon[4] = Convert.ToInt32(requestAnswer[0][0]);
-                }
+            }
 
             // Anwer to client
             answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] + ";" + engineSlot + ";" + cockpitSlot + ";" + bigSlotType[0] + ";" + bigSlot[0] + ";" + bigSlotType[1] + ";" + bigSlot[1] + ";" + bigSlotType[2] + ";" + bigSlot[2] + ";" + bigSlotType[3] + ";" + bigSlot[3] + ";" + bigSlotType[4] + ";" + bigSlot[4] + ";" + mediumSlot[0] + ";" + mediumSlot[1] + ";" + mediumSlot[2] + ";" + mediumSlot[3] + ";" + mediumSlot[4] + ";" + smallSlot[0] + ";" + smallSlot[1] + ";" + smallSlot[2] + ";" + smallSlot[3] + ";" + smallSlot[4] + ";" + weapon[0] + ";" + weapon[1] + ";" + weapon[2] + ";" + weapon[3] + ";" + weapon[4];
@@ -1297,10 +911,11 @@ namespace Server
                                     and AccountShip.BigSlot" + bigSlotNumber + @" = AccountItem.AccountItemId  
                                     and AccountItem.BigSlotId = BigSlot.BigSlotId";
             string[,] queryParameters = new string[,] { { "accountShipId", accountShipId } };
-            string[] stringType = new string[] { "int" };
+            string[] stringType = new string[] { "int", "int" };
             List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
             shieldId = Convert.ToInt32(requestAnswer[0][0]);
-            weaponControlId = Convert.ToInt32(requestAnswer[0][1]);
+            weaponControlId = Convert.ToInt32(requestAnswer[1][0]);
 
             if (shieldId > 0)
             {
