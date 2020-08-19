@@ -489,23 +489,24 @@ namespace Server
             string playerId = recievedMessage[1];
 
             // modules for answer start information
-            //  -1 = does not exist, 0 - empty , n - something - in account
+            // id of the item in the account-item system
             int accountEngineSlot = -1;
             int accountCockpitSlot = -1;
-            int[] accountBigSlot = new int[] { -1,-1,-1,-1,-1 };
-           // int[] accountBigSlotType = new int[] { 0, 0, 0, 0, 0 };
+            int[] accountBigSlot = new int[] { -1, -1, -1, -1, -1 };
             int[] accountMediumSlot = new int[] { -1, -1, -1, -1, -1 };
             int[] accountSmallSlot = new int[] { -1, -1, -1, -1, -1 };
             int[] accountWeapon = new int[] { -1, -1, -1, -1, -1 };
-            int[] slotShip = new int[] { -1, -1, -1 }; // activeSlot[0] + 0, activeSlot[1] + 1, activeSlot[2] + 2
 
             // ID of the slot in item system
+            //  -1 = does not exist, 0 - empty , n - something - in account
             int engineSlotId = 0;
             int cockpitSlotId = 0;
             int[] bigSlotId = new int[] { 0, 0, 0, 0, 0 };
             int[] mediumSlotId = new int[] { 0, 0, 0, 0, 0 };
             int[] smallSlotId = new int[] { 0, 0, 0, 0, 0 };
             int[] weaponId = new int[] { 0, 0, 0, 0, 0 };
+
+            int[] slotShip = new int[] { -1, -1, -1 }; // activeSlot[0] + 0, activeSlot[1] + 1, activeSlot[2] + 2
 
             string queryString = @"SELECT Garage.slot, Ship.ShipId, AccountShip.AccountShipId 
                             FROM Garage, Ship, AccountShip 
@@ -572,8 +573,6 @@ namespace Server
             accountWeapon[4] = Convert.ToInt32(requestAnswer[22][0]);
 
             
-            //-------------------------------------------
-            //-------------------------------------------
 
                 // check system if some module installed - what id of the module 
             if (accountEngineSlot > 0)
@@ -602,8 +601,6 @@ namespace Server
                 cockpitSlotId = Convert.ToInt32(requestAnswer[0][0]);
             }
 
-            //-----------------------------------
-            //-----------------------------------
             for (int i = 0; i < accountBigSlot.Length; i++)
             {
                 if (accountBigSlot[i] > 0)
@@ -619,8 +616,6 @@ namespace Server
                     bigSlotId[i] = Convert.ToInt32(requestAnswer[0][0]);
                 }
             }
-            //-------------------------------------
-            //-------------------------------------
 
             for (int i = 0; i < accountMediumSlot.Length; i++)
             {
