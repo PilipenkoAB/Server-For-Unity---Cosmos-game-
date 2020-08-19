@@ -387,15 +387,11 @@ namespace Server
                         commandUpdate.ExecuteNonQuery();
 
                         // get Player ID
-                        string stm1 = "SELECT AccountId  FROM Account where Login ='" + login + "' AND SessionToken ='" + sessionToken + "'";
-                        using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
-                        using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
+                        queryString = "SELECT AccountId  FROM Account where Login = @login AND SessionToken = @sessionToken";
+                        queryParameters = new string[,] { { "login", login }, { "sessionToken", sessionToken } };
+                        stringType = new string[] { "int" };
 
-                        while (rdr1.Read())
-                        {
-                            playerId = Convert.ToString(rdr1.GetInt32(0));
-                        }
-
+                        playerId = RequestToGetValueFromDB(queryString, stringType, queryParameters)[0][0];
 
                         // check if cache for player is exist or not. if exist - update session token, if not exist - create new cache information
                         if (playerCache.ContainsKey(playerId))
@@ -411,10 +407,9 @@ namespace Server
 
                             playerCache.Add(playerId, cacheLoginList);
                         }
+                        Console.WriteLine("Player - " + login + " login SUCCESSEFUL");
 
                         answerToClient = playerId + ";" + sessionToken;
-
-                        Console.WriteLine("Player - " + login + " login SUCCESSEFUL");
                     }
                     catch
                     {
@@ -947,6 +942,10 @@ namespace Server
             return hashed;
         }
 
+
+
+
+
         // Initialiation of the battle session
         static private string StartSession1v1AI(int playerID)
         {
@@ -954,20 +953,17 @@ namespace Server
             int activeSlot = 0;
             int newBattleID = -1;
 
+            string queryString = "SELECT GarageActiveSlot  FROM Account where AccountId = @playerID ";
+            string[,] queryParameters = new string[,] { { "playerID", Convert.ToString(playerID) } };
+            string[]  stringType = new string[] { "int" };
+
+            activeSlot = Convert.ToInt32(RequestToGetValueFromDB(queryString, stringType, queryParameters)[0][0]);
+
+
+            //-----------------------------
 
             using var connectionToDB = new SQLiteConnection(connectionToDBString);
             connectionToDB.Open();
-
-            string stm = "SELECT GarageActiveSlot  FROM Account where AccountId ='" + playerID + "' ";
-            using var cmd = new SQLiteCommand(stm, connectionToDB);
-
-            using SQLiteDataReader rdr = cmd.ExecuteReader();
-
-            while (rdr.Read())
-            {
-                activeSlot = rdr.GetInt32(0);
-            }
-
 
 
             // Create Session with SesionID, playerID, playerSlot
@@ -990,6 +986,9 @@ namespace Server
             {
                 Console.WriteLine("error updating DB for creating new session for 1v1 A - I" + e);
             }
+            connectionToDB.Close();
+
+            //----------------------------------------
 
 
 
@@ -997,16 +996,41 @@ namespace Server
             sessionsBattle1v1AI.Add(newBattleID, new Battle1v1AI());
             Console.WriteLine("new session with number - " + newBattleID + " is started with player -  " + sessionsBattle1v1AI[newBattleID].playerID);
 
-            // LOAD INFORMATION ABOUT PLAYER TO CLASS
-            sessionsBattle1v1AI[newBattleID].playerID = playerID;
-
-
-            //  Load information to the class about the battle that going to start
-            //  -----------------------------------------------------
             try
             {
-                string stm1 = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
-		                Weapon.Damage, Weapon.ReloadTime, Weapon.Energy, Weapon.Name, Ship.ShipId
+                //  Load information to the class about the battle that going to start
+                //  -----------------------------------------------------
+                // LOAD INFORMATION ABOUT PLAYER TO CLASS
+                sessionsBattle1v1AI[newBattleID].playerID = playerID;
+
+                Session1v1AILoadPlayer(playerID, newBattleID);
+
+                // LOAD INFORMATION ABOUT AI TO CLASS
+                int aiId = 1;     // CHANGE IT WHEN IT WILL BE AN CHOISE FROM PLAYER TO PLAY AGAINST WHAT AI
+
+                sessionsBattle1v1AI[newBattleID].aiId = aiId;
+
+                Session1v1AILoadAI(aiId, newBattleID);
+
+                sessionsBattle1v1AI[newBattleID].toStart = 1;
+                Console.WriteLine("SESSION TO START - YES - " + sessionsBattle1v1AI[newBattleID].toStart);
+            }
+            catch 
+            {
+                Console.WriteLine("Unable to create fill up battle session");
+            }
+
+            //  -----------------------------------------------------
+            
+
+            return Convert.ToString(newBattleID);
+        }
+
+
+        static private void Session1v1AILoadPlayer(int playerID, int newBattleID) 
+        {
+                string queryString = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
+                  Weapon.Damage, Weapon.ReloadTime, Weapon.Energy, Weapon.Name, Ship.ShipId
                     FROM Account, Garage, AccountShip, Ship, AccountItem, Weapon, WeaponContol
                     WHERE Account.AccountId = @AccountId 
                             and Garage.Slot = Account.GarageActiveSlot 
@@ -1021,63 +1045,46 @@ namespace Server
                                 (AccountShip.WeaponControl = AccountItem.AccountItemId
                                 and AccountItem.WeaponControlId = WeaponContol.WeaponControlId) 
                                 )";
+                string[,] queryParameters = new string[,] { { "AccountId", Convert.ToString(playerID) } };
+                string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "string", "int", };
 
+                List<string>[] answerRequest = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                using var cmd1 = new SQLiteCommand(stm1, connectionToDB);
+                Console.WriteLine("Ship BaseHealth - " + answerRequest[0][0]);
+                Console.WriteLine("Ship BaseEnergy - " + answerRequest[1][0]);
+                Console.WriteLine("WeaponContol Health - " + answerRequest[2][0]);
+                Console.WriteLine("WeaponContol Energy - " + answerRequest[3][0]);
+                Console.WriteLine("Weapon Damage - " + answerRequest[4][0]);
+                Console.WriteLine("Weapon ReloadTime - " + answerRequest[5][0]);
+                Console.WriteLine("Weapon Energy - " + answerRequest[6][0]);
+                Console.WriteLine("Weapon Name - " + answerRequest[7][0]);
+                Console.WriteLine("Ship Id - " + answerRequest[8][0]);
 
-                //int AccountId = playerID;
-                cmd1.Parameters.AddWithValue("@AccountId", playerID);
+                int shipBaseHealth = Convert.ToInt32(answerRequest[0][0]);
+                int shipBaseEnergy = Convert.ToInt32(answerRequest[1][0]);
+                int weaponContolHealth = Convert.ToInt32(answerRequest[2][0]);
+                int weaponContolEnergy = Convert.ToInt32(answerRequest[3][0]);
+                int weapon1Damage = Convert.ToInt32(answerRequest[4][0]);
+                int weapon1ReloadTime = Convert.ToInt32(answerRequest[5][0]);
+                int weapon1Energy = Convert.ToInt32(answerRequest[6][0]);
+                string weapon1Name = answerRequest[7][0];
+                int shipId = Convert.ToInt32(answerRequest[8][0]);
 
-                try
-                {
-                    using SQLiteDataReader rdr1 = cmd1.ExecuteReader();
-                    rdr1.Read();
+                // add informaton to a class - player starting parameters in class
+                sessionsBattle1v1AI[newBattleID].playerHealthMax = shipBaseHealth;
+                sessionsBattle1v1AI[newBattleID].playerEnergyMax = shipBaseEnergy;
+                sessionsBattle1v1AI[newBattleID].playerWeaponControlHealthMax = weaponContolHealth;
+                sessionsBattle1v1AI[newBattleID].playerWeaponControlEnergyRequired = weaponContolEnergy;
+                sessionsBattle1v1AI[newBattleID].playerWeapon1Damage = weapon1Damage;
+                sessionsBattle1v1AI[newBattleID].playerWeapon1ReloadTime = weapon1ReloadTime;
+                sessionsBattle1v1AI[newBattleID].playerWeapon1EnergyRequired = weapon1Energy;
+                sessionsBattle1v1AI[newBattleID].playerWeapon1Name = weapon1Name;
+                sessionsBattle1v1AI[newBattleID].playerShipId = shipId;
+        }
 
-                    Console.WriteLine("Ship BaseHealth - " + rdr1.GetInt32(0));
-                    Console.WriteLine("Ship BaseEnergy - " + rdr1.GetInt32(1));
-                    Console.WriteLine("WeaponContol Health - " + rdr1.GetInt32(2));
-                    Console.WriteLine("WeaponContol Energy - " + rdr1.GetInt32(3));
-                    Console.WriteLine("Weapon Damage - " + rdr1.GetInt32(4));
-                    Console.WriteLine("Weapon ReloadTime - " + rdr1.GetInt32(5));
-                    Console.WriteLine("Weapon Energy - " + rdr1.GetInt32(6));
-                    Console.WriteLine("Weapon Name - " + rdr1.GetString(7));
-                    Console.WriteLine("Ship Id - " + rdr1.GetInt32(8));
-
-                    int shipBaseHealth = rdr1.GetInt32(0);
-                    int shipBaseEnergy = rdr1.GetInt32(1);
-                    int weaponContolHealth = rdr1.GetInt32(2);
-                    int weaponContolEnergy = rdr1.GetInt32(3);
-                    int weapon1Damage = rdr1.GetInt32(4);
-                    int weapon1ReloadTime = rdr1.GetInt32(5);
-                    int weapon1Energy = rdr1.GetInt32(6);
-                    string weapon1Name = rdr1.GetString(7);
-                    int shipId = rdr1.GetInt32(8);
-
-                    // add informaton to a class - player starting parameters in class
-                    sessionsBattle1v1AI[newBattleID].playerHealthMax = shipBaseHealth;
-                    sessionsBattle1v1AI[newBattleID].playerEnergyMax = shipBaseEnergy;
-                    sessionsBattle1v1AI[newBattleID].playerWeaponControlHealthMax = weaponContolHealth;
-                    sessionsBattle1v1AI[newBattleID].playerWeaponControlEnergyRequired = weaponContolEnergy;
-                    sessionsBattle1v1AI[newBattleID].playerWeapon1Damage = weapon1Damage;
-                    sessionsBattle1v1AI[newBattleID].playerWeapon1ReloadTime = weapon1ReloadTime;
-                    sessionsBattle1v1AI[newBattleID].playerWeapon1EnergyRequired = weapon1Energy;
-                    sessionsBattle1v1AI[newBattleID].playerWeapon1Name = weapon1Name;
-                    sessionsBattle1v1AI[newBattleID].playerShipId = shipId;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("error selecting information from the DB about the ship player for class : ", e);
-                }
-
-
-                // LOAD INFORMATION ABOUT AI TO CLASS
-
-                int aiId = 1;     // CHANGE IT WHEN IT WILL BE AN CHOISE FROM PLAYER TO PLAY AGAINST WHAT AI
-
-                sessionsBattle1v1AI[newBattleID].aiId = aiId;
-
-
-                string aiQuery = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
+        static private void Session1v1AILoadAI(int aiId, int newBattleID) 
+        {
+            string queryString = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
 		                Weapon.Damage, Weapon.ReloadTime, Weapon.Energy, Ship.ShipId 
                     FROM Ai, AiShip, Ship, Weapon, WeaponContol
                     WHERE Ai.AiId = @AiId 
@@ -1089,62 +1096,39 @@ namespace Server
                                 or
                                 (AiShip.WeaponControl = WeaponContol.WeaponControlId) 
                                 )";
+            string[,] queryParameters = new string[,] { { "AiId", Convert.ToString(aiId) } };
+            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int"};
 
-                using var cmdAiQuery = new SQLiteCommand(aiQuery, connectionToDB);
-                cmdAiQuery.Parameters.AddWithValue("@AiId", aiId);
+            List<string>[] answerRequest = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                try
-                {
-                    using SQLiteDataReader readerSql = cmdAiQuery.ExecuteReader();
-                    readerSql.Read();
+                Console.WriteLine("Ship BaseHealth - " + answerRequest[0][0]);
+                Console.WriteLine("Ship BaseEnergy - " + answerRequest[1][0]);
+                Console.WriteLine("WeaponContol Health - " + answerRequest[2][0]);
+                Console.WriteLine("WeaponContol Energy - " + answerRequest[3][0]);
+                Console.WriteLine("Weapon Damage - " + answerRequest[4][0]);
+                Console.WriteLine("Weapon ReloadTime - " + answerRequest[5][0]);
+                Console.WriteLine("Weapon Energy - " + answerRequest[6][0]);
+                Console.WriteLine("Ship Id - " + answerRequest[7][0]);
 
-                    Console.WriteLine("Ship BaseHealth - " + readerSql.GetInt32(0));
-                    Console.WriteLine("Ship BaseEnergy - " + readerSql.GetInt32(1));
-                    Console.WriteLine("WeaponContol Health - " + readerSql.GetInt32(2));
-                    Console.WriteLine("WeaponContol Energy - " + readerSql.GetInt32(3));
-                    Console.WriteLine("Weapon Damage - " + readerSql.GetInt32(4));
-                    Console.WriteLine("Weapon ReloadTime - " + readerSql.GetInt32(5));
-                    Console.WriteLine("Weapon Energy - " + readerSql.GetInt32(6));
-                    Console.WriteLine("Ship Id - " + readerSql.GetInt32(7));
+                int shipBaseHealth = Convert.ToInt32(answerRequest[0][0]);
+                int shipBaseEnergy = Convert.ToInt32(answerRequest[1][0]);
+                int weaponContolHealth = Convert.ToInt32(answerRequest[2][0]);
+                int weaponContolEnergy = Convert.ToInt32(answerRequest[3][0]);
+                int weapon1Damage = Convert.ToInt32(answerRequest[4][0]);
+                int weapon1ReloadTime = Convert.ToInt32(answerRequest[5][0]);
+                int weapon1Energy = Convert.ToInt32(answerRequest[6][0]);
+                int shipId = Convert.ToInt32(answerRequest[7][0]);
 
-                    int shipBaseHealth = readerSql.GetInt32(0);
-                    int shipBaseEnergy = readerSql.GetInt32(1);
-                    int weaponContolHealth = readerSql.GetInt32(2);
-                    int weaponContolEnergy = readerSql.GetInt32(3);
-                    int weapon1Damage = readerSql.GetInt32(4);
-                    int weapon1ReloadTime = readerSql.GetInt32(5);
-                    int weapon1Energy = readerSql.GetInt32(6);
-                    int shipId = readerSql.GetInt32(7);
-
-                    sessionsBattle1v1AI[newBattleID].aiHealthMax = shipBaseHealth;
-                    sessionsBattle1v1AI[newBattleID].aiEnergyMax = shipBaseEnergy;
-                    sessionsBattle1v1AI[newBattleID].aiWeaponControlHealthMax = weaponContolHealth;
-                    sessionsBattle1v1AI[newBattleID].aiWeaponControlEnergyRequired = weaponContolEnergy;
-                    sessionsBattle1v1AI[newBattleID].aiWeapon1Damage = weapon1Damage;
-                    sessionsBattle1v1AI[newBattleID].aiWeapon1ReloadTime = weapon1ReloadTime;
-                    sessionsBattle1v1AI[newBattleID].aiWeapon1EnergyRequired = weapon1Energy;
-                    sessionsBattle1v1AI[newBattleID].aiShipId = shipId;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("error selecting information from the DB about the ship ai for class : ", e);
-                }
-
-
-
-                sessionsBattle1v1AI[newBattleID].toStart = 1;
-                Console.WriteLine("SESSION TO START - YES - " + sessionsBattle1v1AI[newBattleID].toStart);
-            }
-            catch {
-                Console.WriteLine("Unable to create fill up battle session");
-            }
-
-
-            //  -----------------------------------------------------
-            connectionToDB.Close();
-
-            return Convert.ToString(newBattleID);
+                sessionsBattle1v1AI[newBattleID].aiHealthMax = shipBaseHealth;
+                sessionsBattle1v1AI[newBattleID].aiEnergyMax = shipBaseEnergy;
+                sessionsBattle1v1AI[newBattleID].aiWeaponControlHealthMax = weaponContolHealth;
+                sessionsBattle1v1AI[newBattleID].aiWeaponControlEnergyRequired = weaponContolEnergy;
+                sessionsBattle1v1AI[newBattleID].aiWeapon1Damage = weapon1Damage;
+                sessionsBattle1v1AI[newBattleID].aiWeapon1ReloadTime = weapon1ReloadTime;
+                sessionsBattle1v1AI[newBattleID].aiWeapon1EnergyRequired = weapon1Energy;
+                sessionsBattle1v1AI[newBattleID].aiShipId = shipId;
         }
+
 
     }
 
