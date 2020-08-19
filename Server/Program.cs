@@ -793,7 +793,7 @@ namespace Server
 
             for (int i = 0; i < queryParameters.Length/2; i++)
             {
-                cmd.Parameters.AddWithValue("@" + queryParameters[i, i], queryParameters[i, i+1]);
+                cmd.Parameters.AddWithValue("@" + queryParameters[i, 0], queryParameters[i, 1]);
             }
             try
             {
