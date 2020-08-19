@@ -488,16 +488,23 @@ namespace Server
             string playerId = recievedMessage[1];
 
             // modules for answer start information
-            //  -1 = does not exist, 0 - empty , n - something
-            int engineSlot = -1;
-            int cockpitSlot = -1;
-            int[] bigSlot = new int[] { -1,-1,-1,-1,-1 };
-            int[] bigSlotType = new int[] { 0, 0, 0, 0, 0 };
-            int[] mediumSlot = new int[] { -1, -1, -1, -1, -1 };
-            int[] smallSlot = new int[] { -1, -1, -1, -1, -1 };
-            int[] weapon = new int[] { -1, -1, -1, -1, -1 };
+            //  -1 = does not exist, 0 - empty , n - something - in account
+            int accountEngineSlot = -1;
+            int accountCockpitSlot = -1;
+            int[] accountBigSlot = new int[] { -1,-1,-1,-1,-1 };
+           // int[] accountBigSlotType = new int[] { 0, 0, 0, 0, 0 };
+            int[] accountMediumSlot = new int[] { -1, -1, -1, -1, -1 };
+            int[] accountSmallSlot = new int[] { -1, -1, -1, -1, -1 };
+            int[] accountWeapon = new int[] { -1, -1, -1, -1, -1 };
             int[] slotShip = new int[] { -1, -1, -1 }; // activeSlot[0] + 0, activeSlot[1] + 1, activeSlot[2] + 2
 
+            // ID of the slot in item system
+            int engineSlotId = 0;
+            int cockpitSlotId = 0;
+            int[] bigSlotId = new int[] { 0, 0, 0, 0, 0 };
+            int[] mediumSlotId = new int[] { 0, 0, 0, 0, 0 };
+            int[] smallSlotId = new int[] { 0, 0, 0, 0, 0 };
+            int[] weaponId = new int[] { 0, 0, 0, 0, 0 };
 
             string queryString = @"SELECT Garage.slot, Ship.ShipId, AccountShip.AccountShipId 
                             FROM Garage, Ship, AccountShip 
@@ -540,30 +547,33 @@ namespace Server
             stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
             requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-            engineSlot = Convert.ToInt32(requestAnswer[1][0]);
-            cockpitSlot = Convert.ToInt32(requestAnswer[2][0]);
-            bigSlot[0] = Convert.ToInt32(requestAnswer[3][0]);
-            bigSlot[1] = Convert.ToInt32(requestAnswer[4][0]);
-            bigSlot[2] = Convert.ToInt32(requestAnswer[5][0]);
-            bigSlot[3] = Convert.ToInt32(requestAnswer[6][0]);
-            bigSlot[4] = Convert.ToInt32(requestAnswer[7][0]);
-            mediumSlot[0] = Convert.ToInt32(requestAnswer[8][0]);
-            mediumSlot[1] = Convert.ToInt32(requestAnswer[9][0]);
-            mediumSlot[2] = Convert.ToInt32(requestAnswer[10][0]);
-            mediumSlot[3] = Convert.ToInt32(requestAnswer[11][0]);
-            mediumSlot[4] = Convert.ToInt32(requestAnswer[12][0]);
-            smallSlot[0] = Convert.ToInt32(requestAnswer[13][0]);
-            smallSlot[1] = Convert.ToInt32(requestAnswer[14][0]);
-            smallSlot[2] = Convert.ToInt32(requestAnswer[15][0]);
-            smallSlot[3] = Convert.ToInt32(requestAnswer[16][0]);
-            smallSlot[4] = Convert.ToInt32(requestAnswer[17][0]);
-            weapon[0] = Convert.ToInt32(requestAnswer[18][0]);
-            weapon[1] = Convert.ToInt32(requestAnswer[19][0]);
-            weapon[2] = Convert.ToInt32(requestAnswer[20][0]);
-            weapon[3] = Convert.ToInt32(requestAnswer[21][0]);
-            weapon[4] = Convert.ToInt32(requestAnswer[22][0]);
+            accountEngineSlot = Convert.ToInt32(requestAnswer[1][0]);
+            accountCockpitSlot = Convert.ToInt32(requestAnswer[2][0]);
+            accountBigSlot[0] = Convert.ToInt32(requestAnswer[3][0]);
+            accountBigSlot[1] = Convert.ToInt32(requestAnswer[4][0]);
+            accountBigSlot[2] = Convert.ToInt32(requestAnswer[5][0]);
+            accountBigSlot[3] = Convert.ToInt32(requestAnswer[6][0]);
+            accountBigSlot[4] = Convert.ToInt32(requestAnswer[7][0]);
+            accountMediumSlot[0] = Convert.ToInt32(requestAnswer[8][0]);
+            accountMediumSlot[1] = Convert.ToInt32(requestAnswer[9][0]);
+            accountMediumSlot[2] = Convert.ToInt32(requestAnswer[10][0]);
+            accountMediumSlot[3] = Convert.ToInt32(requestAnswer[11][0]);
+            accountMediumSlot[4] = Convert.ToInt32(requestAnswer[12][0]);
+            accountSmallSlot[0] = Convert.ToInt32(requestAnswer[13][0]);
+            accountSmallSlot[1] = Convert.ToInt32(requestAnswer[14][0]);
+            accountSmallSlot[2] = Convert.ToInt32(requestAnswer[15][0]);
+            accountSmallSlot[3] = Convert.ToInt32(requestAnswer[16][0]);
+            accountSmallSlot[4] = Convert.ToInt32(requestAnswer[17][0]);
+            accountWeapon[0] = Convert.ToInt32(requestAnswer[18][0]);
+            accountWeapon[1] = Convert.ToInt32(requestAnswer[19][0]);
+            accountWeapon[2] = Convert.ToInt32(requestAnswer[20][0]);
+            accountWeapon[3] = Convert.ToInt32(requestAnswer[21][0]);
+            accountWeapon[4] = Convert.ToInt32(requestAnswer[22][0]);
 
             
+            //-------------------------------------------
+            //-------------------------------------------
+
                 // check system if some module installed - what id of the module 
             if (engineSlot > 0)
             {
@@ -599,6 +609,8 @@ namespace Server
                     int[] answerRequest  = GarageMainInformationBigSlotProcess(bigSlotNumber, bigSlot[i], accountShipId[0]);
                     bigSlotType[i] = answerRequest[0];
                     bigSlot[i] = answerRequest[1];
+                    Console.WriteLine("DEBUG! bigSlot - " + "i - " + + bigSlot[i]);
+                    Console.WriteLine("DEBUG! bigSlotType - " + "i - " + +bigSlotType[i]);
                 }
             }
 
@@ -616,9 +628,9 @@ namespace Server
                 }
             }
 
-            for (int i = 0; i < weapon.Length; i++)
+            for (int i = 0; i < accountWeapon.Length; i++)
             {
-                if (weapon[i] > 0)
+                if (accountWeapon[i] > 0)
                 {
                     int weaponNumber = i + 1;
                     queryString = @"SELECT Weapon.WeaponId
@@ -635,6 +647,12 @@ namespace Server
 
             // Anwer to client
             answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] + ";" + engineSlot + ";" + cockpitSlot + ";" + bigSlotType[0] + ";" + bigSlot[0] + ";" + bigSlotType[1] + ";" + bigSlot[1] + ";" + bigSlotType[2] + ";" + bigSlot[2] + ";" + bigSlotType[3] + ";" + bigSlot[3] + ";" + bigSlotType[4] + ";" + bigSlot[4] + ";" + mediumSlot[0] + ";" + mediumSlot[1] + ";" + mediumSlot[2] + ";" + mediumSlot[3] + ";" + mediumSlot[4] + ";" + smallSlot[0] + ";" + smallSlot[1] + ";" + smallSlot[2] + ";" + smallSlot[3] + ";" + smallSlot[4] + ";" + weapon[0] + ";" + weapon[1] + ";" + weapon[2] + ";" + weapon[3] + ";" + weapon[4];
+
+
+            // Answer should include AccountItemId (for future manupulations with item) and ItemId 
+            //(for big slot - does not matter if shield of etc, because DB system duplicated in the client)
+            answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] + ";" + accountEngineSlot + ";"+ engineSlotId + ";" + cockpitSlot + ";" + bigSlotType[0] + ";" + bigSlot[0] + ";" + bigSlotType[1] + ";" + bigSlot[1] + ";" + bigSlotType[2] + ";" + bigSlot[2] + ";" + bigSlotType[3] + ";" + bigSlot[3] + ";" + bigSlotType[4] + ";" + bigSlot[4] + ";" + mediumSlot[0] + ";" + mediumSlot[1] + ";" + mediumSlot[2] + ";" + mediumSlot[3] + ";" + mediumSlot[4] + ";" + smallSlot[0] + ";" + smallSlot[1] + ";" + smallSlot[2] + ";" + smallSlot[3] + ";" + smallSlot[4] + ";" + weapon[0] + ";" + weapon[1] + ";" + weapon[2] + ";" + weapon[3] + ";" + weapon[4];
+
 
             return answerToClient;
         }
