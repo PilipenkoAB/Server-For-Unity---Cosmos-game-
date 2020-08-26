@@ -816,7 +816,7 @@ namespace Server
             int[] smallSlotId = new int[] { 0, 0, 0, 0, 0 };
             int[] weaponId = new int[] { 0, 0, 0, 0, 0 };
 
-
+            string[] crew = new string[] { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
 
             ///-------------------------------
             ///
@@ -1057,11 +1057,24 @@ namespace Server
                 }
             }
 
+                // CREWinformation
+                queryString = @"SELECT AccountCrew.CrewId
+                            FROM AccountCrew
+                            WHERE AccountCrew.AccountId = @playerID
+                            AND  AccountCrew.AccountShipId = @accountShipId";
+                queryParameters = new string[,] { { "playerId", playerId }, { "accountShipId", accountShipId[0] } };
+                stringType = new string[] { "int" };
+                requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+                for (int i = 0; i < requestAnswer[0].Count; i++)
+                {
+                    crew[i] = requestAnswer[0][i];
+                }
 
 
             }
-            
-            
+
+
             // Answer should include AccountItemId (for future manupulations with item) and ItemId 
             //(for big slot - does not matter if shield of etc, because DB system duplicated in the client)
             answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] +
@@ -1078,11 +1091,20 @@ namespace Server
                  ";" + accountWeapon[0] + ";" + weaponId[0] + ";" + accountWeapon[1] + ";" + weaponId[1] +
                  ";" + accountWeapon[2] + ";" + weaponId[2] + ";" + accountWeapon[3] + ";" + weaponId[3] +
                  ";" + accountWeapon[4] + ";" + weaponId[4] +
-                 ";" + slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2];
+                 ";" + slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2] +
+                 ";" + crew[0] + ";" + crew[1] + ";" + crew[2] + ";" + crew[3] + ";" + crew[4] + ";" + crew[5] +
+                 ";" + crew[6] + ";" + crew[7] + ";" + crew[8] + ";" + crew[9] + ";" + crew[10] + ";" + crew[11] +
+                 ";" + crew[12] + ";" + crew[13] + ";" + crew[14];
 
             return answerToClient;
         }
-        
+
+
+        static private void GetInformationForTheGarage() 
+        {
+            
+
+        }
         // code activite = 2 from ProcessGarageRequestAfterAuthorization
         static private string RecieveGarageInventory(String[] recievedMessage)
         {
