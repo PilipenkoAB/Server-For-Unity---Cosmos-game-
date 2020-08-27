@@ -1464,6 +1464,7 @@ namespace Server
 
             try
             {
+                Console.WriteLine("try - ready");
                 //  Load information to the class about the battle that going to start
                 //  -----------------------------------------------------
                 // LOAD INFORMATION ABOUT PLAYER TO CLASS
@@ -1471,12 +1472,16 @@ namespace Server
 
                 Session1v1AILoadPlayer(playerID, newBattleID);
 
+                Console.WriteLine("Session1v1AILoadPlayer - ready");
+
                 // LOAD INFORMATION ABOUT AI TO CLASS
                 int aiId = 1;     // CHANGE IT WHEN IT WILL BE AN CHOISE FROM PLAYER TO PLAY AGAINST WHAT AI
 
                 sessionsBattle1v1AI[newBattleID].aiId = aiId;
 
                 Session1v1AILoadAI(aiId, newBattleID);
+
+                Console.WriteLine("Session1v1AILoadAI - ready");
 
                 sessionsBattle1v1AI[newBattleID].toStart = 1;
                 Console.WriteLine("SESSION TO START - YES - " + sessionsBattle1v1AI[newBattleID].toStart);
@@ -1495,6 +1500,8 @@ namespace Server
 
         static private void Session1v1AILoadPlayer(int playerID, int newBattleID) 
         {
+            Console.WriteLine("Session1v1AILoadPlayer - try");
+
                 string queryString = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
                   Weapon.Damage, Weapon.ReloadTime, Weapon.Energy, Weapon.Name, Ship.ShipId
                     FROM Account, Garage, AccountShip, Ship, AccountItem, Weapon, WeaponContol
@@ -1623,61 +1630,61 @@ namespace Server
 
         }
 
-        public void SetStartHealth() {
-            playerHealthCurrent = playerHealthMax;
-            aiHealthCurrent = aiHealthMax;
-        }
+        //public void SetStartHealth() {
+        //    playerHealthCurrent = playerHealthMax;
+        //    aiHealthCurrent = aiHealthMax;
+        //}
 
-        public void SetStartReload()
-        {
-            playerWeapon1ReloadCurrent = playerWeapon1ReloadTime;
-            aiWeapon1ReloadCurrent = aiWeapon1ReloadTime;
-        }
-
-
-        public void ReloadAllWeaponsPerTick() {
-            int reloadOneTick = 50; // ms
-
-            // reload of the player weapon
-            if (playerWeapon1ReloadCurrent > 0)
-            {
-                playerWeapon1ReloadCurrent -= reloadOneTick;
-
-            }
-            else if (playerWeapon1ReloadCurrent <= 0)
-            {
-                playerWeapon1ReloadCurrent = 0;
-            }
+        //public void SetStartReload()
+        //{
+        //    playerWeapon1ReloadCurrent = playerWeapon1ReloadTime;
+        //    aiWeapon1ReloadCurrent = aiWeapon1ReloadTime;
+        //}
 
 
-            // reload of the ai weapon
-            if (aiWeapon1ReloadCurrent > 0)
-            {
-                aiWeapon1ReloadCurrent -= reloadOneTick;
-            }
-            else if (aiWeapon1ReloadCurrent <= 0)
-            {
-                aiWeapon1ReloadCurrent = 0;
-            }
-        }
+        //public void ReloadAllWeaponsPerTick() {
+        //    int reloadOneTick = 50; // ms
 
-        public void AttackDummyClass() {
-            //ai attack player
-            if (aiWeapon1ReloadCurrent == 0)
-            {
-                playerHealthCurrent -= aiWeapon1Damage;
-                aiWeapon1ReloadCurrent = aiWeapon1ReloadTime;
-            }
-        }
+        //    // reload of the player weapon
+        //    if (playerWeapon1ReloadCurrent > 0)
+        //    {
+        //        playerWeapon1ReloadCurrent -= reloadOneTick;
 
-        public void PlayerAttackWeapon() {
-            // player attack AI
-            if (playerWeapon1ReloadCurrent == 0)
-            {
-                aiHealthCurrent -= playerWeapon1Damage;
-                playerWeapon1ReloadCurrent = playerWeapon1ReloadTime;
-            }
-        }
+        //    }
+        //    else if (playerWeapon1ReloadCurrent <= 0)
+        //    {
+        //        playerWeapon1ReloadCurrent = 0;
+        //    }
+
+
+        //    // reload of the ai weapon
+        //    if (aiWeapon1ReloadCurrent > 0)
+        //    {
+        //        aiWeapon1ReloadCurrent -= reloadOneTick;
+        //    }
+        //    else if (aiWeapon1ReloadCurrent <= 0)
+        //    {
+        //        aiWeapon1ReloadCurrent = 0;
+        //    }
+        //}
+
+        //public void AttackDummyClass() {
+        //    //ai attack player
+        //    if (aiWeapon1ReloadCurrent == 0)
+        //    {
+        //        playerHealthCurrent -= aiWeapon1Damage;
+        //        aiWeapon1ReloadCurrent = aiWeapon1ReloadTime;
+        //    }
+        //}
+
+        //public void PlayerAttackWeapon() {
+        //    // player attack AI
+        //    if (playerWeapon1ReloadCurrent == 0)
+        //    {
+        //        aiHealthCurrent -= playerWeapon1Damage;
+        //        playerWeapon1ReloadCurrent = playerWeapon1ReloadTime;
+        //    }
+        //}
 
         //Variables
 
@@ -1699,50 +1706,140 @@ namespace Server
         public int aiShipId { get; set; } 
 
 
-        //-------------------- Player -------------------------
+        ////-------------------- Player -------------------------
 
-        // Basic ship parameters
-        public int playerHealthMax { get; set; }
-        public int playerHealthCurrent { get; set; }
-        public int playerEnergyMax { get; set; }
-        public int playerEnergyFree { get; set; }
+        //// Basic ship parameters
+        //public int playerHealthMax { get; set; }
+        //public int playerHealthCurrent { get; set; }
+        //public int playerEnergyMax { get; set; }
+        //public int playerEnergyFree { get; set; }
 
-        // Weapon Control
-        public int playerWeaponControlHealthMax { get; set; }
-        public int playerWeaponControlHealthCurrent { get; set; }
-        public int playerWeaponControlEnergyRequired { get; set; }
-        public int playerWeaponControlEnergyCurrent { get; set; }
+        //// Weapon Control
+        //public int playerWeaponControlHealthMax { get; set; }
+        //public int playerWeaponControlHealthCurrent { get; set; }
+        //public int playerWeaponControlEnergyRequired { get; set; }
+        //public int playerWeaponControlEnergyCurrent { get; set; }
 
-        // Weapon 1 
-        public string playerWeapon1Name { get; set; }
-        public int playerWeapon1Damage { get; set; }
-        public int playerWeapon1ReloadTime { get; set; }
-        public int playerWeapon1ReloadCurrent { get; set; }
-        public int playerWeapon1EnergyRequired { get; set; }
-        public int playerWeapon1EnergyCurrent { get; set; }
-
-
+        //// Weapon 1 
+        //public string playerWeapon1Name { get; set; }
+        //public int playerWeapon1Damage { get; set; }
+        //public int playerWeapon1ReloadTime { get; set; }
+        //public int playerWeapon1ReloadCurrent { get; set; }
+        //public int playerWeapon1EnergyRequired { get; set; }
+        //public int playerWeapon1EnergyCurrent { get; set; }
 
 
-        //-------------------- AI -------------------------
-        // Basic ship parameters
-        public int aiHealthMax { get; set; }
-        public int aiHealthCurrent { get; set; }
-        public int aiEnergyMax { get; set; }
-        public int aiEnergyFree { get; set; }
 
-        // Weapon Control
-        public int aiWeaponControlHealthMax { get; set; }
-        public int aiWeaponControlHealthCurrent { get; set; }
-        public int aiWeaponControlEnergyRequired { get; set; }
-        public int aiWeaponControlEnergyCurrent { get; set; }
 
-        // Weapon 1 
-        public int aiWeapon1Damage { get; set; }
-        public int aiWeapon1ReloadTime { get; set; }
-        public int aiWeapon1ReloadCurrent { get; set; }
-        public int aiWeapon1EnergyRequired { get; set; }
-        public int aiWeapon1EnergyCurrent { get; set; }
+        ////-------------------- AI -------------------------
+        //// Basic ship parameters
+        //public int aiHealthMax { get; set; }
+        //public int aiHealthCurrent { get; set; }
+        //public int aiEnergyMax { get; set; }
+        //public int aiEnergyFree { get; set; }
+
+        //// Weapon Control
+        //public int aiWeaponControlHealthMax { get; set; }
+        //public int aiWeaponControlHealthCurrent { get; set; }
+        //public int aiWeaponControlEnergyRequired { get; set; }
+        //public int aiWeaponControlEnergyCurrent { get; set; }
+
+        //// Weapon 1 
+        //public int aiWeapon1Damage { get; set; }
+        //public int aiWeapon1ReloadTime { get; set; }
+        //public int aiWeapon1ReloadCurrent { get; set; }
+        //public int aiWeapon1EnergyRequired { get; set; }
+        //public int aiWeapon1EnergyCurrent { get; set; }
+
+
+
+        // NEW SYSTEM
+
+            // PLAYER
+
+        // ship
+
+        public int[] playerShipMaxHealth { get; set; }
+        public int[] playerShipCurrentHealth { get; set; }
+        public int[] playerShipMaxEnergy { get; set; }
+        public int[] playerShipFreeEnergy { get; set; }
+
+        // p modules
+
+        //[ engine , cockpit, biglot1 .. 5, mediumslot 1 .. 5]
+
+        public int[] playerSlotExist { get; set; }
+        public int[] playerSlotHealth { get; set; }
+        public int[] playerSlotPowered { get; set; }
+        public int[] playerSlotEnergyRequired { get; set; }
+        public string[] playerSlotType { get; set; }
+
+        //bigslot difference slots
+        public int[] playerSlotShieldCapacity { get; set; }    
+        public int[] playerSlotShieldRechargeTime { get; set; }    
+        public int[] playerSlotShieldRechargeCurrentTime { get; set; }    
+        public int[] playerSlotShieldRechargeRate  { get; set; }    
+
+        public int[] playerSlotWeaponControlAmountOfWeapons { get; set; } 
+
+        // weapons
+
+        public int[] playerWeaponSlotExist { get; set; }
+        public int[] playerWeaponSlotPowered { get; set; }
+        public int[] playerWeaponSlotEnergyRequired { get; set; }
+        public int[] playerWeaponSlotDamage { get; set; }
+        public int[] playerWeaponSlotReloadTime { get; set; }
+        public int[] playerWeaponSlotCurrentReloadTime { get; set; }
+
+        // Crew
+
+        public int[] playerCrewExist { get; set; }
+        public int[] playerCrewHealth { get; set; }
+        public int[] playerCrewDamage { get; set; }
+
+
+
+        // AI
+
+        // ship
+
+        public int[] aIShipMaxHealth { get; set; }
+        public int[] aIShipCurrentHealth { get; set; }
+        public int[] aIShipMaxEnergy { get; set; }
+        public int[] aIShipFreeEnergy { get; set; }
+
+        // p modules
+
+        //[ engine , cockpit, biglot1 .. 5, mediumslot 1 .. 5]
+
+        public int[] aISlotExist { get; set; }
+        public int[] aISlotHealth { get; set; }
+        public int[] aISlotPowered { get; set; }
+        public int[] aISlotEnergyRequired { get; set; }
+        public string[] aISlotType { get; set; }
+
+        //bigslot difference slots
+        public int[] aISlotShieldCapacity { get; set; }
+        public int[] aISlotShieldRechargeTime { get; set; }
+        public int[] aISlotShieldRechargeCurrentTime { get; set; }
+        public int[] aISlotShieldRechargeRate { get; set; }
+
+        public int[] aISlotWeaponControlAmountOfWeapons { get; set; }
+
+        // weapons
+
+        public int[] aIWeaponSlotExist { get; set; }
+        public int[] aIWeaponSlotPowered { get; set; }
+        public int[] aIWeaponSlotEnergyRequired { get; set; }
+        public int[] aIWeaponSlotDamage { get; set; }
+        public int[] aIWeaponSlotReloadTime { get; set; }
+        public int[] aIWeaponSlotCurrentReloadTime { get; set; }
+
+        // Crew
+
+        public int[] aICrewExist { get; set; }
+        public int[] aICrewHealth { get; set; }
+        public int[] aICrewDamage { get; set; }
 
 
     }
