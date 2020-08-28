@@ -254,17 +254,81 @@ namespace Server
                             // require information for UI starting
                             if (recievedMessage[4] == "0")
                             {
+                                int battleSessionId = Convert.ToInt32(recievedMessage[3]);
+
                                 // prepare infromation to send for UI
-                                int playerShipId = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerShipId;
-                                int aiShipId = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].aiShipId;
-                                int playerHealthMax = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerShipMaxHealth;
-                                int aiHealthMax = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].aIShipMaxHealth;
-                                string playerWeapon1Name = "weapon";
-                                int playerWeapon1Damage = 10;
-                                int playerWeapon1ReloadTime = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerWeaponSlotReloadTime[0];
+                                //int playerShipId = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerShipId;
+                                //int aiShipId = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].aIShipId;
+                                //int playerHealthMax = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerShipMaxHealth;
+                                //int aiHealthMax = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].aIShipMaxHealth;
+                                //string playerWeapon1Name = "weapon";
+                                //int playerWeapon1Damage = 10;
+                                //int playerWeapon1ReloadTime = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerWeaponSlotReloadTime[0];
+
+                                //// answer to client
+                                //answerToClient = playerShipId + ";" + aiShipId + ";"
+                                //    + playerHealthMax + ";" + aiHealthMax + ";" + playerWeapon1Name + ";"
+                                //    + playerWeapon1Damage + ";" + playerWeapon1ReloadTime;
+
+                                // new system
 
                                 // answer to client
-                                answerToClient = playerShipId + ";" + aiShipId + ";" + playerHealthMax + ";" + aiHealthMax + ";" + playerWeapon1Name + ";" + playerWeapon1Damage + ";" + playerWeapon1ReloadTime;
+                                answerToClient = sessionsBattle1v1AI[battleSessionId].playerShipId
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerShipMaxHealth
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerShipMaxEnergy
+
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[0]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[1]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[2]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[3]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[4]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[5]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[6]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[7]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[8]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[9]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[10]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[11]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[12]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[13]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[14]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[15]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotExist[16]
+
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotExist[0]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotExist[1]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotExist[2]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotExist[3]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotExist[4]
+
+
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIShipId
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIShipMaxHealth
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIShipMaxEnergy
+
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[0]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[1]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[2]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[3]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[4]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[5]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[6]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[7]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[8]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[9]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[10]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[11]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[12]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[13]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[14]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[15]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[16]
+
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[0]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[1]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[2]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[3]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[4];
                             }
                             // Telling server that client is ready and may start battleLoop
                             else if (recievedMessage[4] == "1")
@@ -1539,7 +1603,7 @@ namespace Server
             stringType = new string[] { "int", "int" };
             requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-            sessionsBattle1v1AI[newBattleID].aiShipId = Convert.ToInt32(shipId);
+            sessionsBattle1v1AI[newBattleID].aIShipId = Convert.ToInt32(shipId);
             sessionsBattle1v1AI[newBattleID].aIShipMaxHealth = Convert.ToInt32(requestAnswer[0][0]);
             sessionsBattle1v1AI[newBattleID].aIShipMaxEnergy = Convert.ToInt32(requestAnswer[1][0]);
             sessionsBattle1v1AI[newBattleID].aIShipFreeEnergy = Convert.ToInt32(requestAnswer[1][0]);
@@ -2033,7 +2097,7 @@ namespace Server
         // player shipId and ai shipId
         public int playerShipId { get; set; } 
 
-        public int aiShipId { get; set; } 
+        public int aIShipId { get; set; } 
 
 
         ////-------------------- Player -------------------------
