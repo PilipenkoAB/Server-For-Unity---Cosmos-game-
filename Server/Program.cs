@@ -57,11 +57,11 @@ namespace Server
             //  TCPServer();
 
 
-             Parallel.Invoke(TCPServer, BattleProcess);
+            Parallel.Invoke(TCPServer, BattleProcess);
             // test();
         }
 
-        static public void BattleProcess() 
+        static public void BattleProcess()
         {
             //sessionsBattle1v1AI.Add(123, new Battle1v1AI());
             //sessionsBattle1v1AI[123].toStart = 1;
@@ -89,7 +89,7 @@ namespace Server
 
             while (true)  // check dictionary with battle's all the time for if need to start battle or not
             {
-                try 
+                try
                 {
                     // check if battle need to be started
                     foreach (int battleSessionId in sessionsBattle1v1AI.Keys)
@@ -113,7 +113,7 @@ namespace Server
 
 
                                     //  -------------------------- Battle process -----------------------------
-                                    
+
                                     // RELOAD
                                     sessionsBattle1v1AI[battleSessionId].ReloadAllWeaponsPerTick();
 
@@ -135,7 +135,7 @@ namespace Server
                                     }
 
                                     //------------------------- end of battle process --------------------------
-                                    
+
 
 
                                     // -----------------------------------------------------------comments
@@ -150,7 +150,7 @@ namespace Server
                                     if (sessionsBattle1v1AI[battleSessionId].battleTime >= 600000)
                                     {
                                         sessionsBattle1v1AI[battleSessionId].finished = 1;
-                                            Console.WriteLine("time for session number - " + battleSessionId + " is up and finished");
+                                        Console.WriteLine("time for session number - " + battleSessionId + " is up and finished");
                                     }
 
 
@@ -200,8 +200,8 @@ namespace Server
                             });
                         }
                     }
-                } 
-                catch 
+                }
+                catch
                 {
                     Console.WriteLine("BattleProcess main loop error");
                 }
@@ -305,7 +305,7 @@ namespace Server
                             }
 
                         }
-                        else 
+                        else
                         {
                             // NEED TO FIX!!!! 
                             // ???? when battle is ended = 111
@@ -350,7 +350,7 @@ namespace Server
 
             string queryString = "SELECT Password  FROM Account where Login = @login ";
             string[,] queryParameters = new string[,] { { "login", login } };
-            string[] stringType = new string[] {"string"};
+            string[] stringType = new string[] { "string" };
 
             hashedPasswordFromDB = RequestToGetValueFromDB(queryString, stringType, queryParameters)[0][0];
 
@@ -359,7 +359,7 @@ namespace Server
                 Console.WriteLine("Player with that Login - " + login + " does not exist!");
                 answerToClient = "000";
             }
-            else 
+            else
             {
                 using var connectionToDB = new SQLiteConnection(connectionToDBString);
                 connectionToDB.Open();
@@ -425,7 +425,7 @@ namespace Server
                 connectionToDB.Close();
             }
 
-       //     Console.WriteLine("!debug! answer to the clien" + answerToClient);
+            //     Console.WriteLine("!debug! answer to the clien" + answerToClient);
             return answerToClient;
         }
 
@@ -455,7 +455,7 @@ namespace Server
             string playerId = recievedMessage[1];
             string codeActivity = recievedMessage[3];
 
-            
+
             if (codeActivity == "0")
             {
                 if (recievedMessage[4] == "0")
@@ -485,7 +485,7 @@ namespace Server
             }
             else if (codeActivity == "2")
             {
-                answerToClient = RecieveGarageInventory(recievedMessage); 
+                answerToClient = RecieveGarageInventory(recievedMessage);
             }
             return answerToClient;
         }
@@ -564,12 +564,12 @@ namespace Server
                             WHERE Garage.AccountId = @playerID
                             AND (Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot = 1)
                             ORDER BY Garage.slot ASC";
-             queryParameters = new string[,] { { "playerId", playerId }  };
-             stringType = new string[] { "int", "int", "int" };
-             requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+            queryParameters = new string[,] { { "playerId", playerId } };
+            stringType = new string[] { "int", "int", "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-             slots = requestAnswer[0];
-             shipsID = requestAnswer[1];
+            slots = requestAnswer[0];
+            shipsID = requestAnswer[1];
 
             Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
             if (shipsID.Count > 0)
@@ -635,318 +635,6 @@ namespace Server
 
 
             //-------------------------------------------------------
-
-            queryString = @"SELECT AccountShip.AccountShipId, AccountShip.EngineSlot, AccountShip.CockpitSlot, AccountShip.BigSlot1, AccountShip.BigSlot2,
-                                     AccountShip.BigSlot3, AccountShip.BigSlot4, AccountShip.BigSlot5, AccountShip.MediumSlot1, AccountShip.MediumSlot2,
-                                     AccountShip.MediumSlot3, AccountShip.MediumSlot4, AccountShip.MediumSlot5, AccountShip.SmallSlot1, AccountShip.SmallSlot2,
-                                     AccountShip.SmallSlot3, AccountShip.SmallSlot4, AccountShip.SmallSlot5,
-                                     AccountShip.Weapon1, AccountShip.Weapon2, AccountShip.Weapon3, AccountShip.Weapon4, AccountShip.Weapon5
-                            FROM AccountShip WHERE AccountShip.AccountShipId = @accountShipId";
-            queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-            stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
-            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-
-            accountEngineSlot = Convert.ToInt32(requestAnswer[1][0]);
-            accountCockpitSlot = Convert.ToInt32(requestAnswer[2][0]);
-            accountBigSlot[0] = Convert.ToInt32(requestAnswer[3][0]);
-            accountBigSlot[1] = Convert.ToInt32(requestAnswer[4][0]);
-            accountBigSlot[2] = Convert.ToInt32(requestAnswer[5][0]);
-            accountBigSlot[3] = Convert.ToInt32(requestAnswer[6][0]);
-            accountBigSlot[4] = Convert.ToInt32(requestAnswer[7][0]);
-            accountMediumSlot[0] = Convert.ToInt32(requestAnswer[8][0]);
-            accountMediumSlot[1] = Convert.ToInt32(requestAnswer[9][0]);
-            accountMediumSlot[2] = Convert.ToInt32(requestAnswer[10][0]);
-            accountMediumSlot[3] = Convert.ToInt32(requestAnswer[11][0]);
-            accountMediumSlot[4] = Convert.ToInt32(requestAnswer[12][0]);
-            accountSmallSlot[0] = Convert.ToInt32(requestAnswer[13][0]);
-            accountSmallSlot[1] = Convert.ToInt32(requestAnswer[14][0]);
-            accountSmallSlot[2] = Convert.ToInt32(requestAnswer[15][0]);
-            accountSmallSlot[3] = Convert.ToInt32(requestAnswer[16][0]);
-            accountSmallSlot[4] = Convert.ToInt32(requestAnswer[17][0]);
-            accountWeapon[0] = Convert.ToInt32(requestAnswer[18][0]);
-            accountWeapon[1] = Convert.ToInt32(requestAnswer[19][0]);
-            accountWeapon[2] = Convert.ToInt32(requestAnswer[20][0]);
-            accountWeapon[3] = Convert.ToInt32(requestAnswer[21][0]);
-            accountWeapon[4] = Convert.ToInt32(requestAnswer[22][0]);
-
-            
-
-                // check system if some module installed - what id of the module 
-            if (accountEngineSlot > 0)
-            {
-                queryString = @"SELECT Engine.EngineId
-                                FROM AccountShip, AccountItem, Engine
-                                WHERE AccountShip.AccountShipId = @accountShipId 
-                                and AccountShip.EngineSlot = AccountItem.AccountItemId 
-                                and AccountItem.EngineId = Engine.EngineId";
-                queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                stringType = new string[] { "int"};
-                requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                engineSlotId = Convert.ToInt32(requestAnswer[0][0]);
-            }
-
-            if (accountCockpitSlot > 0)
-            {
-                queryString = @"SELECT Cockpit.CockpitId
-                               FROM AccountShip, AccountItem, Cockpit
-                               WHERE AccountShip.AccountShipId = @accountShipId
-                               and AccountShip.CockpitSlot = AccountItem.AccountItemId 
-                               and AccountItem.CockpitId = Cockpit.CockpitId";
-                queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                stringType = new string[] { "int" };
-                requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                cockpitSlotId = Convert.ToInt32(requestAnswer[0][0]);
-            }
-
-            for (int i = 0; i < accountBigSlot.Length; i++)
-            {
-                if (accountBigSlot[i] > 0)
-                {
-                    queryString = @"SELECT BigSlot.BigSlotId
-                               FROM AccountShip, AccountItem, BigSlot
-                               WHERE AccountShip.AccountShipId = @accountShipId
-                               and AccountShip.BigSlot" + (i+1) + @" = AccountItem.AccountItemId 
-                               and AccountItem.BigSlotId = BigSlot.BigSlotId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int" };
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    bigSlotId[i] = Convert.ToInt32(requestAnswer[0][0]);
-                }
-            }
-
-            for (int i = 0; i < accountMediumSlot.Length; i++)
-            {
-                if (accountMediumSlot[i] > 0)
-                {
-                }
-            }
-
-            for (int i = 0; i < accountSmallSlot.Length; i++)
-            {
-                if (accountSmallSlot[i] > 0)
-                {
-                }
-            }
-
-            for (int i = 0; i < accountWeapon.Length; i++)
-            {
-                if (accountWeapon[i] > 0)
-                {
-                    int weaponNumber = i + 1;
-                    queryString = @"SELECT Weapon.WeaponId
-                                    FROM AccountShip, AccountItem, Weapon
-                                    WHERE AccountShip.AccountShipId = @accountShipId
-                                    and AccountShip.Weapon" + weaponNumber + @" = AccountItem.AccountItemId
-                                    and AccountItem.WeaponId = Weapon.WeaponId";
-                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
-                    stringType = new string[] { "int" };
-                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-                    weaponId[i] = Convert.ToInt32(requestAnswer[0][0]);
-                }
-            }
-
-
-
-            // CREWinformation
-            queryString = @"SELECT AccountCrew.CrewId
-                            FROM AccountCrew
-                            WHERE AccountCrew.AccountId = @playerID
-                            AND  AccountCrew.AccountShipId = @accountShipId";
-            queryParameters = new string[,] { { "playerId", playerId }, {  "accountShipId", accountShipId[0] } };
-            stringType = new string[] { "int" };
-            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-
-            for (int i = 0; i < requestAnswer[0].Count; i++)
-            {
-                crew[i] = requestAnswer[0][i];
-            }         
-            
-
-
-
-            // Answer should include AccountItemId (for future manupulations with item) and ItemId 
-            //(for big slot - does not matter if shield of etc, because DB system duplicated in the client)
-            answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] +
-                 ";" + accountEngineSlot + ";" + engineSlotId + ";" + accountCockpitSlot + ";" + cockpitSlotId +
-                 ";" + accountBigSlot[0] + ";" + bigSlotId[0] + ";" + accountBigSlot[1] + ";" + bigSlotId[1] +
-                 ";" + accountBigSlot[2] + ";" + bigSlotId[2] + ";" + accountBigSlot[3] + ";" + bigSlotId[3] +
-                 ";" + accountBigSlot[4] + ";" + bigSlotId[4] +
-                 ";" + accountMediumSlot[0] + ";" + mediumSlotId[0] + ";" + accountMediumSlot[1] + ";" + mediumSlotId[1] +
-                 ";" + accountMediumSlot[2] + ";" + mediumSlotId[2] + ";" + accountMediumSlot[3] + ";" + mediumSlotId[3] +
-                 ";" + accountMediumSlot[4] + ";" + mediumSlotId[4] +
-                 ";" + accountSmallSlot[0] + ";" + smallSlotId[0] + ";" + accountSmallSlot[1] + ";" + smallSlotId[1] +
-                 ";" + accountSmallSlot[2] + ";" + smallSlotId[2] + ";" + accountSmallSlot[3] + ";" + smallSlotId[3] +
-                 ";" + accountSmallSlot[4] + ";" + smallSlotId[4] +
-                 ";" + accountWeapon[0] + ";" + weaponId[0] + ";" + accountWeapon[1] + ";" + weaponId[1] +
-                 ";" + accountWeapon[2] + ";" + weaponId[2] + ";" + accountWeapon[3] + ";" + weaponId[3] +
-                 ";" + accountWeapon[4] + ";" + weaponId[4] + 
-                 ";" + slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2] +
-                 ";" + crew[0] + ";" + crew[1] + ";" + crew[2] + ";" + crew[3] + ";" + crew[4] + ";" + crew[5] + 
-                 ";" + crew[6] + ";" + crew[7] + ";" + crew[8] + ";" + crew[9] + ";" + crew[10] + ";" + crew[11] +
-                 ";" + crew[12] + ";" + crew[13] + ";" + crew[14];
-
-            return answerToClient;
-        }
-
-        static private string RecieveNewShipScrollInformation(String[] recievedMessage) 
-        {
-            string answerToClient = "";
-
-            string playerId = recievedMessage[1];
-            string middleslotShipId = recievedMessage[4];
-            string slotShipId = recievedMessage[4];
-
-            string shipIdtoClient;
-
-            // modules for answer start information
-            // id of the item in the account-item system
-            int accountEngineSlot = -1;
-            int accountCockpitSlot = -1;
-            int[] accountBigSlot = new int[] { -1, -1, -1, -1, -1 };
-            int[] accountMediumSlot = new int[] { -1, -1, -1, -1, -1 };
-            int[] accountSmallSlot = new int[] { -1, -1, -1, -1, -1 };
-            int[] accountWeapon = new int[] { -1, -1, -1, -1, -1 };
-
-            // ID of the slot in item system
-            //  -1 = does not exist, 0 - empty , n - something - in account
-            int engineSlotId = 0;
-            int cockpitSlotId = 0;
-            int[] bigSlotId = new int[] { 0, 0, 0, 0, 0 };
-            int[] mediumSlotId = new int[] { 0, 0, 0, 0, 0 };
-            int[] smallSlotId = new int[] { 0, 0, 0, 0, 0 };
-            int[] weaponId = new int[] { 0, 0, 0, 0, 0 };
-
-            string[] crew = new string[] { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
-
-            ///-------------------------------
-            ///
-            int[] slotShip = new int[] { 0, 0, 0 }; // middle, right, left
-            int[] slotIdInfo = new int[] { 0, 0, 0 }; // middle, right, left
-
-            // does not looks like a good query, because of doubling some positions (TO FIX)
-            string queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
-                            FROM Garage, AccountShip 
-                            WHERE Garage.AccountId = @playerID
-                            AND (Garage.Slot = @slotShipId) AND Garage.AccountShipId = AccountShip.AccountShipId
-                            ORDER BY Garage.slot ASC";
-            string[,] queryParameters = new string[,] { { "playerId", playerId }, { "slotShipId", slotShipId } };
-            string[] stringType = new string[] { "int", "int", "int" };
-            List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-
-            List<string> slots = requestAnswer[0];
-            List<string> shipsID = requestAnswer[1];
-            List<string> accountShipId = requestAnswer[2];
-
-            if (shipsID.Count > 0)
-            {
-                slotShip[0] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[0] = Convert.ToInt32(slots[0]);
-                shipIdtoClient = accountShipId[0];
-            }
-            else
-            {
-                slotShip[0] = 0;
-                slotIdInfo[0] = Convert.ToInt32(slotShipId);
-                shipIdtoClient = "0";
-            }
-
-            Console.WriteLine("DEBUG slot middle  - " + slotIdInfo[0] + " shipID - " + slotShip[0]);
-
-
-
-
-            //----------------- right
-            // does not looks like a good query, because of doubling some positions (TO FIX)
-            queryString = @"SELECT COUNT(Garage.slot )
-                            FROM Garage
-                            WHERE Garage.AccountId = @playerID
-                            ORDER BY Garage.slot ASC";
-            queryParameters = new string[,] { { "playerId", playerId } };
-            stringType = new string[] { "int" };
-            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-
-
-            int maxSlot = Convert.ToInt32(requestAnswer[0][0]) - 1;
-
-    
-            if (Convert.ToInt32(middleslotShipId) == maxSlot)
-            {
-                slotShipId = "0";
-            }
-            else 
-            {
-                slotShipId = Convert.ToString(Convert.ToInt32(slotShipId) + 1);
-            }
-            Console.WriteLine("right slotShipId !!!!! - " + slotShipId);
-
-
-            queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
-                            FROM Garage, AccountShip 
-                            WHERE Garage.AccountId = @playerID
-                            AND (Garage.Slot = @slotShipId) AND Garage.AccountShipId = AccountShip.AccountShipId
-                            ORDER BY Garage.slot ASC";
-             queryParameters = new string[,] { { "playerId", playerId }, { "slotShipId", slotShipId } };
-             stringType = new string[] { "int", "int", "int" };
-             requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-
-            slots = requestAnswer[0];
-             shipsID = requestAnswer[1];
-
-            if (shipsID.Count > 0)
-            {
-                slotShip[1] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[1] = Convert.ToInt32(slots[0]);
-            }
-            else
-            {
-                slotShip[1] = 0;
-                slotIdInfo[1] = Convert.ToInt32(slotShipId);
-            }
-
-            Console.WriteLine("DEBUG slot right  - " + slotIdInfo[1] + " shipID - " + slotShip[1]);
-
-
-
-            //------------------left
-            if (Convert.ToInt32(middleslotShipId) == 0)
-            {
-                slotShipId = Convert.ToString(maxSlot);
-            }
-            else
-            {
-                slotShipId = Convert.ToString(Convert.ToInt32(middleslotShipId) - 1);
-            }
-
-            queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
-                            FROM Garage, AccountShip 
-                            WHERE Garage.AccountId = @playerID
-                            AND (Garage.Slot = @slotShipId) AND Garage.AccountShipId = AccountShip.AccountShipId
-                            ORDER BY Garage.slot ASC";
-            queryParameters = new string[,] { { "playerId", playerId }, { "slotShipId", slotShipId } };
-            stringType = new string[] { "int", "int", "int" };
-            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-
-            slots = requestAnswer[0];
-            shipsID = requestAnswer[1];
-
-            if (shipsID.Count > 0)
-            {
-                slotShip[2] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[2] = Convert.ToInt32(slots[0]);
-            }
-            else
-            {
-                slotShip[2] = 0;
-                slotIdInfo[2] = Convert.ToInt32(slotShipId);
-            }
-
-            Console.WriteLine("DEBUG slot left  - " + slotIdInfo[2] + " shipID - " + slotShip[2]);
-            //-------------------------------------
-
-
-
-            if (shipIdtoClient != "0") 
-            { 
 
             queryString = @"SELECT AccountShip.AccountShipId, AccountShip.EngineSlot, AccountShip.CockpitSlot, AccountShip.BigSlot1, AccountShip.BigSlot2,
                                      AccountShip.BigSlot3, AccountShip.BigSlot4, AccountShip.BigSlot5, AccountShip.MediumSlot1, AccountShip.MediumSlot2,
@@ -1057,6 +745,318 @@ namespace Server
                 }
             }
 
+
+
+            // CREWinformation
+            queryString = @"SELECT AccountCrew.CrewId
+                            FROM AccountCrew
+                            WHERE AccountCrew.AccountId = @playerID
+                            AND  AccountCrew.AccountShipId = @accountShipId";
+            queryParameters = new string[,] { { "playerId", playerId }, { "accountShipId", accountShipId[0] } };
+            stringType = new string[] { "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            for (int i = 0; i < requestAnswer[0].Count; i++)
+            {
+                crew[i] = requestAnswer[0][i];
+            }
+
+
+
+
+            // Answer should include AccountItemId (for future manupulations with item) and ItemId 
+            //(for big slot - does not matter if shield of etc, because DB system duplicated in the client)
+            answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] +
+                 ";" + accountEngineSlot + ";" + engineSlotId + ";" + accountCockpitSlot + ";" + cockpitSlotId +
+                 ";" + accountBigSlot[0] + ";" + bigSlotId[0] + ";" + accountBigSlot[1] + ";" + bigSlotId[1] +
+                 ";" + accountBigSlot[2] + ";" + bigSlotId[2] + ";" + accountBigSlot[3] + ";" + bigSlotId[3] +
+                 ";" + accountBigSlot[4] + ";" + bigSlotId[4] +
+                 ";" + accountMediumSlot[0] + ";" + mediumSlotId[0] + ";" + accountMediumSlot[1] + ";" + mediumSlotId[1] +
+                 ";" + accountMediumSlot[2] + ";" + mediumSlotId[2] + ";" + accountMediumSlot[3] + ";" + mediumSlotId[3] +
+                 ";" + accountMediumSlot[4] + ";" + mediumSlotId[4] +
+                 ";" + accountSmallSlot[0] + ";" + smallSlotId[0] + ";" + accountSmallSlot[1] + ";" + smallSlotId[1] +
+                 ";" + accountSmallSlot[2] + ";" + smallSlotId[2] + ";" + accountSmallSlot[3] + ";" + smallSlotId[3] +
+                 ";" + accountSmallSlot[4] + ";" + smallSlotId[4] +
+                 ";" + accountWeapon[0] + ";" + weaponId[0] + ";" + accountWeapon[1] + ";" + weaponId[1] +
+                 ";" + accountWeapon[2] + ";" + weaponId[2] + ";" + accountWeapon[3] + ";" + weaponId[3] +
+                 ";" + accountWeapon[4] + ";" + weaponId[4] +
+                 ";" + slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2] +
+                 ";" + crew[0] + ";" + crew[1] + ";" + crew[2] + ";" + crew[3] + ";" + crew[4] + ";" + crew[5] +
+                 ";" + crew[6] + ";" + crew[7] + ";" + crew[8] + ";" + crew[9] + ";" + crew[10] + ";" + crew[11] +
+                 ";" + crew[12] + ";" + crew[13] + ";" + crew[14];
+
+            return answerToClient;
+        }
+
+        static private string RecieveNewShipScrollInformation(String[] recievedMessage)
+        {
+            string answerToClient = "";
+
+            string playerId = recievedMessage[1];
+            string middleslotShipId = recievedMessage[4];
+            string slotShipId = recievedMessage[4];
+
+            string shipIdtoClient;
+
+            // modules for answer start information
+            // id of the item in the account-item system
+            int accountEngineSlot = -1;
+            int accountCockpitSlot = -1;
+            int[] accountBigSlot = new int[] { -1, -1, -1, -1, -1 };
+            int[] accountMediumSlot = new int[] { -1, -1, -1, -1, -1 };
+            int[] accountSmallSlot = new int[] { -1, -1, -1, -1, -1 };
+            int[] accountWeapon = new int[] { -1, -1, -1, -1, -1 };
+
+            // ID of the slot in item system
+            //  -1 = does not exist, 0 - empty , n - something - in account
+            int engineSlotId = 0;
+            int cockpitSlotId = 0;
+            int[] bigSlotId = new int[] { 0, 0, 0, 0, 0 };
+            int[] mediumSlotId = new int[] { 0, 0, 0, 0, 0 };
+            int[] smallSlotId = new int[] { 0, 0, 0, 0, 0 };
+            int[] weaponId = new int[] { 0, 0, 0, 0, 0 };
+
+            string[] crew = new string[] { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
+
+            ///-------------------------------
+            ///
+            int[] slotShip = new int[] { 0, 0, 0 }; // middle, right, left
+            int[] slotIdInfo = new int[] { 0, 0, 0 }; // middle, right, left
+
+            // does not looks like a good query, because of doubling some positions (TO FIX)
+            string queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
+                            FROM Garage, AccountShip 
+                            WHERE Garage.AccountId = @playerID
+                            AND (Garage.Slot = @slotShipId) AND Garage.AccountShipId = AccountShip.AccountShipId
+                            ORDER BY Garage.slot ASC";
+            string[,] queryParameters = new string[,] { { "playerId", playerId }, { "slotShipId", slotShipId } };
+            string[] stringType = new string[] { "int", "int", "int" };
+            List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            List<string> slots = requestAnswer[0];
+            List<string> shipsID = requestAnswer[1];
+            List<string> accountShipId = requestAnswer[2];
+
+            if (shipsID.Count > 0)
+            {
+                slotShip[0] = Convert.ToInt32(shipsID[0]);
+                slotIdInfo[0] = Convert.ToInt32(slots[0]);
+                shipIdtoClient = accountShipId[0];
+            }
+            else
+            {
+                slotShip[0] = 0;
+                slotIdInfo[0] = Convert.ToInt32(slotShipId);
+                shipIdtoClient = "0";
+            }
+
+            Console.WriteLine("DEBUG slot middle  - " + slotIdInfo[0] + " shipID - " + slotShip[0]);
+
+
+
+
+            //----------------- right
+            // does not looks like a good query, because of doubling some positions (TO FIX)
+            queryString = @"SELECT COUNT(Garage.slot )
+                            FROM Garage
+                            WHERE Garage.AccountId = @playerID
+                            ORDER BY Garage.slot ASC";
+            queryParameters = new string[,] { { "playerId", playerId } };
+            stringType = new string[] { "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+
+            int maxSlot = Convert.ToInt32(requestAnswer[0][0]) - 1;
+
+
+            if (Convert.ToInt32(middleslotShipId) == maxSlot)
+            {
+                slotShipId = "0";
+            }
+            else
+            {
+                slotShipId = Convert.ToString(Convert.ToInt32(slotShipId) + 1);
+            }
+            Console.WriteLine("right slotShipId !!!!! - " + slotShipId);
+
+
+            queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
+                            FROM Garage, AccountShip 
+                            WHERE Garage.AccountId = @playerID
+                            AND (Garage.Slot = @slotShipId) AND Garage.AccountShipId = AccountShip.AccountShipId
+                            ORDER BY Garage.slot ASC";
+            queryParameters = new string[,] { { "playerId", playerId }, { "slotShipId", slotShipId } };
+            stringType = new string[] { "int", "int", "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            slots = requestAnswer[0];
+            shipsID = requestAnswer[1];
+
+            if (shipsID.Count > 0)
+            {
+                slotShip[1] = Convert.ToInt32(shipsID[0]);
+                slotIdInfo[1] = Convert.ToInt32(slots[0]);
+            }
+            else
+            {
+                slotShip[1] = 0;
+                slotIdInfo[1] = Convert.ToInt32(slotShipId);
+            }
+
+            Console.WriteLine("DEBUG slot right  - " + slotIdInfo[1] + " shipID - " + slotShip[1]);
+
+
+
+            //------------------left
+            if (Convert.ToInt32(middleslotShipId) == 0)
+            {
+                slotShipId = Convert.ToString(maxSlot);
+            }
+            else
+            {
+                slotShipId = Convert.ToString(Convert.ToInt32(middleslotShipId) - 1);
+            }
+
+            queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
+                            FROM Garage, AccountShip 
+                            WHERE Garage.AccountId = @playerID
+                            AND (Garage.Slot = @slotShipId) AND Garage.AccountShipId = AccountShip.AccountShipId
+                            ORDER BY Garage.slot ASC";
+            queryParameters = new string[,] { { "playerId", playerId }, { "slotShipId", slotShipId } };
+            stringType = new string[] { "int", "int", "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            slots = requestAnswer[0];
+            shipsID = requestAnswer[1];
+
+            if (shipsID.Count > 0)
+            {
+                slotShip[2] = Convert.ToInt32(shipsID[0]);
+                slotIdInfo[2] = Convert.ToInt32(slots[0]);
+            }
+            else
+            {
+                slotShip[2] = 0;
+                slotIdInfo[2] = Convert.ToInt32(slotShipId);
+            }
+
+            Console.WriteLine("DEBUG slot left  - " + slotIdInfo[2] + " shipID - " + slotShip[2]);
+            //-------------------------------------
+
+
+
+            if (shipIdtoClient != "0")
+            {
+
+                queryString = @"SELECT AccountShip.AccountShipId, AccountShip.EngineSlot, AccountShip.CockpitSlot, AccountShip.BigSlot1, AccountShip.BigSlot2,
+                                     AccountShip.BigSlot3, AccountShip.BigSlot4, AccountShip.BigSlot5, AccountShip.MediumSlot1, AccountShip.MediumSlot2,
+                                     AccountShip.MediumSlot3, AccountShip.MediumSlot4, AccountShip.MediumSlot5, AccountShip.SmallSlot1, AccountShip.SmallSlot2,
+                                     AccountShip.SmallSlot3, AccountShip.SmallSlot4, AccountShip.SmallSlot5,
+                                     AccountShip.Weapon1, AccountShip.Weapon2, AccountShip.Weapon3, AccountShip.Weapon4, AccountShip.Weapon5
+                            FROM AccountShip WHERE AccountShip.AccountShipId = @accountShipId";
+                queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
+                stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
+                requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+                accountEngineSlot = Convert.ToInt32(requestAnswer[1][0]);
+                accountCockpitSlot = Convert.ToInt32(requestAnswer[2][0]);
+                accountBigSlot[0] = Convert.ToInt32(requestAnswer[3][0]);
+                accountBigSlot[1] = Convert.ToInt32(requestAnswer[4][0]);
+                accountBigSlot[2] = Convert.ToInt32(requestAnswer[5][0]);
+                accountBigSlot[3] = Convert.ToInt32(requestAnswer[6][0]);
+                accountBigSlot[4] = Convert.ToInt32(requestAnswer[7][0]);
+                accountMediumSlot[0] = Convert.ToInt32(requestAnswer[8][0]);
+                accountMediumSlot[1] = Convert.ToInt32(requestAnswer[9][0]);
+                accountMediumSlot[2] = Convert.ToInt32(requestAnswer[10][0]);
+                accountMediumSlot[3] = Convert.ToInt32(requestAnswer[11][0]);
+                accountMediumSlot[4] = Convert.ToInt32(requestAnswer[12][0]);
+                accountSmallSlot[0] = Convert.ToInt32(requestAnswer[13][0]);
+                accountSmallSlot[1] = Convert.ToInt32(requestAnswer[14][0]);
+                accountSmallSlot[2] = Convert.ToInt32(requestAnswer[15][0]);
+                accountSmallSlot[3] = Convert.ToInt32(requestAnswer[16][0]);
+                accountSmallSlot[4] = Convert.ToInt32(requestAnswer[17][0]);
+                accountWeapon[0] = Convert.ToInt32(requestAnswer[18][0]);
+                accountWeapon[1] = Convert.ToInt32(requestAnswer[19][0]);
+                accountWeapon[2] = Convert.ToInt32(requestAnswer[20][0]);
+                accountWeapon[3] = Convert.ToInt32(requestAnswer[21][0]);
+                accountWeapon[4] = Convert.ToInt32(requestAnswer[22][0]);
+
+
+
+                // check system if some module installed - what id of the module 
+                if (accountEngineSlot > 0)
+                {
+                    queryString = @"SELECT Engine.EngineId
+                                FROM AccountShip, AccountItem, Engine
+                                WHERE AccountShip.AccountShipId = @accountShipId 
+                                and AccountShip.EngineSlot = AccountItem.AccountItemId 
+                                and AccountItem.EngineId = Engine.EngineId";
+                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
+                    stringType = new string[] { "int" };
+                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+                    engineSlotId = Convert.ToInt32(requestAnswer[0][0]);
+                }
+
+                if (accountCockpitSlot > 0)
+                {
+                    queryString = @"SELECT Cockpit.CockpitId
+                               FROM AccountShip, AccountItem, Cockpit
+                               WHERE AccountShip.AccountShipId = @accountShipId
+                               and AccountShip.CockpitSlot = AccountItem.AccountItemId 
+                               and AccountItem.CockpitId = Cockpit.CockpitId";
+                    queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
+                    stringType = new string[] { "int" };
+                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+                    cockpitSlotId = Convert.ToInt32(requestAnswer[0][0]);
+                }
+
+                for (int i = 0; i < accountBigSlot.Length; i++)
+                {
+                    if (accountBigSlot[i] > 0)
+                    {
+                        queryString = @"SELECT BigSlot.BigSlotId
+                               FROM AccountShip, AccountItem, BigSlot
+                               WHERE AccountShip.AccountShipId = @accountShipId
+                               and AccountShip.BigSlot" + (i + 1) + @" = AccountItem.AccountItemId 
+                               and AccountItem.BigSlotId = BigSlot.BigSlotId";
+                        queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
+                        stringType = new string[] { "int" };
+                        requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+                        bigSlotId[i] = Convert.ToInt32(requestAnswer[0][0]);
+                    }
+                }
+
+                for (int i = 0; i < accountMediumSlot.Length; i++)
+                {
+                    if (accountMediumSlot[i] > 0)
+                    {
+                    }
+                }
+
+                for (int i = 0; i < accountSmallSlot.Length; i++)
+                {
+                    if (accountSmallSlot[i] > 0)
+                    {
+                    }
+                }
+
+                for (int i = 0; i < accountWeapon.Length; i++)
+                {
+                    if (accountWeapon[i] > 0)
+                    {
+                        int weaponNumber = i + 1;
+                        queryString = @"SELECT Weapon.WeaponId
+                                    FROM AccountShip, AccountItem, Weapon
+                                    WHERE AccountShip.AccountShipId = @accountShipId
+                                    and AccountShip.Weapon" + weaponNumber + @" = AccountItem.AccountItemId
+                                    and AccountItem.WeaponId = Weapon.WeaponId";
+                        queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
+                        stringType = new string[] { "int" };
+                        requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+                        weaponId[i] = Convert.ToInt32(requestAnswer[0][0]);
+                    }
+                }
+
                 // CREWinformation
                 queryString = @"SELECT AccountCrew.CrewId
                             FROM AccountCrew
@@ -1100,9 +1100,9 @@ namespace Server
         }
 
 
-        static private void GetInformationForTheGarage() 
+        static private void GetInformationForTheGarage()
         {
-            
+
 
         }
         // code activite = 2 from ProcessGarageRequestAfterAuthorization
@@ -1117,7 +1117,7 @@ namespace Server
             string answerItemTypeId = "";
 
             string queryString = "SELECT * FROM AccountItem WHERE AccountItem.AccountId = @playerID";
-            string[,]  queryParameters = new string[,] { { "playerID", playerId } };
+            string[,] queryParameters = new string[,] { { "playerID", playerId } };
             string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
             List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
@@ -1133,7 +1133,7 @@ namespace Server
                     }
                 }
                 answerToClient = answerToClient + requestAnswer[0][0] + ";" + answerType + ";" + answerItemTypeId + ";";
-            }          
+            }
             answerToClient = answerToClient.Remove(answerToClient.Length - 1);
 
             return answerToClient;
@@ -1244,7 +1244,7 @@ namespace Server
 
 
         // Request to DB to recieve value from SINGLE and MULTIPLE column (SELECT QUERY)
-        static private List<string>[] RequestToGetValueFromDB(string queryString, string[] readerValueType, string[,] queryParameters) 
+        static private List<string>[] RequestToGetValueFromDB(string queryString, string[] readerValueType, string[,] queryParameters)
         {
             List<string>[] queryResult = new List<string>[readerValueType.Length];
 
@@ -1257,7 +1257,7 @@ namespace Server
             connectionToDB.Open();
             using var cmd = new SQLiteCommand(queryString, connectionToDB);
 
-            for (int i = 0; i < queryParameters.Length/2; i++)
+            for (int i = 0; i < queryParameters.Length / 2; i++)
             {
                 cmd.Parameters.AddWithValue("@" + queryParameters[i, 0], queryParameters[i, 1]);
             }
@@ -1271,14 +1271,14 @@ namespace Server
                     {
                         for (int i = 0; i < readerValueType.Length; i++)
                         {
-                         //transfer all to string and then figure out what is what after returning the value after function
-                            if(readerValueType[i] == "string") {
+                            //transfer all to string and then figure out what is what after returning the value after function
+                            if (readerValueType[i] == "string") {
                                 queryResult[i].Add(reader.GetString(i));
                             }
-                            else if(readerValueType[i] == "int")
+                            else if (readerValueType[i] == "int")
                             {
                                 queryResult[i].Add(Convert.ToString(reader.GetInt32(i)));
-                            } 
+                            }
                         }
                     }
                 }
@@ -1289,7 +1289,7 @@ namespace Server
                 }
                 reader.Close();
             }
-            catch(InvalidCastException e)
+            catch (InvalidCastException e)
             {
                 Console.WriteLine("error with recieveing information from login table RequestToGetValueFromDB" + e);
             }
@@ -1421,7 +1421,7 @@ namespace Server
 
             string queryString = "SELECT GarageActiveSlot  FROM Account where AccountId = @playerID ";
             string[,] queryParameters = new string[,] { { "playerID", Convert.ToString(playerID) } };
-            string[]  stringType = new string[] { "int" };
+            string[] stringType = new string[] { "int" };
 
             activeSlot = Convert.ToInt32(RequestToGetValueFromDB(queryString, stringType, queryParameters)[0][0]);
 
@@ -1446,7 +1446,7 @@ namespace Server
                 // commandUpdate.ExecuteNonQuery();
                 newBattleID = Convert.ToInt32(commandUpdate.ExecuteScalar());
                 //commandUpdate.ExecuteScalar();
-               // Console.WriteLine("id_battle - " + newBattleID);
+                // Console.WriteLine("id_battle - " + newBattleID);
             }
             catch (InvalidCastException e)
             {
@@ -1486,23 +1486,23 @@ namespace Server
                 sessionsBattle1v1AI[newBattleID].toStart = 1;
                 Console.WriteLine("SESSION TO START - YES - " + sessionsBattle1v1AI[newBattleID].toStart);
             }
-            catch 
+            catch
             {
                 Console.WriteLine("Unable to create fill up battle session");
             }
 
             //  -----------------------------------------------------
-            
+
 
             return Convert.ToString(newBattleID);
         }
 
 
-        static private void Session1v1AILoadPlayer(int playerID, int newBattleID) 
+        static private void Session1v1AILoadPlayer(int playerID, int newBattleID)
         {
             Console.WriteLine("Session1v1AILoadPlayer - try");
 
-                string queryString = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
+            string queryString = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
                   Weapon.Damage, Weapon.ReloadTime, Weapon.Energy, Weapon.Name, Ship.ShipId
                     FROM Account, Garage, AccountShip, Ship, AccountItem, Weapon, WeaponContol
                     WHERE Account.AccountId = @AccountId 
@@ -1518,44 +1518,44 @@ namespace Server
                                 (AccountShip.WeaponControl = AccountItem.AccountItemId
                                 and AccountItem.WeaponControlId = WeaponContol.WeaponControlId) 
                                 )";
-                string[,] queryParameters = new string[,] { { "AccountId", Convert.ToString(playerID) } };
-                string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "string", "int", };
+            string[,] queryParameters = new string[,] { { "AccountId", Convert.ToString(playerID) } };
+            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "string", "int", };
 
-                List<string>[] answerRequest = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+            List<string>[] answerRequest = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                Console.WriteLine("Ship BaseHealth - " + answerRequest[0][0]);
-                Console.WriteLine("Ship BaseEnergy - " + answerRequest[1][0]);
-                Console.WriteLine("WeaponContol Health - " + answerRequest[2][0]);
-                Console.WriteLine("WeaponContol Energy - " + answerRequest[3][0]);
-                Console.WriteLine("Weapon Damage - " + answerRequest[4][0]);
-                Console.WriteLine("Weapon ReloadTime - " + answerRequest[5][0]);
-                Console.WriteLine("Weapon Energy - " + answerRequest[6][0]);
-                Console.WriteLine("Weapon Name - " + answerRequest[7][0]);
-                Console.WriteLine("Ship Id - " + answerRequest[8][0]);
+            Console.WriteLine("Ship BaseHealth - " + answerRequest[0][0]);
+            Console.WriteLine("Ship BaseEnergy - " + answerRequest[1][0]);
+            Console.WriteLine("WeaponContol Health - " + answerRequest[2][0]);
+            Console.WriteLine("WeaponContol Energy - " + answerRequest[3][0]);
+            Console.WriteLine("Weapon Damage - " + answerRequest[4][0]);
+            Console.WriteLine("Weapon ReloadTime - " + answerRequest[5][0]);
+            Console.WriteLine("Weapon Energy - " + answerRequest[6][0]);
+            Console.WriteLine("Weapon Name - " + answerRequest[7][0]);
+            Console.WriteLine("Ship Id - " + answerRequest[8][0]);
 
-                int shipBaseHealth = Convert.ToInt32(answerRequest[0][0]);
-                int shipBaseEnergy = Convert.ToInt32(answerRequest[1][0]);
-                int weaponContolHealth = Convert.ToInt32(answerRequest[2][0]);
-                int weaponContolEnergy = Convert.ToInt32(answerRequest[3][0]);
-                int weapon1Damage = Convert.ToInt32(answerRequest[4][0]);
-                int weapon1ReloadTime = Convert.ToInt32(answerRequest[5][0]);
-                int weapon1Energy = Convert.ToInt32(answerRequest[6][0]);
-                string weapon1Name = answerRequest[7][0];
-                int shipId = Convert.ToInt32(answerRequest[8][0]);
+            int shipBaseHealth = Convert.ToInt32(answerRequest[0][0]);
+            int shipBaseEnergy = Convert.ToInt32(answerRequest[1][0]);
+            int weaponContolHealth = Convert.ToInt32(answerRequest[2][0]);
+            int weaponContolEnergy = Convert.ToInt32(answerRequest[3][0]);
+            int weapon1Damage = Convert.ToInt32(answerRequest[4][0]);
+            int weapon1ReloadTime = Convert.ToInt32(answerRequest[5][0]);
+            int weapon1Energy = Convert.ToInt32(answerRequest[6][0]);
+            string weapon1Name = answerRequest[7][0];
+            int shipId = Convert.ToInt32(answerRequest[8][0]);
 
-                // add informaton to a class - player starting parameters in class
-                sessionsBattle1v1AI[newBattleID].playerHealthMax = shipBaseHealth;
-                sessionsBattle1v1AI[newBattleID].playerEnergyMax = shipBaseEnergy;
-                sessionsBattle1v1AI[newBattleID].playerWeaponControlHealthMax = weaponContolHealth;
-                sessionsBattle1v1AI[newBattleID].playerWeaponControlEnergyRequired = weaponContolEnergy;
-                sessionsBattle1v1AI[newBattleID].playerWeapon1Damage = weapon1Damage;
-                sessionsBattle1v1AI[newBattleID].playerWeapon1ReloadTime = weapon1ReloadTime;
-                sessionsBattle1v1AI[newBattleID].playerWeapon1EnergyRequired = weapon1Energy;
-                sessionsBattle1v1AI[newBattleID].playerWeapon1Name = weapon1Name;
-                sessionsBattle1v1AI[newBattleID].playerShipId = shipId;
+            // add informaton to a class - player starting parameters in class
+            sessionsBattle1v1AI[newBattleID].playerHealthMax = shipBaseHealth;
+            sessionsBattle1v1AI[newBattleID].playerEnergyMax = shipBaseEnergy;
+            sessionsBattle1v1AI[newBattleID].playerWeaponControlHealthMax = weaponContolHealth;
+            sessionsBattle1v1AI[newBattleID].playerWeaponControlEnergyRequired = weaponContolEnergy;
+            sessionsBattle1v1AI[newBattleID].playerWeapon1Damage = weapon1Damage;
+            sessionsBattle1v1AI[newBattleID].playerWeapon1ReloadTime = weapon1ReloadTime;
+            sessionsBattle1v1AI[newBattleID].playerWeapon1EnergyRequired = weapon1Energy;
+            sessionsBattle1v1AI[newBattleID].playerWeapon1Name = weapon1Name;
+            sessionsBattle1v1AI[newBattleID].playerShipId = shipId;
         }
 
-        static private void Session1v1AILoadAI(int aiId, int newBattleID) 
+        static private void Session1v1AILoadAI(int aiId, int newBattleID)
         {
             string queryString = @"Select Ship.BaseHealth,Ship.BaseEnergy, WeaponContol.Health, WeaponContol.Energy,
 		                Weapon.Damage, Weapon.ReloadTime, Weapon.Energy, Ship.ShipId 
@@ -1570,37 +1570,128 @@ namespace Server
                                 (AiShip.WeaponControl = WeaponContol.WeaponControlId) 
                                 )";
             string[,] queryParameters = new string[,] { { "AiId", Convert.ToString(aiId) } };
-            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int"};
+            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int" };
 
             List<string>[] answerRequest = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                Console.WriteLine("Ship BaseHealth - " + answerRequest[0][0]);
-                Console.WriteLine("Ship BaseEnergy - " + answerRequest[1][0]);
-                Console.WriteLine("WeaponContol Health - " + answerRequest[2][0]);
-                Console.WriteLine("WeaponContol Energy - " + answerRequest[3][0]);
-                Console.WriteLine("Weapon Damage - " + answerRequest[4][0]);
-                Console.WriteLine("Weapon ReloadTime - " + answerRequest[5][0]);
-                Console.WriteLine("Weapon Energy - " + answerRequest[6][0]);
-                Console.WriteLine("Ship Id - " + answerRequest[7][0]);
+            Console.WriteLine("Ship BaseHealth - " + answerRequest[0][0]);
+            Console.WriteLine("Ship BaseEnergy - " + answerRequest[1][0]);
+            Console.WriteLine("WeaponContol Health - " + answerRequest[2][0]);
+            Console.WriteLine("WeaponContol Energy - " + answerRequest[3][0]);
+            Console.WriteLine("Weapon Damage - " + answerRequest[4][0]);
+            Console.WriteLine("Weapon ReloadTime - " + answerRequest[5][0]);
+            Console.WriteLine("Weapon Energy - " + answerRequest[6][0]);
+            Console.WriteLine("Ship Id - " + answerRequest[7][0]);
 
-                int shipBaseHealth = Convert.ToInt32(answerRequest[0][0]);
-                int shipBaseEnergy = Convert.ToInt32(answerRequest[1][0]);
-                int weaponContolHealth = Convert.ToInt32(answerRequest[2][0]);
-                int weaponContolEnergy = Convert.ToInt32(answerRequest[3][0]);
-                int weapon1Damage = Convert.ToInt32(answerRequest[4][0]);
-                int weapon1ReloadTime = Convert.ToInt32(answerRequest[5][0]);
-                int weapon1Energy = Convert.ToInt32(answerRequest[6][0]);
-                int shipId = Convert.ToInt32(answerRequest[7][0]);
+            int shipBaseHealth = Convert.ToInt32(answerRequest[0][0]);
+            int shipBaseEnergy = Convert.ToInt32(answerRequest[1][0]);
+            int weaponContolHealth = Convert.ToInt32(answerRequest[2][0]);
+            int weaponContolEnergy = Convert.ToInt32(answerRequest[3][0]);
+            int weapon1Damage = Convert.ToInt32(answerRequest[4][0]);
+            int weapon1ReloadTime = Convert.ToInt32(answerRequest[5][0]);
+            int weapon1Energy = Convert.ToInt32(answerRequest[6][0]);
+            int shipId = Convert.ToInt32(answerRequest[7][0]);
 
-                sessionsBattle1v1AI[newBattleID].aiHealthMax = shipBaseHealth;
-                sessionsBattle1v1AI[newBattleID].aiEnergyMax = shipBaseEnergy;
-                sessionsBattle1v1AI[newBattleID].aiWeaponControlHealthMax = weaponContolHealth;
-                sessionsBattle1v1AI[newBattleID].aiWeaponControlEnergyRequired = weaponContolEnergy;
-                sessionsBattle1v1AI[newBattleID].aiWeapon1Damage = weapon1Damage;
-                sessionsBattle1v1AI[newBattleID].aiWeapon1ReloadTime = weapon1ReloadTime;
-                sessionsBattle1v1AI[newBattleID].aiWeapon1EnergyRequired = weapon1Energy;
-                sessionsBattle1v1AI[newBattleID].aiShipId = shipId;
+            sessionsBattle1v1AI[newBattleID].aiHealthMax = shipBaseHealth;
+            sessionsBattle1v1AI[newBattleID].aiEnergyMax = shipBaseEnergy;
+            sessionsBattle1v1AI[newBattleID].aiWeaponControlHealthMax = weaponContolHealth;
+            sessionsBattle1v1AI[newBattleID].aiWeaponControlEnergyRequired = weaponContolEnergy;
+            sessionsBattle1v1AI[newBattleID].aiWeapon1Damage = weapon1Damage;
+            sessionsBattle1v1AI[newBattleID].aiWeapon1ReloadTime = weapon1ReloadTime;
+            sessionsBattle1v1AI[newBattleID].aiWeapon1EnergyRequired = weapon1Energy;
+            sessionsBattle1v1AI[newBattleID].aiShipId = shipId;
         }
+
+
+
+
+
+
+
+
+        // get information about the modules for battle
+
+        static private void SessionLoadInfoFromDB(string accountId)
+        {
+            // get information about ID of all modules and ship
+            string queryString = @"SELECT AccountShip.AccountShipId, AccountShip.ShipId, AccountShip.EngineSlot, AccountShip.CockpitSlot, AccountShip.BigSlot1, AccountShip.BigSlot2,
+                                     AccountShip.BigSlot3, AccountShip.BigSlot4, AccountShip.BigSlot5, AccountShip.MediumSlot1, AccountShip.MediumSlot2,
+                                     AccountShip.MediumSlot3, AccountShip.MediumSlot4, AccountShip.MediumSlot5, AccountShip.SmallSlot1, AccountShip.SmallSlot2,
+                                     AccountShip.SmallSlot3, AccountShip.SmallSlot4, AccountShip.SmallSlot5,
+                                     AccountShip.Weapon1, AccountShip.Weapon2, AccountShip.Weapon3, AccountShip.Weapon4, AccountShip.Weapon5
+                            FROM AccountShip, Garage, Account
+							WHERE 
+							Account.AccountId = @accountId
+                            and Garage.Slot = Account.GarageActiveSlot 
+                            and Garage.AccountId = Account.AccountId
+                            and AccountShip.AccountShipId = Garage.AccountShipId";
+            string[,]  queryParameters = new string[,] { { "accountShipId", accountId } };
+            string[]  stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
+            List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            string accountShipId = requestAnswer[0][0];
+            string shipId = requestAnswer[1][0];
+            string engineSlotId = requestAnswer[2][0];
+            string cockpitSlotId = requestAnswer[3][0];
+            string[] bigSlotId = new string[] { requestAnswer[4][0] , requestAnswer[5][0] , requestAnswer[6][0] , requestAnswer[7][0] , requestAnswer[8][0] };
+
+
+
+            // get information about the ship info
+            queryString = @"SELECT Ship.BaseHealth, Ship.BaseEnergy
+                             FROM Ship
+                             WHERE Ship.ShipId = @shipId";
+            queryParameters = new string[,] { { "shipId", shipId } };
+            stringType = new string[] { "int", "int"  };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            string shipBaseHealth = requestAnswer[0][0];
+            string shipBaseEnergy = requestAnswer[1][0];
+
+            // get information about the engine slot
+            queryString = @"SELECT Engine.Health, Engine.Energy
+                            FROM Engine
+                             WHERE Engine.EngineId = @engineId";
+            queryParameters = new string[,] { { "engineId", engineSlotId } };
+            stringType = new string[] { "int", "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            string engineHealth = requestAnswer[0][0];
+            string engineEnergy = requestAnswer[1][0];
+
+            // get information about the cockpit slot
+            queryString = @"SELECT Cockpit.Health, Cockpit.Energy
+                            FROM Cockpit
+                             WHERE Cockpit.EngineId = @cockpitId";
+            queryParameters = new string[,] { { "cockpitId", cockpitSlotId } };
+            stringType = new string[] { "int", "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            string cockpitHealth = requestAnswer[0][0];
+            string cockpitEnergy = requestAnswer[1][0];
+
+            // get information about the bigslots
+            for (int i = 0; i < bigSlotId.Length; i++)
+            {
+                if (bigSlotId[i] != "-1" && bigSlotId[i] != "0") 
+                {
+                    queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
+                                FROM BigSlot
+                                 WHERE BigSlot.BigSlotId = @bigSlotId";
+                    queryParameters = new string[,] { { "bigSlotId", bigSlotId[i] } };
+                    stringType = new string[] { "int", "int" };
+                    requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+                    //get information if shield or weaponcontrol
+
+
+
+                }
+            }
+
+
+        }
+
 
 
     }
