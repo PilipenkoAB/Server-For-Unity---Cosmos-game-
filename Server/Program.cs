@@ -329,6 +329,8 @@ namespace Server
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[2]
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[3]
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[4];
+
+                                Console.WriteLine("DEBUG - answerToClient - " + answerToClient);
                             }
                             // Telling server that client is ready and may start battleLoop
                             else if (recievedMessage[4] == "1")
@@ -1588,7 +1590,7 @@ namespace Server
             string engineSlotId = requestAnswer[2][0];
             string cockpitSlotId = requestAnswer[3][0];
             string[] bigSlotId = new string[] { requestAnswer[4][0], requestAnswer[5][0], requestAnswer[6][0], requestAnswer[7][0], requestAnswer[8][0] };
-            string[] middleSlotId = new string[] { requestAnswer[9][0], requestAnswer[10][0], requestAnswer[11][0], requestAnswer[12][0], requestAnswer[13][0] };
+            string[] mediumSlotId = new string[] { requestAnswer[9][0], requestAnswer[10][0], requestAnswer[11][0], requestAnswer[12][0], requestAnswer[13][0] };
             string[] smallSlotId = new string[] { requestAnswer[14][0], requestAnswer[15][0], requestAnswer[16][0], requestAnswer[17][0], requestAnswer[18][0] };
 
             string[] weaponSlotId = new string[] { requestAnswer[19][0], requestAnswer[20][0], requestAnswer[21][0], requestAnswer[22][0], requestAnswer[23][0] };
@@ -1613,47 +1615,53 @@ namespace Server
             // get information about the engine slot
             if (engineSlotId != "-1" && engineSlotId != "0")
             {
-                queryString = @"SELECT Engine.Health, Engine.Energy
+                queryString = @"SELECT Engine.Health, Engine.Energy, Engine.EngineId
                             FROM Engine
                              WHERE Engine.EngineId = @engineId";
                 queryParameters = new string[,] { { "engineId", engineSlotId } };
-                stringType = new string[] { "int", "int" };
+                stringType = new string[] { "int", "int", "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                sessionsBattle1v1AI[newBattleID].aISlotExist[0] = Convert.ToInt32(engineSlotId);
+                sessionsBattle1v1AI[newBattleID].aISlotExist[0] = Convert.ToInt32(requestAnswer[2][0]);
                 sessionsBattle1v1AI[newBattleID].aISlotHealth[0] = Convert.ToInt32(requestAnswer[0][0]);
                 sessionsBattle1v1AI[newBattleID].aISlotPowered[0] = 0;
                 sessionsBattle1v1AI[newBattleID].aISlotEnergyRequired[0] = Convert.ToInt32(requestAnswer[1][0]);
                 sessionsBattle1v1AI[newBattleID].aISlotType[0] = "engine";
             }
-            else
+            else if(engineSlotId == "0")
             {
                 sessionsBattle1v1AI[newBattleID].aISlotExist[0] = 0;
             }
-
+            else if (engineSlotId == "-1")
+            {
+                sessionsBattle1v1AI[newBattleID].aISlotExist[0] = -1;
+            }
 
             Console.WriteLine("DEBUG Session1v1AILoadAI - 4  " + cockpitSlotId);
             // get information about the cockpit slot
             if (cockpitSlotId != "-1" && cockpitSlotId != "0")
             {
-                queryString = @"SELECT Cockpit.Health, Cockpit.Energy
+                queryString = @"SELECT Cockpit.Health, Cockpit.Energy,Cockpit.CockpitId 
                             FROM Cockpit
                              WHERE Cockpit.CockpitId = @cockpitId";
                 queryParameters = new string[,] { { "cockpitId", cockpitSlotId } };
-                stringType = new string[] { "int", "int" };
+                stringType = new string[] { "int", "int", "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                sessionsBattle1v1AI[newBattleID].aISlotExist[1] = Convert.ToInt32(cockpitSlotId);
+                sessionsBattle1v1AI[newBattleID].aISlotExist[1] = Convert.ToInt32(requestAnswer[2][0]);
                 sessionsBattle1v1AI[newBattleID].aISlotHealth[1] = Convert.ToInt32(requestAnswer[0][0]);
                 sessionsBattle1v1AI[newBattleID].aISlotPowered[1] = 0;
                 sessionsBattle1v1AI[newBattleID].aISlotEnergyRequired[1] = Convert.ToInt32(requestAnswer[1][0]);
                 sessionsBattle1v1AI[newBattleID].aISlotType[1] = "cockpit";
             }
-            else
+            else if(cockpitSlotId == "0")
             {
                 sessionsBattle1v1AI[newBattleID].aISlotExist[1] = 0;
             }
-
+            else if (cockpitSlotId == "-1")
+            {
+                sessionsBattle1v1AI[newBattleID].aISlotExist[1] = -1;
+            }
 
             Console.WriteLine("DEBUG Session1v1AILoadAI - 5  ");
             // get information about the bigslots
@@ -1663,14 +1671,14 @@ namespace Server
                 {
                     Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 1 ");
 
-                    queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
+                    queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId, BigSlot.BigSlotId
                                 FROM BigSlot
                                  WHERE BigSlot.BigSlotId = @bigSlotId";
                     queryParameters = new string[,] { { "bigSlotId", bigSlotId[i] } };
-                    stringType = new string[] { "int", "int" };
+                    stringType = new string[] { "int", "int", "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                    sessionsBattle1v1AI[newBattleID].aISlotExist[i + 2] = Convert.ToInt32(bigSlotId[i]);
+                    sessionsBattle1v1AI[newBattleID].aISlotExist[i + 2] = Convert.ToInt32(requestAnswer[2][0]);
 
                     Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 11  ");
                     //get information if shield or weaponcontrol
@@ -1711,9 +1719,13 @@ namespace Server
                         sessionsBattle1v1AI[newBattleID].aISlotWeaponControlAmountOfWeapons[0] = Convert.ToInt32(requestAnswer[2][0]);
                     }
                 }
-                else
+                else if(bigSlotId[i] == "0")
                 {
                     sessionsBattle1v1AI[newBattleID].aISlotExist[i + 2] = 0;
+                }
+                else if (bigSlotId[i] == "-1")
+                {
+                    sessionsBattle1v1AI[newBattleID].aISlotExist[i + 2] = -1;
                 }
 
                 Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 2  ");
@@ -1721,15 +1733,19 @@ namespace Server
 
             Console.WriteLine("DEBUG Session1v1AILoadAI - 6  ");
             // get information about the middleslots
-            for (int i = 0; i < middleSlotId.Length; i++)
+            for (int i = 0; i < mediumSlotId.Length; i++)
             {
-                if (middleSlotId[i] != "-1" && middleSlotId[i] != "0")
+                if (mediumSlotId[i] != "-1" && mediumSlotId[i] != "0")
                 {
                     sessionsBattle1v1AI[newBattleID].aISlotExist[i + 7] = 1;
                 }
-                else
+                else if(mediumSlotId[i] == "0")
                 {
                     sessionsBattle1v1AI[newBattleID].aISlotExist[i + 7] = 0;
+                }
+                else if (mediumSlotId[i] == "-1")
+                {
+                    sessionsBattle1v1AI[newBattleID].aISlotExist[i + 7] = -1;
                 }
             }
 
@@ -1739,14 +1755,16 @@ namespace Server
             {
                 if (weaponSlotId[i] != "-1" && weaponSlotId[i] != "0")
                 {
-                    sessionsBattle1v1AI[newBattleID].aIWeaponSlotExist[i] = Convert.ToInt32(weaponSlotId[i]);
 
-                    queryString = @"SELECT Weapon.Energy, Weapon.Damage, Weapon.ReloadTime
+
+                    queryString = @"SELECT Weapon.Energy, Weapon.Damage, Weapon.ReloadTime, Weapon.WeaponId
                                     FROM Weapon
                                     WHERE Weapon.WeaponId = @weaponId";
                     queryParameters = new string[,] { { "weaponId", weaponSlotId[i] } };
-                    stringType = new string[] { "int", "int", "int" };
+                    stringType = new string[] { "int", "int", "int", "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+                    sessionsBattle1v1AI[newBattleID].aIWeaponSlotExist[i] = Convert.ToInt32(requestAnswer[3][0]);
 
                     sessionsBattle1v1AI[newBattleID].aIWeaponSlotPowered[i] = 1;
                     sessionsBattle1v1AI[newBattleID].aIWeaponSlotEnergyRequired[i] = Convert.ToInt32(requestAnswer[0][0]);
@@ -1794,7 +1812,7 @@ namespace Server
             string engineSlotId = requestAnswer[2][0];
             string cockpitSlotId = requestAnswer[3][0];
             string[] bigSlotId = new string[] { requestAnswer[4][0] , requestAnswer[5][0] , requestAnswer[6][0] , requestAnswer[7][0] , requestAnswer[8][0] };
-            string[] middleSlotId = new string[] { requestAnswer[9][0], requestAnswer[10][0], requestAnswer[11][0], requestAnswer[12][0], requestAnswer[13][0] };
+            string[] mediumSlotId = new string[] { requestAnswer[9][0], requestAnswer[10][0], requestAnswer[11][0], requestAnswer[12][0], requestAnswer[13][0] };
             string[] smallSlotId = new string[] { requestAnswer[14][0], requestAnswer[15][0], requestAnswer[16][0], requestAnswer[17][0], requestAnswer[18][0] };
 
             string[] weaponSlotId = new string[] { requestAnswer[19][0], requestAnswer[20][0], requestAnswer[21][0], requestAnswer[22][0], requestAnswer[23][0] };
@@ -1822,44 +1840,52 @@ namespace Server
             // get information about the engine slot
             if (engineSlotId != "-1" && engineSlotId != "0")
             {
-                queryString = @"SELECT Engine.Health, Engine.Energy
+                queryString = @"SELECT Engine.Health, Engine.Energy, Engine.EngineId
                             FROM Engine, AccountItem
                              WHERE AccountItem.EngineId = Engine.EngineId and AccountItem.AccountItemId = @engineId";
                 queryParameters = new string[,] { { "engineId", engineSlotId } };
-                stringType = new string[] { "int", "int" };
+                stringType = new string[] { "int", "int", "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                sessionsBattle1v1AI[newBattleID].playerSlotExist[0] = Convert.ToInt32(engineSlotId);
+                sessionsBattle1v1AI[newBattleID].playerSlotExist[0] = Convert.ToInt32(requestAnswer[2][0]);
                 sessionsBattle1v1AI[newBattleID].playerSlotHealth[0] = Convert.ToInt32(requestAnswer[0][0]);
                 sessionsBattle1v1AI[newBattleID].playerSlotPowered[0] = 0;
                 sessionsBattle1v1AI[newBattleID].playerSlotEnergyRequired[0] = Convert.ToInt32(requestAnswer[1][0]);
                 sessionsBattle1v1AI[newBattleID].playerSlotType[0] = "engine";
             }
-            else
+            else if(engineSlotId == "0")
             {
                 sessionsBattle1v1AI[newBattleID].playerSlotExist[0] = 0;
+            }
+            else if(engineSlotId == "-1")
+            {
+                sessionsBattle1v1AI[newBattleID].playerSlotExist[0] = -1;
             }
 
             Console.WriteLine("DEBUG Session1v1AILoadPlayer - 4");
             // get information about the cockpit slot
             if (cockpitSlotId != "-1" && cockpitSlotId != "0")
             {
-                queryString = @"SELECT Cockpit.Health, Cockpit.Energy
+                queryString = @"SELECT Cockpit.Health, Cockpit.Energy, Cockpit.CockpitId
                                 FROM Cockpit, AccountItem
                                 WHERE AccountItem.CockpitId = Cockpit.CockpitId and AccountItem.AccountItemId = @cockpitId";
                 queryParameters = new string[,] { { "cockpitId", cockpitSlotId } };
-                stringType = new string[] { "int", "int" };
+                stringType = new string[] { "int", "int", "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                sessionsBattle1v1AI[newBattleID].playerSlotExist[1] = Convert.ToInt32(cockpitSlotId); 
+                sessionsBattle1v1AI[newBattleID].playerSlotExist[1] = Convert.ToInt32(requestAnswer[2][0]); 
                 sessionsBattle1v1AI[newBattleID].playerSlotHealth[1] = Convert.ToInt32(requestAnswer[0][0]);
                 sessionsBattle1v1AI[newBattleID].playerSlotPowered[1] = 0;
                 sessionsBattle1v1AI[newBattleID].playerSlotEnergyRequired[1] = Convert.ToInt32(requestAnswer[1][0]);
                 sessionsBattle1v1AI[newBattleID].playerSlotType[1] = "cockpit";
             }
-            else
+            else if(cockpitSlotId == "0")
             {
                 sessionsBattle1v1AI[newBattleID].playerSlotExist[1] = 0;
+            }
+            else if (cockpitSlotId == "-1")
+            {
+                sessionsBattle1v1AI[newBattleID].playerSlotExist[1] = -1;
             }
 
 
@@ -1869,14 +1895,14 @@ namespace Server
             {
                 if (bigSlotId[i] != "-1" && bigSlotId[i] != "0") 
                 {
-                    queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
+                    queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId, BigSlot.BigSlotId
                                 FROM BigSlot, AccountItem
                                 WHERE BigSlot.BigSlotId = AccountItem.BigSlotId and AccountItem.AccountItemId = @bigSlotId";
                     queryParameters = new string[,] { { "bigSlotId", bigSlotId[i] } };
-                    stringType = new string[] { "int", "int" };
+                    stringType = new string[] { "int", "int", "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                    sessionsBattle1v1AI[newBattleID].playerSlotExist[i+2] = Convert.ToInt32(bigSlotId[i]);
+                    sessionsBattle1v1AI[newBattleID].playerSlotExist[i+2] = Convert.ToInt32(requestAnswer[2][0]);
 
                     Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.5");
                     //get information if shield or weaponcontrol
@@ -1927,23 +1953,30 @@ namespace Server
                         Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.522");
                     }
                 }
-                else
+                else if (bigSlotId[i] == "0")
                 {
                     sessionsBattle1v1AI[newBattleID].playerSlotExist[i + 2] = 0;
+                }else if (bigSlotId[i] == "-1")
+                {
+                    sessionsBattle1v1AI[newBattleID].playerSlotExist[i + 2] = -1;
                 }
             }
 
             Console.WriteLine("DEBUG Session1v1AILoadPlayer - 6");
             // get information about the middleslots
-            for (int i = 0; i < middleSlotId.Length; i++)
+            for (int i = 0; i < mediumSlotId.Length; i++)
             {
-                if (middleSlotId[i] != "-1" && middleSlotId[i] != "0") 
+                if (mediumSlotId[i] != "-1" && mediumSlotId[i] != "0") 
                 {
                     sessionsBattle1v1AI[newBattleID].playerSlotExist[i + 7] = 1;
                 }
-                else
+                else if(mediumSlotId[i] == "0")
                 {
                     sessionsBattle1v1AI[newBattleID].playerSlotExist[i + 7] = 0;
+                }
+                else if (mediumSlotId[i] == "-1")
+                {
+                    sessionsBattle1v1AI[newBattleID].playerSlotExist[i + 7] = -1;
                 }
             }
 
@@ -1957,14 +1990,16 @@ namespace Server
                 {
                     Console.WriteLine("DEBUG Session1v1AILoadPlayer - 7 - 1 - " + weaponSlotId[i]);
 
-                    sessionsBattle1v1AI[newBattleID].playerWeaponSlotExist[i] = Convert.ToInt32(weaponSlotId[i]);
 
-                    queryString = @"SELECT Weapon.Energy, Weapon.Damage, Weapon.ReloadTime
+
+                    queryString = @"SELECT Weapon.Energy, Weapon.Damage, Weapon.ReloadTime, Weapon.WeaponId
                                   FROM Weapon, AccountItem
                                  WHERE Weapon.WeaponId = AccountItem.WeaponId and AccountItem.AccountItemId = @weaponId";
                     queryParameters = new string[,] { { "weaponId", weaponSlotId[i] } };
-                    stringType = new string[] { "int", "int", "int" };
+                    stringType = new string[] { "int", "int", "int", "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+                    sessionsBattle1v1AI[newBattleID].playerWeaponSlotExist[i] = Convert.ToInt32(requestAnswer[3][0]);
 
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotPowered[i] = 1;
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotEnergyRequired[i] = Convert.ToInt32(requestAnswer[0][0]);
