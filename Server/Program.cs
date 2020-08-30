@@ -324,13 +324,13 @@ namespace Server
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[15]
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[16]
 
-                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[0]
-                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[1]
-                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[2]
-                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[3]
-                                         + ";" + sessionsBattle1v1AI[battleSessionId].aISlotExist[4];
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotExist[0]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotExist[1]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotExist[2]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotExist[3]
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotExist[4];
 
-                                Console.WriteLine("DEBUG - answerToClient - " + answerToClient);
+                            //    Console.WriteLine("DEBUG - answerToClient - " + answerToClient);
                             }
                             // Telling server that client is ready and may start battleLoop
                             else if (recievedMessage[4] == "1")
@@ -345,6 +345,8 @@ namespace Server
                                 int battleTime = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].battleTime;
                                 int playerHealthCurrent = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerShipCurrentHealth;
                                 int enemyHealthCurrent = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].aIShipCurrentHealth;
+
+                                // ???????????????// correct it to all active weapons! 
                                 int playerWeapon1ReloadCurrent = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerWeaponSlotCurrentReloadTime[0];
 
                                 answerToClient = battleTime + ";" + playerHealthCurrent + ";" + enemyHealthCurrent + ";" + playerWeapon1ReloadCurrent;
@@ -527,12 +529,12 @@ namespace Server
                 if (recievedMessage[4] == "0")
                 {
                     answerToClient = ReceiveGarageMainInformation(recievedMessage);
-                    Console.WriteLine("DEBUG - 1 - " + recievedMessage[4]);
+                   // Console.WriteLine("DEBUG - 1 - " + recievedMessage[4]);
                 }
                 else
                 {
                     answerToClient = RecieveNewShipScrollInformation(recievedMessage);
-                    Console.WriteLine("DEBUG - 2 - " + recievedMessage[4]);
+                   // Console.WriteLine("DEBUG - 2 - " + recievedMessage[4]);
                 }
 
             }
@@ -607,7 +609,7 @@ namespace Server
             List<string> shipsID = requestAnswer[1];
             List<string> accountShipId = requestAnswer[2];
 
-            Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
+           // Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
             if (shipsID.Count > 0)
             {
                 slotShip[0] = Convert.ToInt32(shipsID[0]);
@@ -618,7 +620,7 @@ namespace Server
                 slotShip[0] = 0;
                 slotIdInfo[0] = 0;
             }
-            Console.WriteLine("DEBUG slot  - " + slotIdInfo[0]);
+           // Console.WriteLine("DEBUG slot  - " + slotIdInfo[0]);
 
 
 
@@ -637,7 +639,7 @@ namespace Server
             slots = requestAnswer[0];
             shipsID = requestAnswer[1];
 
-            Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
+           // Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
             if (shipsID.Count > 0)
             {
                 slotShip[1] = Convert.ToInt32(shipsID[0]);
@@ -648,7 +650,7 @@ namespace Server
                 slotShip[1] = 0;
                 slotIdInfo[1] = 0;
             }
-            Console.WriteLine("DEBUG slot  - " + slotIdInfo[1]);
+           // Console.WriteLine("DEBUG slot  - " + slotIdInfo[1]);
 
 
             // LEFT SLOT
@@ -677,7 +679,7 @@ namespace Server
             slots = requestAnswer[0];
             shipsID = requestAnswer[1];
 
-            Console.WriteLine("DEBUG - " + requestAnswer[1].Count);
+          //  Console.WriteLine("DEBUG - " + requestAnswer[1].Count);
             if (shipsID.Count > 0)
             {
                 slotShip[2] = Convert.ToInt32(shipsID[0]);
@@ -688,7 +690,7 @@ namespace Server
                 slotShip[2] = 0;
                 slotIdInfo[2] = leftSlot;
             }
-            Console.WriteLine("DEBUG slot  - " + slotIdInfo[2]);
+          //  Console.WriteLine("DEBUG slot  - " + slotIdInfo[2]);
 
 
             //-------------------------------------------------------------
@@ -916,7 +918,7 @@ namespace Server
                 shipIdtoClient = "0";
             }
 
-            Console.WriteLine("DEBUG slot middle  - " + slotIdInfo[0] + " shipID - " + slotShip[0]);
+          //  Console.WriteLine("DEBUG slot middle  - " + slotIdInfo[0] + " shipID - " + slotShip[0]);
 
 
 
@@ -969,7 +971,7 @@ namespace Server
                 slotIdInfo[1] = Convert.ToInt32(slotShipId);
             }
 
-            Console.WriteLine("DEBUG slot right  - " + slotIdInfo[1] + " shipID - " + slotShip[1]);
+          //  Console.WriteLine("DEBUG slot right  - " + slotIdInfo[1] + " shipID - " + slotShip[1]);
 
 
 
@@ -1006,7 +1008,7 @@ namespace Server
                 slotIdInfo[2] = Convert.ToInt32(slotShipId);
             }
 
-            Console.WriteLine("DEBUG slot left  - " + slotIdInfo[2] + " shipID - " + slotShip[2]);
+          //  Console.WriteLine("DEBUG slot left  - " + slotIdInfo[2] + " shipID - " + slotShip[2]);
             //-------------------------------------
 
 
@@ -1570,7 +1572,7 @@ namespace Server
 
         static private void Session1v1AILoadAI(string aiId, int newBattleID)
         {
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 1  ");
+           // Console.WriteLine("DEBUG Session1v1AILoadAI - 1  ");
             // get information about ID of all modules and ship
             string queryString = @"SELECT AiShip.AiShipId, AiShip.ShipId, AiShip.EngineSlot, AiShip.CockpitSlot, AiShip.BigSlot1, AiShip.BigSlot2,
                                      AiShip.BigSlot3, AiShip.BigSlot4, AiShip.BigSlot5, AiShip.MediumSlot1, AiShip.MediumSlot2,
@@ -1596,7 +1598,7 @@ namespace Server
             string[] weaponSlotId = new string[] { requestAnswer[19][0], requestAnswer[20][0], requestAnswer[21][0], requestAnswer[22][0], requestAnswer[23][0] };
 
 
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 2  ");
+          //  Console.WriteLine("DEBUG Session1v1AILoadAI - 2  ");
             // get information about the ship info
             queryString = @"SELECT Ship.BaseHealth, Ship.BaseEnergy
                              FROM Ship
@@ -1611,7 +1613,7 @@ namespace Server
             sessionsBattle1v1AI[newBattleID].aIShipFreeEnergy = Convert.ToInt32(requestAnswer[1][0]);
 
 
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 3  ");
+           // Console.WriteLine("DEBUG Session1v1AILoadAI - 3  ");
             // get information about the engine slot
             if (engineSlotId != "-1" && engineSlotId != "0")
             {
@@ -1637,7 +1639,7 @@ namespace Server
                 sessionsBattle1v1AI[newBattleID].aISlotExist[0] = -1;
             }
 
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 4  " + cockpitSlotId);
+          //  Console.WriteLine("DEBUG Session1v1AILoadAI - 4  " + cockpitSlotId);
             // get information about the cockpit slot
             if (cockpitSlotId != "-1" && cockpitSlotId != "0")
             {
@@ -1663,13 +1665,13 @@ namespace Server
                 sessionsBattle1v1AI[newBattleID].aISlotExist[1] = -1;
             }
 
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 5  ");
+          //  Console.WriteLine("DEBUG Session1v1AILoadAI - 5  ");
             // get information about the bigslots
             for (int i = 0; i < bigSlotId.Length; i++)
             {
                 if (bigSlotId[i] != "-1" && bigSlotId[i] != "0")
                 {
-                    Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 1 ");
+                 //   Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 1 ");
 
                     queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId, BigSlot.BigSlotId
                                 FROM BigSlot
@@ -1680,7 +1682,7 @@ namespace Server
 
                     sessionsBattle1v1AI[newBattleID].aISlotExist[i + 2] = Convert.ToInt32(requestAnswer[2][0]);
 
-                    Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 11  ");
+                 //   Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 11  ");
                     //get information if shield or weaponcontrol
                     if (requestAnswer[0][0] != "0") //shield
                     {
@@ -1728,10 +1730,10 @@ namespace Server
                     sessionsBattle1v1AI[newBattleID].aISlotExist[i + 2] = -1;
                 }
 
-                Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 2  ");
+              //  Console.WriteLine("DEBUG Session1v1AILoadAI - 5 - 2  ");
             }
 
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 6  ");
+         //   Console.WriteLine("DEBUG Session1v1AILoadAI - 6  ");
             // get information about the middleslots
             for (int i = 0; i < mediumSlotId.Length; i++)
             {
@@ -1749,7 +1751,7 @@ namespace Server
                 }
             }
 
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 7  ");
+           // Console.WriteLine("DEBUG Session1v1AILoadAI - 7  ");
             // get information about the weapons
             for (int i = 0; i < weaponSlotId.Length; i++)
             {
@@ -1778,7 +1780,7 @@ namespace Server
             }
 
 
-            Console.WriteLine("DEBUG Session1v1AILoadAI - 8  ");
+         //   Console.WriteLine("DEBUG Session1v1AILoadAI - 8  ");
             // Crew // TO CORRECT
             // sessionsBattle1v1AI[newBattleID].aICrewExist[0] = 1;
             // sessionsBattle1v1AI[newBattleID].aICrewHealth[0] = 10;
@@ -1789,7 +1791,7 @@ namespace Server
         static private void Session1v1AILoadPlayer(string accountId, int newBattleID)
         {
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 1 - " + accountId);
+           // Console.WriteLine("DEBUG Session1v1AILoadPlayer - 1 - " + accountId);
 
             // get information about ID of all modules and ship
             string queryString = @"SELECT AccountShip.AccountShipId, AccountShip.ShipId, AccountShip.EngineSlot, AccountShip.CockpitSlot, AccountShip.BigSlot1, AccountShip.BigSlot2,
@@ -1818,7 +1820,7 @@ namespace Server
             string[] weaponSlotId = new string[] { requestAnswer[19][0], requestAnswer[20][0], requestAnswer[21][0], requestAnswer[22][0], requestAnswer[23][0] };
 
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 2");
+          //  Console.WriteLine("DEBUG Session1v1AILoadPlayer - 2");
 
 
             // get information about the ship info
@@ -1834,9 +1836,9 @@ namespace Server
             sessionsBattle1v1AI[newBattleID].playerShipMaxEnergy = Convert.ToInt32(requestAnswer[1][0]);
             sessionsBattle1v1AI[newBattleID].playerShipFreeEnergy = Convert.ToInt32(requestAnswer[1][0]);
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 3");
+         //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - 3");
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - engine slot - " + engineSlotId);
+         //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - engine slot - " + engineSlotId);
             // get information about the engine slot
             if (engineSlotId != "-1" && engineSlotId != "0")
             {
@@ -1862,7 +1864,7 @@ namespace Server
                 sessionsBattle1v1AI[newBattleID].playerSlotExist[0] = -1;
             }
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 4");
+          //  Console.WriteLine("DEBUG Session1v1AILoadPlayer - 4");
             // get information about the cockpit slot
             if (cockpitSlotId != "-1" && cockpitSlotId != "0")
             {
@@ -1889,7 +1891,7 @@ namespace Server
             }
 
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5");
+          //  Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5");
             // get information about the bigslots
             for (int i = 0; i < bigSlotId.Length; i++)
             {
@@ -1904,11 +1906,11 @@ namespace Server
 
                     sessionsBattle1v1AI[newBattleID].playerSlotExist[i+2] = Convert.ToInt32(requestAnswer[2][0]);
 
-                    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.5");
+               //     Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.5");
                     //get information if shield or weaponcontrol
                     if (requestAnswer[0][0] != "0") //shield
                     {
-                        Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.51 - " + requestAnswer[0][0]);
+                    //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.51 - " + requestAnswer[0][0]);
 
                         queryString = @"SELECT Shield.Heath, Shield.Energy, Shield.Capacity, Shield.RechargeRate, Shield.RechargeTime
                                         FROM Shield
@@ -1917,7 +1919,7 @@ namespace Server
                         stringType = new string[] { "int", "int", "int", "int", "int" };
                         requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-                        Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.5111");
+                    //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.5111");
                         //---------------------
 
 
@@ -1931,11 +1933,11 @@ namespace Server
                         sessionsBattle1v1AI[newBattleID].playerSlotShieldRechargeCurrentTime[i + 2] = 0;
                         sessionsBattle1v1AI[newBattleID].playerSlotShieldRechargeRate[i + 2] = Convert.ToInt32(requestAnswer[4][0]);
 
-                        Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.511");
+                    //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.511");
                     }
                     else if (requestAnswer[1][0] != "0") // weapon control
                     {
-                        Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.52");
+                      //  Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.52");
 
                         queryString = @"SELECT WeaponContol.Health, WeaponContol.Energy, WeaponContol.AmountOfWeapons
                         FROM WeaponContol
@@ -1950,7 +1952,7 @@ namespace Server
                         sessionsBattle1v1AI[newBattleID].playerSlotType[0] = "weaponcontrol";
                         sessionsBattle1v1AI[newBattleID].playerSlotWeaponControlAmountOfWeapons[0] = Convert.ToInt32(requestAnswer[2][0]);
 
-                        Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.522");
+                    //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.522");
                     }
                 }
                 else if (bigSlotId[i] == "0")
@@ -1962,7 +1964,7 @@ namespace Server
                 }
             }
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 6");
+         //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - 6");
             // get information about the middleslots
             for (int i = 0; i < mediumSlotId.Length; i++)
             {
@@ -1980,15 +1982,15 @@ namespace Server
                 }
             }
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 7");
+         //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - 7");
             // get information about the weapons
             for (int i = 0; i < weaponSlotId.Length; i++)
             {
-                Console.WriteLine("DEBUG Session1v1AILoadPlayer - 7 - 1 - 0 - weaponSlotId - " + weaponSlotId[i] + " " + i);
+              //  Console.WriteLine("DEBUG Session1v1AILoadPlayer - 7 - 1 - 0 - weaponSlotId - " + weaponSlotId[i] + " " + i);
 
                 if (weaponSlotId[i] != "-1" && weaponSlotId[i] != "0")
                 {
-                    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 7 - 1 - " + weaponSlotId[i]);
+                //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 7 - 1 - " + weaponSlotId[i]);
 
 
 
@@ -2006,25 +2008,25 @@ namespace Server
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotDamage[i] = Convert.ToInt32(requestAnswer[1][0]);
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotReloadTime[i] = Convert.ToInt32(requestAnswer[2][0]);
 
-                    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 711 ");
+                //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 711 ");
                 }
                 else
                 {
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotExist[i] = 0;
-                    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 711notexist ");
+                 //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - 711notexist ");
                 }
 
-                Console.WriteLine("DEBUG Session1v1AILoadPlayer - 711end ");
+              //  Console.WriteLine("DEBUG Session1v1AILoadPlayer - 711end ");
             }
 
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - 8");
+        //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 8");
             // Crew // TO CORRECT
          //   sessionsBattle1v1AI[newBattleID].playerCrewExist[0] = 1;
           //  sessionsBattle1v1AI[newBattleID].playerCrewHealth[0] = 10;
           //  sessionsBattle1v1AI[newBattleID].playerCrewDamage[0] = 1;
 
-            Console.WriteLine("DEBUG Session1v1AILoadPlayer - LAST");
+         //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - LAST");
 
         }
     }
