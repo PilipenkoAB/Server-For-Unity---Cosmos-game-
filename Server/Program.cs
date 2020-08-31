@@ -424,7 +424,7 @@ namespace Server
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotExist[3]
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotExist[4];
 
-                            //    Console.WriteLine("DEBUG - answerToClient - " + answerToClient);
+                                Console.WriteLine("DEBUG - answerToClient - " + answerToClient);
                             }
                             // Telling server that client is ready and may start battleLoop
                             else if (recievedMessage[4] == "1")
@@ -1329,7 +1329,7 @@ namespace Server
                 server.Start();
 
                 // Buffer for reading data
-                Byte[] bytes = new Byte[64]; // 64 symbols
+                Byte[] bytes = new Byte[612]; // 64 symbols
                 String data = null;
 
                 // Enter the listening loop.
@@ -2148,6 +2148,10 @@ namespace Server
             // Calculatet starting parameters after getting them at creating the class
 
 
+
+
+
+
         }
 
         public void SetStartHealth()
@@ -2292,11 +2296,11 @@ namespace Server
 
         //[ engine , cockpit, biglot1 .. 5, mediumslot 1 .. 5, smallslot 1 .. 5]
 
-        public int[] playerSlotExist { get; set; } = new int[17];
-        public int[] playerSlotHealth { get; set; } = new int[17];
-        public int[] playerSlotPowered { get; set; } = new int[17];
-        public int[] playerSlotEnergyRequired { get; set; } = new int[17];
-        public string[] playerSlotType { get; set; } = new string[17];
+        public int[] playerSlotExist { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public int[] playerSlotHealth { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public int[] playerSlotPowered { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public int[] playerSlotEnergyRequired { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        public string[] playerSlotType { get; set; } = new string[17] { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"," 0", "0", "0" };
 
         //bigslot difference slots
         public int[] playerSlotShieldCapacity { get; set; } = new int[17];
@@ -2308,12 +2312,12 @@ namespace Server
 
         // weapons
 
-        public int[] playerWeaponSlotExist { get; set; } = new int[5];
-        public int[] playerWeaponSlotPowered { get; set; } = new int[5];
-        public int[] playerWeaponSlotEnergyRequired { get; set; } = new int[5];
-        public int[] playerWeaponSlotDamage { get; set; } = new int[5];
-        public int[] playerWeaponSlotReloadTime { get; set; } = new int[5];
-        public int[] playerWeaponSlotCurrentReloadTime { get; set; } = new int[5];
+        public int[] playerWeaponSlotExist { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        public int[] playerWeaponSlotPowered { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        public int[] playerWeaponSlotEnergyRequired { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        public int[] playerWeaponSlotDamage { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        public int[] playerWeaponSlotReloadTime { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        public int[] playerWeaponSlotCurrentReloadTime { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
 
         // Crew
 
