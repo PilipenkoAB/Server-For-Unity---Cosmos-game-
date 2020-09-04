@@ -2424,4 +2424,47 @@ namespace Server
 
     }
 
+
+
+
+
+    /*
+     Class - PlayerShip
+     */
+    public class PlayerShip
+    {
+        public PlayerShip()
+        {
+        }
+
+        public int playerId { get; set; }
+        public int playerShipId { get; set; }
+    }
+
+    /*
+     Class - AiShip
+    */
+    public class AIShip
+    {
+        public AIShip()
+        {
+        }
+
+        public int aIId { get; set; }
+        public int aIShipId { get; set; }
+    }
+
+    /*
+    Class - slot
+    */
+    public class ModuleShipSlot
+    {
+        public ModuleShipSlot()
+        {
+        }
+
+      //  public int aIId { get; set; }
+      //  public int aIShipId { get; set; }
+    }
+
 }
