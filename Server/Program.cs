@@ -1678,7 +1678,7 @@ namespace Server
                 // LOAD INFORMATION ABOUT AI TO CLASS
                 int aiId = 1;     // CHANGE IT WHEN IT WILL BE AN CHOISE FROM PLAYER TO PLAY AGAINST WHAT AI
 
-                sessionsBattle1v1AI[newBattleID].aIID = aiId;
+                sessionsBattle1v1AI[newBattleID].aiId = aiId;
 
                 Session1v1AILoadAI(Convert.ToString(aiId), newBattleID);
 
