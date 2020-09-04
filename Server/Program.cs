@@ -1667,7 +1667,7 @@ namespace Server
             {
                 Console.WriteLine("try - ready");
                 //  Load information to the class about the battle that going to start
-                //  ------------------------------------------------------
+                //  --------------------------------------------------------
                 // LOAD INFORMATION ABOUT PLAYER TO CLASS
                 sessionsBattle1v1AI[newBattleID].playerId = playerID;
 
