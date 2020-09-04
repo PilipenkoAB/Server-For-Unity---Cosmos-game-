@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -20,6 +20,12 @@ namespace Server
             battleTime = 0;
             playerReady = 0;
             // Calculatet starting parameters after getting them at creating the class
+
+
+
+
+
+
         }
 
         public void SetStartHealth()
@@ -83,6 +89,8 @@ namespace Server
         }
 
 
+
+
         public void PlayerModuleEnergyUp(int moduleSlotId)
         {
             if (playerSlotExist[moduleSlotId] != 0 || playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] == 0)
@@ -99,8 +107,6 @@ namespace Server
             }
         }
 
-
-
         //Variables
         public int battle1v1AIId { get; set; }
 
@@ -111,10 +117,20 @@ namespace Server
         public int finished { get; set; }
         public int battleTime { get; set; } // in ms
 
-        //-------------------------
+        // PLAYER and AI ID
+        public int aiId { get; set; } // DO I NEED THIS???
 
-        public int playerId { get; set; }
+        public int playerID { get; set; } // DO I NEED THIS???
+
+        // player shipId and ai shipId
         public int playerShipId { get; set; }
+
+        public int aIShipId { get; set; }
+
+
+        ////-------------------- Player -------------------------
+
+        // NEW SYSTEM
 
         // PLAYER
 
@@ -158,10 +174,7 @@ namespace Server
         public int[] playerCrewHealth { get; set; }
         public int[] playerCrewDamage { get; set; }
 
-        //--------------------
 
-        public int aIId { get; set; }
-        public int aIShipId { get; set; }
 
         // AI
 
@@ -205,6 +218,7 @@ namespace Server
         public int[] aICrewHealth { get; set; }
         public int[] aICrewDamage { get; set; }
 
+
     }
 
 
@@ -214,31 +228,28 @@ namespace Server
     /*
      Class - PlayerShip
      */
-    //public class PlayerShip : Battle1v1AI
-    //{
-    //    public PlayerShip()
-    //    {
-            
-    //    }
+    public class PlayerShip : Battle1v1AI
+    {
+        public PlayerShip()
+        {
+        }
 
+        public int playerId { get; set; }
+        public int playerShipId { get; set; }
+    }
 
+    /*
+     Class - AiShip
+    */
+    public class AIShip : Battle1v1AI
+    {
+        public AIShip()
+        {
+        }
 
-
-
-      
-    //}
-
-    ///*
-    // Class - AiShip
-    //*/
-    //public class AIShip : Battle1v1AI
-    //{
-    //    public AIShip()
-    //    {
-    //    }
-
-
-    //}
+        public int aIId { get; set; }
+        public int aIShipId { get; set; }
+    }
 
     /*
     Class - slot
@@ -253,4 +264,3 @@ namespace Server
     //  //  public int aIShipId { get; set; }
     //}
 }
-
