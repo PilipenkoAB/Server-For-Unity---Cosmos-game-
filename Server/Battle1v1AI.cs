@@ -111,7 +111,7 @@ namespace Server
         public int finished { get; set; }
         public int battleTime { get; set; } // in ms
 
-        //------------------------
+        //-------------------------
 
         public int playerId { get; set; }
         public int playerShipId { get; set; }
