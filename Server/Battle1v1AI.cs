@@ -6,7 +6,7 @@ namespace Server
 {
     /*
          Battle1v1AI - class for battle, contain all information about the battle
-           and all actions that can be in that battle
+           and all actions that can be in that battle---------------
        */
     public class Battle1v1AI
     {
@@ -234,8 +234,6 @@ namespace Server
         {
         }
 
-        public int playerId { get; set; }
-        public int playerShipId { get; set; }
     }
 
     /*
@@ -247,8 +245,6 @@ namespace Server
         {
         }
 
-        public int aIId { get; set; }
-        public int aIShipId { get; set; }
     }
 
     /*
