@@ -436,14 +436,34 @@ namespace Server
                             // require information for update UI without action
                             else if (recievedMessage[4] == "2")
                             {
-                                int battleTime = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].battleTime;
-                                int playerHealthCurrent = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerShipCurrentHealth;
-                                int enemyHealthCurrent = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].aIShipCurrentHealth;
+                                int battleSessionId = Convert.ToInt32(recievedMessage[3]);
 
                                 // ???????????????// correct it to all active weapons! 
-                                int playerWeapon1ReloadCurrent = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].playerWeaponSlotCurrentReloadTime[0];
+                                int playerWeapon1ReloadCurrent = sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[0];
 
-                                answerToClient = battleTime + ";" + playerHealthCurrent + ";" + enemyHealthCurrent + ";" + playerWeapon1ReloadCurrent;
+                                answerToClient = sessionsBattle1v1AI[battleSessionId].battleTime
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerShipCurrentHealth
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].aIShipCurrentHealth
+                                    + ";" + playerWeapon1ReloadCurrent
+
+
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[0]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[1]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[2]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[3]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[4]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[5]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[6]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[7]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[8]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[9]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[10]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[11]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[12]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[13]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[14]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[15]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[16];
                             }
                             // require information for update UI WITH action
                             else if (recievedMessage[4] == "3")
@@ -459,8 +479,22 @@ namespace Server
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
                                 }
+                                
+                                // energy module UP
                                 else if (recievedMessage[5] == "1")
                                 {
+                                    // up energy on the moduleSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyUp(Convert.ToInt32(recievedMessage[6]));
+
+                                    // answer to client  - 0 means that action was successeful
+                                    answerToClient = "0";
+                                }
+                                else if (recievedMessage[5] == "2")
+                                {
+                                    // up energy on the moduleSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyDown(Convert.ToInt32(recievedMessage[6]));
+
+                                    // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
                                 }
 
@@ -2214,6 +2248,24 @@ namespace Server
             }
         }
 
+
+
+
+        public void PlayerModuleEnergyUp(int moduleSlotId) 
+        {
+            if (playerSlotExist[moduleSlotId] != 0 || playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] == 0)
+            {
+                playerSlotPowered[moduleSlotId] = 1;
+            }
+        }
+
+        public void PlayerModuleEnergyDown(int moduleSlotId)
+        {
+            if (playerSlotExist[moduleSlotId] != 0 || playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0)
+            {
+                playerSlotPowered[moduleSlotId] = 0;
+            }
+        }
         //Variables
 
         public int toStart { get; set; }
