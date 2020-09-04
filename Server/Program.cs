@@ -1661,7 +1661,7 @@ namespace Server
             sessionsBattle1v1AI.Add(newBattleID, new Battle1v1AI());
 
 
-            Console.WriteLine("new session with number - " + newBattleID + " is started with player -  " + sessionsBattle1v1AI[newBattleID].playerID);
+            Console.WriteLine("new session with number - " + newBattleID + " is started with player -  " + sessionsBattle1v1AI[newBattleID].playerId);
 
             try
             {
@@ -1669,7 +1669,7 @@ namespace Server
                 //  Load information to the class about the battle that going to start
                 //  -----------------------------------------------------
                 // LOAD INFORMATION ABOUT PLAYER TO CLASS
-                sessionsBattle1v1AI[newBattleID].playerID = playerID;
+                sessionsBattle1v1AI[newBattleID].playerId = playerID;
 
                 Session1v1AILoadPlayer(Convert.ToString(playerID), newBattleID);
 
@@ -1678,7 +1678,7 @@ namespace Server
                 // LOAD INFORMATION ABOUT AI TO CLASS
                 int aiId = 1;     // CHANGE IT WHEN IT WILL BE AN CHOISE FROM PLAYER TO PLAY AGAINST WHAT AI
 
-                sessionsBattle1v1AI[newBattleID].aiId = aiId;
+                sessionsBattle1v1AI[newBattleID].aIId = aiId;
 
                 Session1v1AILoadAI(Convert.ToString(aiId), newBattleID);
 
@@ -2162,6 +2162,9 @@ namespace Server
          //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - LAST");
 
         }
+
+
+
     }
 
 
