@@ -23,7 +23,7 @@ namespace Server
 
 
 
-
+            
 
 
         }
@@ -91,14 +91,27 @@ namespace Server
         //-----------------------------------------------------------------
         // NEW ------------------------------------------------------------
         //-----------------------------------------------------------------
-        public void PlayerAttackModule(int weaponIdint, int moduleSlotId) 
+        public bool PlayerAttackModule(int weaponIdint, int moduleSlotId) 
         {
             // player attack AI
-            if (playerWeaponSlotCurrentReloadTime[0] == 0)
+            // Console.WriteLine("DEBUG - weaponIdint - " + weaponIdint);
+            //if weapon control exist and powered
+            
+            for (int i = 0; i < playerSlotType.Length; i++)
             {
-                aIShipCurrentHealth -= playerWeaponSlotDamage[0];
-                playerWeaponSlotCurrentReloadTime[0] = playerWeaponSlotReloadTime[0];
+                Console.WriteLine("DEBUG i -"+i+ " playerSlotType[i] -"+ playerSlotType[i]);
+
+                if (playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] == 1)
+                {
+                    Console.WriteLine("DEBUG weapon - "+i);
+                    aIShipCurrentHealth -= playerWeaponSlotDamage[weaponIdint];
+                    playerWeaponSlotCurrentReloadTime[weaponIdint] = playerWeaponSlotReloadTime[weaponIdint];
+                    return true;
+                }
+
             }
+
+            return false;
         }
 
         public void PlayerModuleEnergyUp(int moduleSlotId)

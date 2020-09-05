@@ -506,12 +506,15 @@ namespace Server
                                 // Attack module with weapon
                                 else if (recievedMessage[5] == "3")
                                 {
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]));
-
-
-
-                                    // answer to client  - 0 means that action was successeful
-                                    answerToClient = "0";
+                                   if (sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7])) == true)
+                                    {
+                                        answerToClient = "1"; // shoot was done
+                                    }
+                                    else 
+                                    {
+                                        // answer to client  - 0 means that action was successeful
+                                        answerToClient = "0";
+                                    }
                                 }
 
                             }
@@ -2092,11 +2095,11 @@ namespace Server
                         stringType = new string[] { "int", "int", "int" };
                         requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
                         
-                        sessionsBattle1v1AI[newBattleID].playerSlotHealth[0] = Convert.ToInt32(requestAnswer[0][0]);
-                        sessionsBattle1v1AI[newBattleID].playerSlotPowered[0] = 0;
-                        sessionsBattle1v1AI[newBattleID].playerSlotEnergyRequired[0] = Convert.ToInt32(requestAnswer[1][0]);
-                        sessionsBattle1v1AI[newBattleID].playerSlotType[0] = "weaponcontrol";
-                        sessionsBattle1v1AI[newBattleID].playerSlotWeaponControlAmountOfWeapons[0] = Convert.ToInt32(requestAnswer[2][0]);
+                        sessionsBattle1v1AI[newBattleID].playerSlotHealth[i + 2] = Convert.ToInt32(requestAnswer[0][0]);
+                        sessionsBattle1v1AI[newBattleID].playerSlotPowered[i + 2] = 0;
+                        sessionsBattle1v1AI[newBattleID].playerSlotEnergyRequired[i + 2] = Convert.ToInt32(requestAnswer[1][0]);
+                        sessionsBattle1v1AI[newBattleID].playerSlotType[i + 2] = "weaponcontrol";
+                        sessionsBattle1v1AI[newBattleID].playerSlotWeaponControlAmountOfWeapons[i + 2] = Convert.ToInt32(requestAnswer[2][0]);
 
                     //    Console.WriteLine("DEBUG Session1v1AILoadPlayer - 5.522");
                     }
