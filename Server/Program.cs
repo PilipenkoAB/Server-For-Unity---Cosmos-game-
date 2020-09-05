@@ -123,7 +123,8 @@ namespace Server
                                     // ATTACK dummy class
                                     sessionsBattle1v1AI[battleSessionId].AttackDummyClass();
 
-
+                                    // Set time of moving of projectile
+                                    sessionsBattle1v1AI[battleSessionId].ProjectilesMoveTime();
 
 
                                     // check if someone dead

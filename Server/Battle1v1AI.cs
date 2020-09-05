@@ -99,19 +99,48 @@ namespace Server
             
             for (int i = 0; i < playerSlotType.Length; i++)
             {
-                Console.WriteLine("DEBUG i -"+i+ " playerSlotType[i] -"+ playerSlotType[i]);
+               // Console.WriteLine("DEBUG i -"+i+ " playerSlotType[i] -"+ playerSlotType[i]);
 
                 if (playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] == 1)
                 {
-                    Console.WriteLine("DEBUG weapon - "+i);
-                    aIShipCurrentHealth -= playerWeaponSlotDamage[weaponIdint];
+                //    Console.WriteLine("DEBUG weapon - "+i);
+                    playerWeaponSlotProjectileTime[weaponIdint] = 1500;
                     playerWeaponSlotCurrentReloadTime[weaponIdint] = playerWeaponSlotReloadTime[weaponIdint];
+                    playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
+                    // shot is happened
+                   // aIShipCurrentHealth -= playerWeaponSlotDamage[weaponIdint]; // damage
                     return true;
                 }
 
             }
 
             return false;
+        }
+
+        public void ProjectilesMoveTime() 
+        {
+            int reloadOneTick = 50; // ms
+
+            for (int i = 0; i < playerWeaponSlotProjectileTime.Length; i++)
+            {
+                if (playerWeaponSlotProjectileTime[i] > 0)
+                {
+
+                    playerWeaponSlotProjectileTime[i] -= reloadOneTick;
+
+                    Console.WriteLine("DEBUG projectile before - i "+i+" - " + playerWeaponSlotProjectileTime[i]);
+
+                    if (playerWeaponSlotProjectileTime[i] <= 0) 
+                    {
+                        // projectile hit the enemyAI
+                        aIShipCurrentHealth -= playerWeaponSlotDamage[i];
+                        Console.WriteLine("DEBUG projectile after - " + playerWeaponSlotProjectileTime[i]);
+
+                        playerWeaponSlotProjectileTime[i] = -1; 
+                    }
+                }
+            }
+
         }
 
         public void PlayerModuleEnergyUp(int moduleSlotId)
@@ -192,6 +221,9 @@ namespace Server
         public int[] playerWeaponSlotDamage { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
         public int[] playerWeaponSlotReloadTime { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
         public int[] playerWeaponSlotCurrentReloadTime { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+
+        public int[] playerWeaponSlotProjectileTime { get; set; } = new int[5] { -1, -1, -1, -1, -1 }; // -1 = does not exist, 0 - hit by time, N- time
+        public int[] playerWeaponSlotProjectileAimModule { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
 
         // Crew
 
