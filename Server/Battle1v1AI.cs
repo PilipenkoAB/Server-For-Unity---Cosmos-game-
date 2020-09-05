@@ -91,6 +91,22 @@ namespace Server
         //-----------------------------------------------------------------
         // NEW ------------------------------------------------------------
         //-----------------------------------------------------------------
+
+        public void AIAttackAllWeaponsCooldown() 
+        {
+            for (int i = 0; i < aIWeaponSlotCurrentReloadTime.Length; i++)
+            {
+                if (aIWeaponSlotCurrentReloadTime[i] == 0 && aISlotType[i] == "weaponcontrol" && aISlotPowered[i] == 1)
+                {
+                    //    Console.WriteLine("DEBUG weapon - "+i);
+                    aIWeaponSlotProjectileTime[i, 0] = 1500;
+                    aIWeaponSlotCurrentReloadTime[i] = aIWeaponSlotReloadTime[i];
+                    aIWeaponSlotProjectileAimModule[i] = 0;
+                }
+            }
+        }
+
+
         public bool PlayerAttackModule(int weaponIdint, int moduleSlotId) 
         {
             // player attack AI
@@ -140,6 +156,33 @@ namespace Server
                     }
                 }
             }
+
+
+            //ai (test)
+            for (int i = 0; i < 5; i++) //weapon N
+            {
+                for (int ii = 0; ii < 5; ii++) //projectile N
+                {
+                    if (aIWeaponSlotProjectileTime[i,ii] > 0)
+                    {
+
+                        aIWeaponSlotProjectileTime[i,ii] -= reloadOneTick;
+
+                        Console.WriteLine("DEBUG ai projectile before - i " + i + " - " + aIWeaponSlotProjectileTime[i,ii]);
+
+                        if (aIWeaponSlotProjectileTime[i,ii] <= 0)
+                        {
+                            // projectile hit the enemyAI
+                            playerShipCurrentHealth -= aIWeaponSlotDamage[i];
+                            Console.WriteLine("DEBUG ai projectile after - " + aIWeaponSlotProjectileTime[i,ii]);
+
+                            aIWeaponSlotProjectileTime[i,ii] = -1;
+                        }
+                    }
+                }
+                
+            }
+            //---
 
         }
 
@@ -225,6 +268,12 @@ namespace Server
         public int[] playerWeaponSlotProjectileTime { get; set; } = new int[5] { -1, -1, -1, -1, -1 }; // -1 = does not exist, 0 - hit by time, N- time
         public int[] playerWeaponSlotProjectileAimModule { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
 
+        //test // -1 = does not exist, 0 - hit by time, N- time
+        public int[,] playerWeaponSlotProjectileTime1 { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } }; 
+
+        public int[] playerWeaponSlotProjectileAimModule1 { get; set; } = new int[5] { 0,0,0,0,0 };
+        //------------------------
+
         // Crew
 
         public int[] playerCrewExist { get; set; }
@@ -268,6 +317,11 @@ namespace Server
         public int[] aIWeaponSlotDamage { get; set; } = new int[5];
         public int[] aIWeaponSlotReloadTime { get; set; } = new int[5];
         public int[] aIWeaponSlotCurrentReloadTime { get; set; } = new int[5];
+
+        //test // -1 = does not exist, 0 - hit by time, N- time
+        public int[,] aIWeaponSlotProjectileTime { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } };
+
+        public int[] aIWeaponSlotProjectileAimModule { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
 
         // Crew
 
