@@ -88,22 +88,34 @@ namespace Server
             }
         }
 
-
-
+        //-----------------------------------------------------------------
+        // NEW ------------------------------------------------------------
+        //-----------------------------------------------------------------
+        public void PlayerAttackModule(int weaponIdint, int moduleSlotId) 
+        {
+            // player attack AI
+            if (playerWeaponSlotCurrentReloadTime[0] == 0)
+            {
+                aIShipCurrentHealth -= playerWeaponSlotDamage[0];
+                playerWeaponSlotCurrentReloadTime[0] = playerWeaponSlotReloadTime[0];
+            }
+        }
 
         public void PlayerModuleEnergyUp(int moduleSlotId)
         {
-            if (playerSlotExist[moduleSlotId] != 0 || playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] == 0)
+            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
             {
                 playerSlotPowered[moduleSlotId] = 1;
+                playerShipFreeEnergy -= 1;
             }
         }
 
         public void PlayerModuleEnergyDown(int moduleSlotId)
         {
-            if (playerSlotExist[moduleSlotId] != 0 || playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0)
+            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0 && playerShipFreeEnergy > 0)
             {
                 playerSlotPowered[moduleSlotId] = 0;
+                playerShipFreeEnergy += 1;
             }
         }
 
@@ -228,24 +240,24 @@ namespace Server
     /*
      Class - PlayerShip
      */
-    public class PlayerShip : Battle1v1AI
-    {
-        public PlayerShip()
-        {
-        }
+    //public class PlayerShip : Battle1v1AI
+    //{
+    //    public PlayerShip()
+    //    {
+    //    }
 
-    }
+    //}
 
-    /*
-     Class - AiShip
-    */
-    public class AIShip : Battle1v1AI
-    {
-        public AIShip()
-        {
-        }
+    ///*
+    // Class - AiShip
+    //*/
+    //public class AIShip : Battle1v1AI
+    //{
+    //    public AIShip()
+    //    {
+    //    }
 
-    }
+    //}
 
     /*
     Class - slot

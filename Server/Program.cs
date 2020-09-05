@@ -446,6 +446,8 @@ namespace Server
 
                                 answerToClient = sessionsBattle1v1AI[battleSessionId].battleTime
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerShipCurrentHealth
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerShipFreeEnergy
+
                                     + ";" + sessionsBattle1v1AI[battleSessionId].aIShipCurrentHealth
                                     + ";" + playerWeapon1ReloadCurrent
 
@@ -492,10 +494,21 @@ namespace Server
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
                                 }
+                                // energy module Down
                                 else if (recievedMessage[5] == "2")
                                 {
-                                    // up energy on the moduleSlotId
+                                    // down energy on the moduleSlotId
                                     sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyDown(Convert.ToInt32(recievedMessage[6]));
+
+                                    // answer to client  - 0 means that action was successeful
+                                    answerToClient = "0";
+                                }
+                                // Attack module with weapon
+                                else if (recievedMessage[5] == "3")
+                                {
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]));
+
+
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
