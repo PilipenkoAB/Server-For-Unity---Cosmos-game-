@@ -36,8 +36,17 @@ namespace Server
 
         public void SetStartReload()
         {
-            playerWeaponSlotCurrentReloadTime[0] = playerWeaponSlotReloadTime[0];
-            aIWeaponSlotCurrentReloadTime[0] = aIWeaponSlotReloadTime[0];
+            for (int i = 0; i < 5; i++)
+            {
+                if (playerWeaponSlotExist[i] == 1) 
+                {
+                    playerWeaponSlotCurrentReloadTime[i] = playerWeaponSlotReloadTime[i];
+                }
+                if (aIWeaponSlotExist[i] == 1)
+                {
+                    aIWeaponSlotCurrentReloadTime[i] = aIWeaponSlotReloadTime[i];
+                }
+            }
         }
 
 
@@ -46,47 +55,52 @@ namespace Server
             int reloadOneTick = 50; // ms
 
             // reload of the player weapon
-            if (playerWeaponSlotCurrentReloadTime[0] > 0)
+            for (int i = 0; i < playerWeaponSlotCurrentReloadTime.Length; i++)
             {
-                playerWeaponSlotCurrentReloadTime[0] -= reloadOneTick;
+                if (playerWeaponSlotCurrentReloadTime[i] > 0 && playerWeaponSlotPowered[i] > 0)
+                {
+                    playerWeaponSlotCurrentReloadTime[i] -= reloadOneTick;
 
+                }
+                else if (playerWeaponSlotCurrentReloadTime[i] <= 0)
+                {
+                    playerWeaponSlotCurrentReloadTime[i] = 0;
+                }
             }
-            else if (playerWeaponSlotCurrentReloadTime[0] <= 0)
-            {
-                playerWeaponSlotCurrentReloadTime[0] = 0;
-            }
-
 
             // reload of the ai weapon
-            if (aIWeaponSlotCurrentReloadTime[0] > 0)
+            for (int i = 0; i < aIWeaponSlotCurrentReloadTime.Length; i++)
             {
-                aIWeaponSlotCurrentReloadTime[0] -= reloadOneTick;
-            }
-            else if (aIWeaponSlotCurrentReloadTime[0] <= 0)
-            {
-                aIWeaponSlotCurrentReloadTime[0] = 0;
-            }
-        }
-
-        public void AttackDummyClass()
-        {
-            //ai attack player
-            if (aIWeaponSlotCurrentReloadTime[0] == 0)
-            {
-                playerShipCurrentHealth -= aIWeaponSlotDamage[0];
-                aIWeaponSlotCurrentReloadTime[0] = aIWeaponSlotReloadTime[0];
+                if (aIWeaponSlotCurrentReloadTime[i] > 0 && aIWeaponSlotPowered[i] > 0)
+                {
+                    aIWeaponSlotCurrentReloadTime[i] -= reloadOneTick;
+                }
+                else if (aIWeaponSlotCurrentReloadTime[i] <= 0)
+                {
+                    aIWeaponSlotCurrentReloadTime[i] = 0;
+                }
             }
         }
 
-        public void PlayerAttackWeapon()
-        {
-            // player attack AI
-            if (playerWeaponSlotCurrentReloadTime[0] == 0)
-            {
-                aIShipCurrentHealth -= playerWeaponSlotDamage[0];
-                playerWeaponSlotCurrentReloadTime[0] = playerWeaponSlotReloadTime[0];
-            }
-        }
+        //public void AttackDummyClass()
+        //{
+        //    //ai attack player
+        //    if (aIWeaponSlotCurrentReloadTime[0] == 0)
+        //    {
+        //        playerShipCurrentHealth -= aIWeaponSlotDamage[0];
+        //        aIWeaponSlotCurrentReloadTime[0] = aIWeaponSlotReloadTime[0];
+        //    }
+        //}
+
+        //public void PlayerAttackWeapon()
+        //{
+        //    // player attack AI
+        //    if (playerWeaponSlotCurrentReloadTime[0] == 0)
+        //    {
+        //        aIShipCurrentHealth -= playerWeaponSlotDamage[0];
+        //        playerWeaponSlotCurrentReloadTime[0] = playerWeaponSlotReloadTime[0];
+        //    }
+        //}
 
         //-----------------------------------------------------------------
         // NEW ------------------------------------------------------------
@@ -99,12 +113,26 @@ namespace Server
                 if (aIWeaponSlotCurrentReloadTime[i] == 0 && aISlotType[i] == "weaponcontrol" && aISlotPowered[i] == 1)
                 {
                     //    Console.WriteLine("DEBUG weapon - "+i);
-                    aIWeaponSlotProjectileTime[i, 0] = 1500;
+                    aIWeaponSlotProjectileTime[i, 0] = 1500; // need to set if how many projectles ?????
                     aIWeaponSlotCurrentReloadTime[i] = aIWeaponSlotReloadTime[i];
                     aIWeaponSlotProjectileAimModule[i] = 0;
                 }
             }
         }
+
+
+        public void AIPowerModules() 
+        {
+            for (int i = 0; i < aISlotExist.Length; i++)
+            {
+                if (aISlotExist[i] > 0 && aISlotPowered[i] != 1 && aISlotHealth[i] > 0 && aIShipFreeEnergy > 0)
+                {
+                    aISlotPowered[i] = 1;
+                    aIShipFreeEnergy -= 1;
+                }
+            }
+        }
+        //----------------
 
 
         public bool PlayerAttackModule(int weaponIdint, int moduleSlotId) 
@@ -117,7 +145,7 @@ namespace Server
             {
                // Console.WriteLine("DEBUG i -"+i+ " playerSlotType[i] -"+ playerSlotType[i]);
 
-                if (playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] == 1)
+                if (playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] == 1 && playerWeaponSlotPowered[weaponIdint] == 1)
                 {
                 //    Console.WriteLine("DEBUG weapon - "+i);
                     playerWeaponSlotProjectileTime[weaponIdint] = 1500;
@@ -197,13 +225,64 @@ namespace Server
 
         public void PlayerModuleEnergyDown(int moduleSlotId)
         {
-            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0 && playerShipFreeEnergy > 0)
+            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0 && playerShipFreeEnergy >= 0)
             {
                 playerSlotPowered[moduleSlotId] = 0;
                 playerShipFreeEnergy += 1;
+
+                // unpower all weapons if weapon control was unpowered
+                if (playerSlotType[moduleSlotId] == "weaponcontrol") 
+                {
+                    for (int i = 0; i < playerWeaponSlotPowered.Length; i++)
+                    {
+                        if (playerWeaponSlotPowered[i] > 0)
+                        {
+                            playerWeaponSlotPowered[i] = 0;
+                            playerShipFreeEnergy += 1;
+
+                            playerWeaponSlotCurrentReloadTime[i] = playerWeaponSlotReloadTime[i];
+                        }
+                    }
+                }
             }
         }
 
+
+        public void PlayerWeaponEnergyUp(int weaponSlotId)
+        {
+            bool weaponControlPowered = false;
+            // check if weapon control powered - if not - power first
+            for (int i = 0; i < playerSlotExist.Length; i++)
+            {
+                if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] <= 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
+                {
+                    playerSlotPowered[i] += 1;
+                    playerShipFreeEnergy -= 1;
+                }
+                else if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] >= 1) 
+                {
+                    weaponControlPowered = true;
+                }
+            }
+
+            // power weapon
+            if (weaponControlPowered = true && playerWeaponSlotExist[weaponSlotId] != 0 && playerWeaponSlotExist[weaponSlotId] != -1 && playerWeaponSlotPowered[weaponSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
+            {
+                playerWeaponSlotPowered[weaponSlotId] = 1;
+                playerShipFreeEnergy -= 1;
+            }
+        }
+
+        public void PlayerWeaponEnergyDown(int weaponSlotId)
+        {
+            if (playerWeaponSlotExist[weaponSlotId] != 0 && playerWeaponSlotExist[weaponSlotId] != -1 && playerWeaponSlotPowered[weaponSlotId] != 0 && playerShipFreeEnergy >= 0)
+            {
+                playerWeaponSlotPowered[weaponSlotId] = 0;
+                playerShipFreeEnergy += 1;
+
+                playerWeaponSlotCurrentReloadTime[weaponSlotId] = playerWeaponSlotReloadTime[weaponSlotId];
+            }
+        }
         //Variables
         public int battle1v1AIId { get; set; }
 

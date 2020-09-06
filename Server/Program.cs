@@ -108,6 +108,7 @@ namespace Server
 
                                 // set start health
                                 sessionsBattle1v1AI[battleSessionId].SetStartHealth();
+                                sessionsBattle1v1AI[battleSessionId].SetStartReload();
 
 
                                 //update battle session status every 50ms
@@ -120,12 +121,16 @@ namespace Server
                                     // RELOAD
                                     sessionsBattle1v1AI[battleSessionId].ReloadAllWeaponsPerTick();
 
-                                    // ATTACK dummy class
-                                    sessionsBattle1v1AI[battleSessionId].AttackDummyClass();
 
                                     // Set time of moving of projectile
                                     sessionsBattle1v1AI[battleSessionId].ProjectilesMoveTime();
 
+
+                                    // AI
+                                    // power modules (for example, if module was unpowered by something
+                                    sessionsBattle1v1AI[battleSessionId].AIPowerModules();
+                                    // attack if no on cooldown
+                                    sessionsBattle1v1AI[battleSessionId].AIAttackAllWeaponsCooldown();
 
                                     // check if someone dead
                                     if (sessionsBattle1v1AI[battleSessionId].playerShipCurrentHealth <= 0) {
@@ -446,30 +451,66 @@ namespace Server
                                 int playerWeapon1ReloadCurrent = sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[0];
 
                                 answerToClient = sessionsBattle1v1AI[battleSessionId].battleTime
+
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerShipCurrentHealth
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerShipFreeEnergy
 
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].aIShipCurrentHealth
-                                    + ";" + playerWeapon1ReloadCurrent
-
-
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[0]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[0]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[1]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[1]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[2]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[2]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[3]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[3]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[4]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[4]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[5]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[5]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[6]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[6]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[7]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[7]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[8]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[8]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[9]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[9]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[10]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[10]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[11]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[11]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[12]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[12]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[13]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[13]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[14]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[14]
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[15]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[16];
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[15]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerSlotPowered[16]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerSlotHealth[16]
+
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotPowered[0]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[0]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotProjectileTime[0]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotPowered[1]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[1]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotProjectileTime[1]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotPowered[2]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[2]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotProjectileTime[2]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotPowered[3]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[3]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotProjectileTime[3]
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotPowered[4]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[4]
+                                        + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotProjectileTime[4]
+
+                                        // ai
+
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].aIShipCurrentHealth
+
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].aIWeaponSlotProjectileTime[0,0];
                             }
                             // require information for update UI WITH action
                             else if (recievedMessage[4] == "3")
@@ -479,7 +520,7 @@ namespace Server
                                 if (recievedMessage[5] == "0")
                                 {
                                     // TEST ONE - pressed only button attack weapon1
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackWeapon();
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]));
 
 
                                     // answer to client  - 0 means that action was successeful
@@ -518,6 +559,24 @@ namespace Server
                                     }
                                 }
 
+                                // energy weapon UP
+                                else if (recievedMessage[5] == "4")
+                                {
+                                    // up energy on the weaponSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyUp(Convert.ToInt32(recievedMessage[6]));
+
+                                    // answer to client  - 0 means that action was successeful
+                                    answerToClient = "0";
+                                }
+                                // energy weapon Down
+                                else if (recievedMessage[5] == "5")
+                                {
+                                    // down energy on the weaponSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyDown(Convert.ToInt32(recievedMessage[6]));
+
+                                    // answer to client  - 0 means that action was successeful
+                                    answerToClient = "0";
+                                }
                             }
 
                         }
@@ -2153,7 +2212,7 @@ namespace Server
 
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotExist[i] = Convert.ToInt32(requestAnswer[3][0]);
 
-                    sessionsBattle1v1AI[newBattleID].playerWeaponSlotPowered[i] = 1;
+                   // sessionsBattle1v1AI[newBattleID].playerWeaponSlotPowered[i] = 0;
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotEnergyRequired[i] = Convert.ToInt32(requestAnswer[0][0]);
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotDamage[i] = Convert.ToInt32(requestAnswer[1][0]);
                     sessionsBattle1v1AI[newBattleID].playerWeaponSlotReloadTime[i] = Convert.ToInt32(requestAnswer[2][0]);
