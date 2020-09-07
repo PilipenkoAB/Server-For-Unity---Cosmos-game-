@@ -115,7 +115,17 @@ namespace Server
                     //    Console.WriteLine("DEBUG weapon - "+i);
                     aIWeaponSlotProjectileTime[i, 0] = 1500; // need to set if how many projectles ?????
                     aIWeaponSlotCurrentReloadTime[i] = aIWeaponSlotReloadTime[i];
-                    aIWeaponSlotProjectileAimModule[i] = 0;
+
+                    //get random slot to attack
+                    Random randomSlotToAttack = new Random();
+                    int slotToAttack = randomSlotToAttack.Next(0,11); // 11 because not small slots to attack
+                    while (playerSlotExist[slotToAttack] < 0) 
+                    {
+                        slotToAttack = randomSlotToAttack.Next(0, 11);
+                    //    Console.WriteLine("DEBUG RANDOM try - " + slotToAttack);
+                    }
+                  //  Console.WriteLine("DEBUG RANDOM attack - " + slotToAttack);
+                    aIWeaponSlotProjectileAimModule[i] = slotToAttack;
                 }
             }
         }
@@ -128,6 +138,15 @@ namespace Server
                 if (aISlotExist[i] > 0 && aISlotPowered[i] != 1 && aISlotHealth[i] > 0 && aIShipFreeEnergy > 0)
                 {
                     aISlotPowered[i] = 1;
+                    aIShipFreeEnergy -= 1;
+                }
+            }
+
+            for (int i = 0; i < aIWeaponSlotExist.Length; i++)
+            {
+                if (aIWeaponSlotExist[i] > 0 && aIWeaponSlotPowered[i] != 1 && aIShipFreeEnergy > 0)
+                {
+                    aIWeaponSlotPowered[i] = 1;
                     aIShipFreeEnergy -= 1;
                 }
             }
@@ -152,7 +171,6 @@ namespace Server
                     playerWeaponSlotCurrentReloadTime[weaponIdint] = playerWeaponSlotReloadTime[weaponIdint];
                     playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
                     // shot is happened
-                   // aIShipCurrentHealth -= playerWeaponSlotDamage[weaponIdint]; // damage
                     return true;
                 }
 
@@ -172,13 +190,58 @@ namespace Server
 
                     playerWeaponSlotProjectileTime[i] -= reloadOneTick;
 
-                    Console.WriteLine("DEBUG projectile before - i "+i+" - " + playerWeaponSlotProjectileTime[i]);
+                   // Console.WriteLine("DEBUG projectile before - i "+i+" - " + playerWeaponSlotProjectileTime[i]);
 
                     if (playerWeaponSlotProjectileTime[i] <= 0) 
                     {
                         // projectile hit the enemyAI
-                        aIShipCurrentHealth -= playerWeaponSlotDamage[i];
-                        Console.WriteLine("DEBUG projectile after - " + playerWeaponSlotProjectileTime[i]);
+                        Random randomChanceToHit = new Random();
+                        int ChanceToHit = randomChanceToHit.Next(0, 100);
+
+                        Random randomDamage = new Random();
+                        int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(playerWeaponSlotDamage[i]) * 1.1));
+
+
+                        if (ChanceToHit <= 50) // if hit the ship but not module
+                        {
+                            aIShipCurrentHealth -= damageToShip;
+                        } 
+                        else if(ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
+                        {
+                            aIShipCurrentHealth -= damageToShip / 2;
+                            aISlotHealth[playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
+
+                            if (aISlotHealth[playerWeaponSlotProjectileAimModule[i]] <= 0)
+                            {
+                                aIShipCurrentHealth -= damageToShip / 2; // aditional damage if module was destroyed
+
+                                aISlotHealth[playerWeaponSlotProjectileAimModule[i]] = 0;
+                                aISlotPowered[playerWeaponSlotProjectileAimModule[i]] = 0;
+
+                                if (aISlotPowered[playerWeaponSlotProjectileAimModule[i]] > 0)
+                                {
+                                    aISlotPowered[playerWeaponSlotProjectileAimModule[i]] = 0;
+                                    aIShipFreeEnergy += 1;
+
+                                    if (aISlotType[playerWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
+                                    {
+                                        for (int iii = 0; iii < aIWeaponSlotPowered.Length; iii++)
+                                        {
+                                            if (aIWeaponSlotPowered[iii] > 0)
+                                            {
+                                                aIShipFreeEnergy += 1;
+                                                aIWeaponSlotPowered[iii] = 0;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // if missed
+                        //-- nothing(?)
+
+
+                        // Console.WriteLine("DEBUG projectile after - " + playerWeaponSlotProjectileTime[i]);
 
                         playerWeaponSlotProjectileTime[i] = -1; 
                     }
@@ -196,13 +259,84 @@ namespace Server
 
                         aIWeaponSlotProjectileTime[i,ii] -= reloadOneTick;
 
-                        Console.WriteLine("DEBUG ai projectile before - i " + i + " - " + aIWeaponSlotProjectileTime[i,ii]);
+                       // Console.WriteLine("DEBUG ai projectile before - i " + i + " - " + aIWeaponSlotProjectileTime[i,ii]);
 
                         if (aIWeaponSlotProjectileTime[i,ii] <= 0)
                         {
                             // projectile hit the enemyAI
-                            playerShipCurrentHealth -= aIWeaponSlotDamage[i];
-                            Console.WriteLine("DEBUG ai projectile after - " + aIWeaponSlotProjectileTime[i,ii]);
+                            Random randomChanceToHit = new Random();
+                            int ChanceToHit = randomChanceToHit.Next(0, 100);
+
+                            Random randomDamage = new Random();
+                            int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(aIWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(aIWeaponSlotDamage[i]) * 1.1));
+
+
+                            if (ChanceToHit <= 50) // if hit the ship but not module
+                            {
+                                 playerShipCurrentHealth -= damageToShip;
+                            }
+                            else if (ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
+                            {
+                                playerShipCurrentHealth -= damageToShip / 2;
+                                playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
+
+                                //--- DEBUG weapon control test
+                                //playerSlotHealth[3] -= 8;
+                                //if (playerSlotHealth[3] <= 0)
+                                //{
+                                //    playerSlotHealth[3] = 0;
+
+                                //    if (playerSlotPowered[3] > 0)
+                                //    {
+                                //        playerSlotPowered[3] = 0;
+                                //        playerShipFreeEnergy += 1;
+
+                                //        if (playerSlotType[3] == "weaponcontrol")
+                                //        {
+                                //            for (int iii = 0; iii < playerWeaponSlotPowered.Length; iii++)
+                                //            {
+                                //                if (playerWeaponSlotPowered[iii] > 0) 
+                                //                {
+                                //                    playerShipFreeEnergy += 1;
+                                //                    playerWeaponSlotPowered[iii] = 0;
+                                //                }
+                                                
+                                //            }
+                                //        }
+                                //    }
+                                //}
+                                //---
+                                //---
+                                if (playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] <= 0) 
+                                {
+                                    playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] = 0;
+                                    playerShipCurrentHealth -= damageToShip / 2;
+
+                                    if (playerSlotPowered[aIWeaponSlotProjectileAimModule[i]] > 0)
+                                    {
+                                        playerSlotPowered[aIWeaponSlotProjectileAimModule[i]] = 0;
+                                        playerShipFreeEnergy += 1;
+
+                                        if (playerSlotType[aIWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
+                                        {
+                                            for (int iii = 0; iii < playerWeaponSlotPowered.Length; iii++)
+                                            {
+                                                if (playerWeaponSlotPowered[iii] > 0)
+                                                {
+                                                    playerShipFreeEnergy += 1;
+                                                    playerWeaponSlotPowered[iii] = 0;
+                                                }
+                                            }  
+                                        }
+                                    }
+                                }
+                                //----
+                              //  Console.WriteLine("slot - "+ aIWeaponSlotProjectileAimModule[i] + " - "+playerSlotHealth[aIWeaponSlotProjectileAimModule[i]]);
+                            }
+                            // if missed
+                            //-- nothing(?)
+
+                           // Console.WriteLine("DEBUG ai projectile after - " + aIWeaponSlotProjectileTime[i,ii]);
 
                             aIWeaponSlotProjectileTime[i,ii] = -1;
                         }
@@ -214,9 +348,12 @@ namespace Server
 
         }
 
+
+
+        // ENERGY manipulation
         public void PlayerModuleEnergyUp(int moduleSlotId)
         {
-            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
+            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy && playerSlotHealth[moduleSlotId] > 0)
             {
                 playerSlotPowered[moduleSlotId] = 1;
                 playerShipFreeEnergy -= 1;
@@ -225,7 +362,7 @@ namespace Server
 
         public void PlayerModuleEnergyDown(int moduleSlotId)
         {
-            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0 && playerShipFreeEnergy >= 0)
+            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0 && playerShipFreeEnergy >= 0 && playerSlotHealth[moduleSlotId] > 0)
             {
                 playerSlotPowered[moduleSlotId] = 0;
                 playerShipFreeEnergy += 1;
@@ -254,23 +391,30 @@ namespace Server
             // check if weapon control powered - if not - power first
             for (int i = 0; i < playerSlotExist.Length; i++)
             {
-                if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] <= 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
+                if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] <= 0 && playerSlotHealth[i] > 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
                 {
+                    Console.WriteLine("DEBUG health - " + playerSlotHealth[i]);
                     playerSlotPowered[i] += 1;
                     playerShipFreeEnergy -= 1;
                 }
-                else if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] >= 1) 
+                if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] > 0 && playerSlotHealth[i] > 0) 
                 {
+                  //  Console.WriteLine("DEBUG health 1  - " + playerSlotHealth[i]);
                     weaponControlPowered = true;
                 }
             }
 
             // power weapon
-            if (weaponControlPowered = true && playerWeaponSlotExist[weaponSlotId] != 0 && playerWeaponSlotExist[weaponSlotId] != -1 && playerWeaponSlotPowered[weaponSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
+            if (weaponControlPowered == true && playerWeaponSlotExist[weaponSlotId] != 0 && playerWeaponSlotExist[weaponSlotId] != -1 && playerWeaponSlotPowered[weaponSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
             {
-                playerWeaponSlotPowered[weaponSlotId] = 1;
+                //Console.WriteLine("DEBUG health power" + weaponControlPowered);
+
+               playerWeaponSlotPowered[weaponSlotId] = 1;
                 playerShipFreeEnergy -= 1;
+
+                weaponControlPowered = false;
             }
+            
         }
 
         public void PlayerWeaponEnergyDown(int weaponSlotId)
@@ -283,6 +427,11 @@ namespace Server
                 playerWeaponSlotCurrentReloadTime[weaponSlotId] = playerWeaponSlotReloadTime[weaponSlotId];
             }
         }
+       
+        
+        
+        
+        
         //Variables
         public int battle1v1AIId { get; set; }
 
