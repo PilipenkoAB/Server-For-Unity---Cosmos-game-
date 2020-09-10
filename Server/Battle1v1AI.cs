@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Server
@@ -20,11 +21,6 @@ namespace Server
             battleTime = 0;
             playerReady = 0;
             // Calculatet starting parameters after getting them at creating the class
-
-
-
-            
-
 
         }
 
@@ -82,29 +78,85 @@ namespace Server
             }
         }
 
-        //public void AttackDummyClass()
-        //{
-        //    //ai attack player
-        //    if (aIWeaponSlotCurrentReloadTime[0] == 0)
-        //    {
-        //        playerShipCurrentHealth -= aIWeaponSlotDamage[0];
-        //        aIWeaponSlotCurrentReloadTime[0] = aIWeaponSlotReloadTime[0];
-        //    }
-        //}
 
-        //public void PlayerAttackWeapon()
-        //{
-        //    // player attack AI
-        //    if (playerWeaponSlotCurrentReloadTime[0] == 0)
-        //    {
-        //        aIShipCurrentHealth -= playerWeaponSlotDamage[0];
-        //        playerWeaponSlotCurrentReloadTime[0] = playerWeaponSlotReloadTime[0];
-        //    }
-        //}
+        public void ReloadAllShieldsPerTick() 
+        {
+            int reloadOneTick = 50; // ms
 
-        //-----------------------------------------------------------------
-        // NEW ------------------------------------------------------------
-        //-----------------------------------------------------------------
+            int playerSumCapasity = 0;
+            int aISumCapasity = 0;
+            //player shields
+            for (int i = 0; i < 5; i++) 
+            {
+                if (playerSlotExist[i + 2] != 0 && playerSlotExist[i + 2] != -1 && playerSlotType[i + 2] == "shield" && playerSlotPowered[i + 2] <= 0) 
+                {
+                    playerSlotShieldCurrentCapacity[i + 2] = 0;
+                    playerSlotShieldRechargeCurrentTime[i + 2] = playerSlotShieldRechargeTime[i + 2];
+                }
+                else if (playerSlotExist[i + 2] != 0 && playerSlotExist[i + 2] != -1 && playerSlotType[i + 2] == "shield" && playerSlotPowered[i + 2] > 0 && playerSlotHealth[i + 2] > 0 && playerSlotShieldRechargeCurrentTime[i + 2] > 0)
+                {
+                  //  Console.WriteLine("DEBUG - recharge time before - " + playerSlotShieldRechargeCurrentTime[i + 2]);
+                    playerSlotShieldRechargeCurrentTime[i + 2] -= reloadOneTick;
+                  //  Console.WriteLine("DEBUG - recharge time after - " + playerSlotShieldRechargeCurrentTime[i + 2]);
+                }
+                else if(playerSlotShieldRechargeCurrentTime[i + 2] <= 0)
+                {
+                    playerSlotShieldCurrentCapacity[i + 2] += playerSlotShieldRechargeRate[i + 2];
+
+                    if (playerSlotShieldCurrentCapacity[i + 2] > playerSlotShieldCapacity[i + 2])
+                    {
+                        playerSlotShieldCurrentCapacity[i + 2] = playerSlotShieldCapacity[i + 2];
+                    }
+
+                    playerSlotShieldRechargeCurrentTime[i + 2] = playerSlotShieldRechargeTime[i + 2];
+                   // Console.WriteLine("DEBUG - playerSlotShieldRechargeTime[i + 2] - " + playerSlotShieldRechargeTime[i + 2]);
+
+                }
+
+                playerSumCapasity += playerSlotShieldCurrentCapacity[i + 2];
+                // sum capacity
+                playerSumShieldCurrentCapacity = playerSumCapasity;
+            }
+
+            //ai shields
+            for (int i = 0; i < 5; i++)
+            {
+                if (aISlotExist[i + 2] != 0 && aISlotExist[i + 2] != -1 && aISlotType[i + 2] == "shield" && aISlotPowered[i + 2] <= 0)
+                {
+                    aISlotShieldCurrentCapacity[i + 2] = 0;
+                    aISlotShieldRechargeCurrentTime[i + 2] = aISlotShieldRechargeTime[i + 2];
+                }
+                else if (aISlotExist[i + 2] != 0 && aISlotExist[i + 2] != -1 && aISlotType[i + 2] == "shield" && aISlotPowered[i + 2] > 0 && aISlotHealth[i + 2] > 0 && aISlotShieldRechargeCurrentTime[i + 2] > 0)
+                {
+                    //  Console.WriteLine("DEBUG - recharge time before - " + playerSlotShieldRechargeCurrentTime[i + 2]);
+                    aISlotShieldRechargeCurrentTime[i + 2] -= reloadOneTick;
+                    //  Console.WriteLine("DEBUG - recharge time after - " + playerSlotShieldRechargeCurrentTime[i + 2]);
+                }
+                else if (aISlotShieldRechargeCurrentTime[i + 2] <= 0)
+                {
+                    aISlotShieldCurrentCapacity[i + 2] += aISlotShieldRechargeRate[i + 2];
+
+                    if (aISlotShieldCurrentCapacity[i + 2] > aISlotShieldCapacity[i + 2])
+                    {
+                        aISlotShieldCurrentCapacity[i + 2] = aISlotShieldCapacity[i + 2];
+                    }
+
+                    aISlotShieldRechargeCurrentTime[i + 2] = aISlotShieldRechargeTime[i + 2];
+                    // Console.WriteLine("DEBUG - playerSlotShieldRechargeTime[i + 2] - " + playerSlotShieldRechargeTime[i + 2]);
+
+                }
+
+                aISumCapasity += aISlotShieldCurrentCapacity[i + 2];
+                // sum capacity
+                aISumShieldCurrentCapacity = aISumCapasity;
+            }
+
+
+          //  Console.WriteLine("DEBUG playerSumCapasity - " + playerSumCapasity);
+         //  Console.WriteLine("DEBUG aISumCapasity - " + aISumCapasity);
+        }
+
+        //-----------------------
 
         public void AIAttackAllWeaponsCooldown() 
         {
@@ -200,14 +252,56 @@ namespace Server
 
                         Random randomDamage = new Random();
                         int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(playerWeaponSlotDamage[i]) * 1.1));
-
+                        int resultShieldCapasityAfterDamage = 0;
 
                         if (ChanceToHit <= 50) // if hit the ship but not module
                         {
+                            for (int i1 = 0; i1 < 5; i1++)
+                            {
+                                // layers of the shields. first - destroy first layer, then next then next
+                                if (aISlotType[i1 + 2] == "shield" && aISlotHealth[i1 + 2] > 0 && aISlotPowered[i1 + 2] > 0)
+                                {
+                                    // in progress !!!
+                                    resultShieldCapasityAfterDamage = aISlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                    if (resultShieldCapasityAfterDamage <= 0)
+                                    {
+                                        aISlotShieldCurrentCapacity[i1 + 2] = 0;
+                                        damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+                                    }
+                                    else
+                                    {
+                                        aISlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                        damageToShip = 0;
+                                    }
+                                }
+                            }
+
+                            // damage to ship if no shields (all damage in 1 take)
                             aIShipCurrentHealth -= damageToShip;
+                            damageToShip = 0;
                         } 
                         else if(ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
                         {
+                            for (int i1 = 0; i1 < 5; i1++)
+                            {
+                                // layers of the shields. first - destroy first layer, then next then next
+                                if (aISlotType[i1 + 2] == "shield" && aISlotHealth[i1 + 2] > 0 && aISlotPowered[i1 + 2] > 0)
+                                {
+                                    // in progress !!!
+                                    resultShieldCapasityAfterDamage = aISlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                    if (resultShieldCapasityAfterDamage <= 0)
+                                    {
+                                        aISlotShieldCurrentCapacity[i1 + 2] = 0;
+                                        damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+                                    }
+                                    else
+                                    {
+                                        aISlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                        damageToShip = 0;
+                                    }
+                                }
+                            }
+
                             aIShipCurrentHealth -= damageToShip / 2;
                             aISlotHealth[playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
 
@@ -236,6 +330,8 @@ namespace Server
                                     }
                                 }
                             }
+
+                            damageToShip = 0;
                         }
                         // if missed
                         //-- nothing(?)
@@ -249,7 +345,7 @@ namespace Server
             }
 
 
-            //ai (test)
+            //ai (multiple projectiles + shields)
             for (int i = 0; i < 5; i++) //weapon N
             {
                 for (int ii = 0; ii < 5; ii++) //projectile N
@@ -269,43 +365,71 @@ namespace Server
 
                             Random randomDamage = new Random();
                             int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(aIWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(aIWeaponSlotDamage[i]) * 1.1));
-
+                            int resultShieldCapasityAfterDamage = 0;
 
                             if (ChanceToHit <= 50) // if hit the ship but not module
                             {
-                                 playerShipCurrentHealth -= damageToShip;
+                               // Console.WriteLine("DEBUG HIT SHIP");
+                                // damage with shields
+
+                                for (int i1 = 0; i1 < 5; i1++)
+                                {
+                                    // layers of the shields. first - destroy first layer, then next then next
+                                    if (playerSlotType[i1 + 2] == "shield" && playerSlotHealth[i1 + 2] > 0 && playerSlotPowered[i1 + 2] > 0)
+                                    {
+                                        // in progress !!!
+                                        resultShieldCapasityAfterDamage = playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                        if (resultShieldCapasityAfterDamage <= 0)
+                                        {
+                                            playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+                                            damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+                                        }
+                                        else
+                                        {
+                                            playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                            damageToShip = 0;
+                                        }
+                                    }
+                                }
+
+                                // damage to ship if no shields (all damage in 1 take)
+                                playerShipCurrentHealth -= damageToShip;
+                                damageToShip = 0;
+
+                               // Console.WriteLine("damage = " + damageToShip);
+                               // Console.WriteLine("shield = "+ playerSumShieldCurrentCapacity);
+                               // Console.WriteLine("health = " + playerShipCurrentHealth);
+
+
                             }
                             else if (ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
                             {
+                              //  Console.WriteLine("DEBUG HIT MODULE - " + damageToShip);
+                                for (int i1 = 0; i1 < 5; i1++)
+                                {
+                                    // layers of the shields. first - destroy first layer, then next then next
+                                    if (playerSlotType[i1 + 2] == "shield" && playerSlotHealth[i1 + 2] > 0 && playerSlotPowered[i1 + 2] > 0)
+                                    {
+                                        // in progress !!!
+                                        resultShieldCapasityAfterDamage = playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                        if (resultShieldCapasityAfterDamage <= 0)
+                                        {
+                                            playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+                                            damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+                                        }
+                                        else
+                                        {
+                                            playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                            damageToShip = 0;
+                                        }
+                                    }
+                                }
+
+
                                 playerShipCurrentHealth -= damageToShip / 2;
                                 playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
 
-                                //--- DEBUG weapon control test
-                                //playerSlotHealth[3] -= 8;
-                                //if (playerSlotHealth[3] <= 0)
-                                //{
-                                //    playerSlotHealth[3] = 0;
-
-                                //    if (playerSlotPowered[3] > 0)
-                                //    {
-                                //        playerSlotPowered[3] = 0;
-                                //        playerShipFreeEnergy += 1;
-
-                                //        if (playerSlotType[3] == "weaponcontrol")
-                                //        {
-                                //            for (int iii = 0; iii < playerWeaponSlotPowered.Length; iii++)
-                                //            {
-                                //                if (playerWeaponSlotPowered[iii] > 0) 
-                                //                {
-                                //                    playerShipFreeEnergy += 1;
-                                //                    playerWeaponSlotPowered[iii] = 0;
-                                //                }
-                                                
-                                //            }
-                                //        }
-                                //    }
-                                //}
-                                //---
+                              
                                 //---
                                 if (playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] <= 0) 
                                 {
@@ -330,8 +454,10 @@ namespace Server
                                         }
                                     }
                                 }
+
+                                damageToShip = 0;
                                 //----
-                              //  Console.WriteLine("slot - "+ aIWeaponSlotProjectileAimModule[i] + " - "+playerSlotHealth[aIWeaponSlotProjectileAimModule[i]]);
+                                //  Console.WriteLine("slot - "+ aIWeaponSlotProjectileAimModule[i] + " - "+playerSlotHealth[aIWeaponSlotProjectileAimModule[i]]);
                             }
                             // if missed
                             //-- nothing(?)
@@ -393,7 +519,7 @@ namespace Server
             {
                 if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] <= 0 && playerSlotHealth[i] > 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
                 {
-                    Console.WriteLine("DEBUG health - " + playerSlotHealth[i]);
+                   // Console.WriteLine("DEBUG health - " + playerSlotHealth[i]);
                     playerSlotPowered[i] += 1;
                     playerShipFreeEnergy -= 1;
                 }
@@ -466,6 +592,11 @@ namespace Server
         public int playerShipMaxEnergy { get; set; }
         public int playerShipFreeEnergy { get; set; }
 
+        // sum shield
+
+        public int playerSumShieldCapacity { get; set; }
+        public int playerSumShieldCurrentCapacity { get; set; } = 0;
+
         // p modules
 
         //[ engine , cockpit, biglot1 .. 5, mediumslot 1 .. 5, smallslot 1 .. 5]
@@ -477,7 +608,10 @@ namespace Server
         public string[] playerSlotType { get; set; } = new string[17] { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", " 0", "0", "0" };
 
         //bigslot difference slots
+        public int[] playerSlotAdditionalInfoToClient { get; set; } = new int[17] { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }; // - -1 = no additional info
         public int[] playerSlotShieldCapacity { get; set; } = new int[17];
+
+        public int[] playerSlotShieldCurrentCapacity { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         public int[] playerSlotShieldRechargeTime { get; set; } = new int[17];
         public int[] playerSlotShieldRechargeCurrentTime { get; set; } = new int[17];
         public int[] playerSlotShieldRechargeRate { get; set; } = new int[17];
@@ -519,6 +653,12 @@ namespace Server
         public int aIShipMaxEnergy { get; set; }
         public int aIShipFreeEnergy { get; set; }
 
+
+        // sum shield
+
+        public int aISumShieldCapacity { get; set; }
+        public int aISumShieldCurrentCapacity { get; set; } = 0;
+
         // p modules
 
         //[ engine , cockpit, biglot1 .. 5, mediumslot 1 .. 5]
@@ -534,6 +674,7 @@ namespace Server
         public int[] aISlotShieldRechargeTime { get; set; } = new int[17];
         public int[] aISlotShieldRechargeCurrentTime { get; set; } = new int[17];
         public int[] aISlotShieldRechargeRate { get; set; } = new int[17];
+        public int[] aISlotShieldCurrentCapacity { get; set; } = new int[17];
 
         public int[] aISlotWeaponControlAmountOfWeapons { get; set; } = new int[17];
 
