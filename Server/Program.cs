@@ -996,13 +996,16 @@ namespace Server
 
 
             // check system if some module installed - what id of the module 
+
+            // DBChange11092020
             if (accountEngineSlot > 0)
             {
                 queryString = @"SELECT Engine.EngineId
-                                FROM AccountShip, AccountItem, Engine
+                                FROM AccountShip, AccountItem, Engine, Item
                                 WHERE AccountShip.AccountShipId = @accountShipId 
                                 and AccountShip.EngineSlot = AccountItem.AccountItemId 
-                                and AccountItem.EngineId = Engine.EngineId";
+                                and AccountItem.ItemId = Item.ItemId
+                                and Item.EngineId = Engine.EngineId";
                 queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                 stringType = new string[] { "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1010,12 +1013,13 @@ namespace Server
             }
 
             if (accountCockpitSlot > 0)
-            {
+            {            // DBChange11092020
                 queryString = @"SELECT Cockpit.CockpitId
-                               FROM AccountShip, AccountItem, Cockpit
+                               FROM AccountShip, AccountItem, Cockpit, Item
                                WHERE AccountShip.AccountShipId = @accountShipId
                                and AccountShip.CockpitSlot = AccountItem.AccountItemId 
-                               and AccountItem.CockpitId = Cockpit.CockpitId";
+                               and AccountItem.ItemId = Item.ItemId
+                               and Item.CockpitId = Cockpit.CockpitId";
                 queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                 stringType = new string[] { "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1025,12 +1029,13 @@ namespace Server
             for (int i = 0; i < accountBigSlot.Length; i++)
             {
                 if (accountBigSlot[i] > 0)
-                {
+                {// DBChange11092020
                     queryString = @"SELECT BigSlot.BigSlotId
-                               FROM AccountShip, AccountItem, BigSlot
+                               FROM AccountShip, AccountItem, BigSlot, Item
                                WHERE AccountShip.AccountShipId = @accountShipId
                                and AccountShip.BigSlot" + (i + 1) + @" = AccountItem.AccountItemId 
-                               and AccountItem.BigSlotId = BigSlot.BigSlotId";
+                               and AccountItem.ItemId = Item.ItemId
+                               and Item.BigSlotId = BigSlot.BigSlotId";
                     queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                     stringType = new string[] { "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1055,13 +1060,14 @@ namespace Server
             for (int i = 0; i < accountWeapon.Length; i++)
             {
                 if (accountWeapon[i] > 0)
-                {
+                {// DBChange11092020
                     int weaponNumber = i + 1;
                     queryString = @"SELECT Weapon.WeaponId
-                                    FROM AccountShip, AccountItem, Weapon
+                                    FROM AccountShip, AccountItem, Weapon, Item
                                     WHERE AccountShip.AccountShipId = @accountShipId
                                     and AccountShip.Weapon" + weaponNumber + @" = AccountItem.AccountItemId
-                                    and AccountItem.WeaponId = Weapon.WeaponId";
+                                    and AccountItem.ItemId = Item.ItemId
+                                    and Item.WeaponId = Weapon.WeaponId";
                     queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                     stringType = new string[] { "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1309,12 +1315,13 @@ namespace Server
 
                 // check system if some module installed - what id of the module 
                 if (accountEngineSlot > 0)
-                {
+                {// DBChange11092020
                     queryString = @"SELECT Engine.EngineId
-                                FROM AccountShip, AccountItem, Engine
+                                FROM AccountShip, AccountItem, Engine, Item
                                 WHERE AccountShip.AccountShipId = @accountShipId 
                                 and AccountShip.EngineSlot = AccountItem.AccountItemId 
-                                and AccountItem.EngineId = Engine.EngineId";
+                                and AccountItem.ItemId = Item.ItemId
+                                and Item.EngineId = Engine.EngineId";
                     queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                     stringType = new string[] { "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1322,12 +1329,13 @@ namespace Server
                 }
 
                 if (accountCockpitSlot > 0)
-                {
+                {// DBChange11092020
                     queryString = @"SELECT Cockpit.CockpitId
-                               FROM AccountShip, AccountItem, Cockpit
+                               FROM AccountShip, AccountItem, Cockpit, Item
                                WHERE AccountShip.AccountShipId = @accountShipId
                                and AccountShip.CockpitSlot = AccountItem.AccountItemId 
-                               and AccountItem.CockpitId = Cockpit.CockpitId";
+                               and AccountItem.ItemId = Item.ItemId
+                               and Item.CockpitId = Cockpit.CockpitId";
                     queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                     stringType = new string[] { "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1337,12 +1345,13 @@ namespace Server
                 for (int i = 0; i < accountBigSlot.Length; i++)
                 {
                     if (accountBigSlot[i] > 0)
-                    {
+                    {// DBChange11092020
                         queryString = @"SELECT BigSlot.BigSlotId
-                               FROM AccountShip, AccountItem, BigSlot
+                               FROM AccountShip, AccountItem, BigSlot, Item
                                WHERE AccountShip.AccountShipId = @accountShipId
                                and AccountShip.BigSlot" + (i + 1) + @" = AccountItem.AccountItemId 
-                               and AccountItem.BigSlotId = BigSlot.BigSlotId";
+                               and AccountItem.ItemId = Item.ItemId
+                               and Item.BigSlotId = BigSlot.BigSlotId";
                         queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                         stringType = new string[] { "int" };
                         requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1367,13 +1376,14 @@ namespace Server
                 for (int i = 0; i < accountWeapon.Length; i++)
                 {
                     if (accountWeapon[i] > 0)
-                    {
+                    {// DBChange11092020
                         int weaponNumber = i + 1;
                         queryString = @"SELECT Weapon.WeaponId
-                                    FROM AccountShip, AccountItem, Weapon
+                                    FROM AccountShip, AccountItem, Weapon, Item
                                     WHERE AccountShip.AccountShipId = @accountShipId
                                     and AccountShip.Weapon" + weaponNumber + @" = AccountItem.AccountItemId
-                                    and AccountItem.WeaponId = Weapon.WeaponId";
+                                    and AccountItem.ItemId = Item.ItemId
+                                    and Item.WeaponId = Weapon.WeaponId";
                         queryParameters = new string[,] { { "accountShipId", accountShipId[0] } };
                         stringType = new string[] { "int" };
                         requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -1440,9 +1450,15 @@ namespace Server
             string answerType = "";
             string answerItemTypeId = "";
 
-            string queryString = "SELECT * FROM AccountItem WHERE AccountItem.AccountId = @playerID AND AccountItem.AccountShipId = 0";
+            // DBChange11092020
+            string queryString = @"SELECT AccountItem.AccountItemId, AccountItem.Amount,
+                                Item.CockpitId, Item.EngineId, Item.WeaponId, Item.BigSlotId, Item.MediumSlotId, Item.SmallSlotId 
+                                FROM AccountItem, Item 
+                                WHERE AccountItem.AccountId = @playerID AND AccountItem.AccountShipId = 0 AND AccountItem.ItemId = Item.ItemId";
+
+           // string queryString = "SELECT * FROM AccountItem WHERE AccountItem.AccountId = @playerID AND AccountItem.AccountShipId = 0";
             string[,] queryParameters = new string[,] { { "playerID", playerId } };
-            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int", "int", "int" };
+            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int"};
             List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
             // starts from 4 - because item type starts from 4 in DB
@@ -1450,10 +1466,10 @@ namespace Server
             {
                 for (int ii = 0; ii < 6; ii++)
                 {
-                    if (Convert.ToInt32(requestAnswer[ii + 4][i]) != 0)
+                    if (Convert.ToInt32(requestAnswer[ii + 2][i]) != 0)
                     {
                         answerType = "" + ii;
-                        answerItemTypeId = requestAnswer[ii + 4][i];
+                        answerItemTypeId = requestAnswer[ii + 2][i];
                     }
                 }
                 answerToClient = answerToClient + requestAnswer[0][0] + ";" + answerType + ";" + answerItemTypeId + ";";
@@ -1471,13 +1487,16 @@ namespace Server
 
             Console.WriteLine("Player id=" + playerId + " ask shop information ");
 
-            string queryString = "SELECT * FROM ShopItem";
+            string queryString = @"SELECT ShopItem.ShopItemId, ShopItem.Price,
+                        Item.EngineId, Item.CockpitId, Item.WeaponId, Item.BigSlotId, Item.MediumSlotId, Item.SmallSlotId
+                        FROM ShopItem, Item
+                        WHERE ShopItem.ItemId = Item.ItemId";
             string[,] queryParameters = new string[,] {  };
             string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int" };
             List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
             //    0      1       2       3      4        5         6        7
-            //[itemID, price, cockpit,engine,bigslot,mediumslot,smallslot,weapon]
+            //[itemID, price, cockpit,engine,weapon,bigslot,mediumslot,smallslot]
 
 
             for (int i = 0; i < requestAnswer[0].Count; i++)
@@ -1532,9 +1551,11 @@ namespace Server
 
             Console.WriteLine("DEBUG BUY SHOPT ITEM - " + recievedMessage[4]);
 
-            string queryString = "SELECT * FROM ShopItem WHERE ShopItem.ShopItemId = @ShopItemId";
+            string queryString = @"SELECT ShopItem.Price, ShopItem.ItemId
+                             FROM ShopItem
+                            WHERE ShopItem.ShopItemId = @ShopItemId";
             string[,] queryParameters = new string[,] { { "ShopItemId", Convert.ToString(recievedMessage[4]) } };
-            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int" };
+            string[] stringType = new string[] { "int", "int" };
             List<string>[] requestAnswerItem = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
 
@@ -1545,7 +1566,7 @@ namespace Server
 
             
             // if enough money in account
-            if (Convert.ToInt32(requestAnswerMoney[0][0]) >= Convert.ToInt32(requestAnswerItem[1][0]))
+            if (Convert.ToInt32(requestAnswerMoney[0][0]) >= Convert.ToInt32(requestAnswerItem[0][0]))
             {
                 //-----------------------------
 
@@ -1555,19 +1576,15 @@ namespace Server
 
                 // Create Session with SesionID, playerID, playerSlot
                 // add information to the DB
-                string enqueryUpdate = @"INSERT INTO AccountItem (AccountId, Amount, AccountShipId, EngineId, WeaponId, BigSlotId, MediumSlotId, SmallSlotId, CockpitId) 
-                        VALUES (@playerID, 1, 0, @engineId, @weaponId, @bigSlotId, @mediumSlotId, @smallSlotId, @cockpitId)"; 
+                string enqueryUpdate = @"INSERT INTO AccountItem (AccountId, Amount, AccountShipId, ItemId) 
+                        VALUES (@playerID, 1, 0, @itemId)"; 
                                                                                                                       
                 using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
 
                 commandUpdate.Parameters.AddWithValue("@playerID", playerId);
 
-                commandUpdate.Parameters.AddWithValue("@engineId", requestAnswerItem[3][0]);
-                commandUpdate.Parameters.AddWithValue("@weaponId", requestAnswerItem[7][0]);
-                commandUpdate.Parameters.AddWithValue("@bigSlotId", requestAnswerItem[4][0]);
-                commandUpdate.Parameters.AddWithValue("@mediumSlotId", requestAnswerItem[5][0]);
-                commandUpdate.Parameters.AddWithValue("@smallSlotId", requestAnswerItem[6][0]);
-                commandUpdate.Parameters.AddWithValue("@cockpitId", requestAnswerItem[2][0]);
+                commandUpdate.Parameters.AddWithValue("@itemId", requestAnswerItem[1][0]);
+
 
                 try
                 {
@@ -2248,8 +2265,10 @@ namespace Server
             if (engineSlotId != "-1" && engineSlotId != "0")
             {
                 queryString = @"SELECT Engine.Health, Engine.Energy, Engine.EngineId
-                            FROM Engine, AccountItem
-                             WHERE AccountItem.EngineId = Engine.EngineId and AccountItem.AccountItemId = @engineId";
+                            FROM Engine, AccountItem, Item
+                             WHERE AccountItem.ItemId = Item.ItemId 
+                             and Item.EngineId = Engine.EngineId 
+                             and AccountItem.AccountItemId = @engineId";
                 queryParameters = new string[,] { { "engineId", engineSlotId } };
                 stringType = new string[] { "int", "int", "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -2274,8 +2293,10 @@ namespace Server
             if (cockpitSlotId != "-1" && cockpitSlotId != "0")
             {
                 queryString = @"SELECT Cockpit.Health, Cockpit.Energy, Cockpit.CockpitId
-                                FROM Cockpit, AccountItem
-                                WHERE AccountItem.CockpitId = Cockpit.CockpitId and AccountItem.AccountItemId = @cockpitId";
+                                FROM Cockpit, AccountItem, Item
+                                WHERE AccountItem.ItemId = Item.ItemId
+                                and Item.CockpitId = Cockpit.CockpitId 
+                                and AccountItem.AccountItemId = @cockpitId";
                 queryParameters = new string[,] { { "cockpitId", cockpitSlotId } };
                 stringType = new string[] { "int", "int", "int" };
                 requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -2303,8 +2324,10 @@ namespace Server
                 if (bigSlotId[i] != "-1" && bigSlotId[i] != "0") 
                 {
                     queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId, BigSlot.BigSlotId
-                                FROM BigSlot, AccountItem
-                                WHERE BigSlot.BigSlotId = AccountItem.BigSlotId and AccountItem.AccountItemId = @bigSlotId";
+                                FROM BigSlot, AccountItem, Item
+                                WHERE AccountItem.ItemId = Item.ItemId
+                                and BigSlot.BigSlotId = Item.BigSlotId 
+                                and AccountItem.AccountItemId = @bigSlotId";
                     queryParameters = new string[,] { { "bigSlotId", bigSlotId[i] } };
                     stringType = new string[] { "int", "int", "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
@@ -2404,8 +2427,10 @@ namespace Server
 
 
                     queryString = @"SELECT Weapon.Energy, Weapon.Damage, Weapon.ReloadTime, Weapon.WeaponId
-                                  FROM Weapon, AccountItem
-                                 WHERE Weapon.WeaponId = AccountItem.WeaponId and AccountItem.AccountItemId = @weaponId";
+                                  FROM Weapon, AccountItem, Item
+                                 WHERE AccountItem.ItemId = Item.ItemId 
+                                and Weapon.WeaponId = Item.WeaponId 
+                                and AccountItem.AccountItemId = @weaponId";
                     queryParameters = new string[,] { { "weaponId", weaponSlotId[i] } };
                     stringType = new string[] { "int", "int", "int", "int" };
                     requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
