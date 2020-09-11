@@ -1532,6 +1532,83 @@ namespace Server
 
             Console.WriteLine("DEBUG BUY SHOPT ITEM - " + recievedMessage[4]);
 
+            string queryString = "SELECT * FROM ShopItem WHERE ShopItem.ShopItemId = @ShopItemId";
+            string[,] queryParameters = new string[,] { { "ShopItemId", Convert.ToString(recievedMessage[4]) } };
+            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int" };
+            List<string>[] requestAnswerItem = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+
+            queryString = "SELECT Money FROM Account WHERE Account.AccountId = @playerID";
+            queryParameters = new string[,] { { "playerID", playerId } };
+            stringType = new string[] { "int" };
+            List<string>[] requestAnswerMoney = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            
+            // if enough money in account
+            if (Convert.ToInt32(requestAnswerMoney[0][0]) >= Convert.ToInt32(requestAnswerItem[1][0]))
+            {
+                //-----------------------------
+
+                using var connectionToDB = new SQLiteConnection(connectionToDBString);
+                connectionToDB.Open();
+
+
+                // Create Session with SesionID, playerID, playerSlot
+                // add information to the DB
+                string enqueryUpdate = @"INSERT INTO AccountItem (AccountId, Amount, AccountShipId, EngineId, WeaponId, BigSlotId, MediumSlotId, SmallSlotId, CockpitId) 
+                        VALUES (@playerID, 1, 0, @engineId, @weaponId, @bigSlotId, @mediumSlotId, @smallSlotId, @cockpitId)"; 
+                                                                                                                      
+                using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
+
+                commandUpdate.Parameters.AddWithValue("@playerID", playerId);
+
+                commandUpdate.Parameters.AddWithValue("@engineId", requestAnswerItem[3][0]);
+                commandUpdate.Parameters.AddWithValue("@weaponId", requestAnswerItem[7][0]);
+                commandUpdate.Parameters.AddWithValue("@bigSlotId", requestAnswerItem[4][0]);
+                commandUpdate.Parameters.AddWithValue("@mediumSlotId", requestAnswerItem[5][0]);
+                commandUpdate.Parameters.AddWithValue("@smallSlotId", requestAnswerItem[6][0]);
+                commandUpdate.Parameters.AddWithValue("@cockpitId", requestAnswerItem[2][0]);
+
+                try
+                {
+                    commandUpdate.ExecuteNonQuery();
+                    //commandUpdate.ExecuteScalar();
+
+
+                    //----
+
+                    string enqueryUpdate1 = @"UPDATE Account
+                             SET Money = @newMoney
+                            WHERE AccountId = @playerID";
+                    using var commandUpdate1 = new SQLiteCommand(enqueryUpdate1, connectionToDB);
+                    commandUpdate1.Parameters.AddWithValue("@playerID", playerId);
+                    commandUpdate1.Parameters.AddWithValue("@newMoney", Convert.ToString((Convert.ToInt32(requestAnswerMoney[0][0]) - Convert.ToInt32(requestAnswerItem[1][0]))));
+
+
+
+
+                        try
+                     {
+                        commandUpdate1.ExecuteNonQuery();
+                    }
+                    catch (InvalidCastException e)
+                    {
+                        Console.WriteLine("error updating DB for buying an item - update money" + e);
+                    }
+                    //------------------
+
+                }
+                catch (InvalidCastException e)
+                {
+                    Console.WriteLine("error updating DB for buying an item" + e);
+                }
+                finally 
+                {
+                    connectionToDB.Close();
+                }
+                //----------------------------------------
+            }
+
             answerToClient = "1";
 
             return answerToClient;
