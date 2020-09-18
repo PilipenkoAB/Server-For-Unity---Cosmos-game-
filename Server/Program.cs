@@ -811,6 +811,14 @@ namespace Server
             {
                 answerToClient = BuyItemFromTheShop(recievedMessage);
             }
+            else if (codeActivity == "5")
+            {
+                answerToClient = SellItemFromTheInventory(recievedMessage);
+            }
+            else if (codeActivity == "6")
+            {
+                answerToClient = RemoveItemFromTheShip(recievedMessage);
+            }
             return answerToClient;
         }
 
@@ -1449,6 +1457,7 @@ namespace Server
             Console.WriteLine("Inventory information ");
             string answerType = "";
             string answerItemTypeId = "";
+            string answerId = "";
 
             // DBChange11092020
             string queryString = @"SELECT AccountItem.AccountItemId, AccountItem.Amount,
@@ -1468,11 +1477,12 @@ namespace Server
                 {
                     if (Convert.ToInt32(requestAnswer[ii + 2][i]) != 0)
                     {
+                        answerId = requestAnswer[0][i];
                         answerType = "" + ii;
                         answerItemTypeId = requestAnswer[ii + 2][i];
                     }
                 }
-                answerToClient = answerToClient + requestAnswer[0][0] + ";" + answerType + ";" + answerItemTypeId + ";";
+                answerToClient = answerToClient + answerId + ";" + answerType + ";" + answerItemTypeId + ";";
             }
             answerToClient = answerToClient.Remove(answerToClient.Length - 1);
 
@@ -1625,6 +1635,28 @@ namespace Server
                 }
                 //----------------------------------------
             }
+
+            answerToClient = "1";
+
+            return answerToClient;
+        }
+
+        static private string SellItemFromTheInventory(String[] recievedMessage) 
+        {
+            string answerToClient = "";
+
+            Console.WriteLine("DEBUG Delete ITEM from inventory - " + recievedMessage[4]);
+
+            answerToClient = "1";
+
+            return answerToClient;
+        }
+
+        static private string RemoveItemFromTheShip(String[] recievedMessage) 
+        {
+            string answerToClient = "";
+
+            Console.WriteLine("DEBUG Delete ITEM from inventory - " + recievedMessage[4]);
 
             answerToClient = "1";
 
