@@ -694,7 +694,8 @@ namespace Server
                     //Console.WriteLine("session token = " + sessionToken);
 
                     // add information to the DB
-                    string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
+                   // string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
+                    string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "'  WHERE Login = '" + login + "'";
 
                     using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
 
@@ -850,24 +851,37 @@ namespace Server
 
             string[] crew = new string[] { "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0" };
 
-            int[] slotShip = new int[] { 0, 0, 0 }; // middle, right, left
             int[] slotIdInfo = new int[] { 0, 0, 0 }; // middle, right, left
+            int[] slotShip = new int[] { 0, 0, 0 }; // middle, right, left
 
 
             //-------------------------------------------------------------
             // SLOTS
 
+            // AMOUNTS OF SLOTS
+            // does not looks like a good query, because of doubling some positions (TO FIX)
+            string queryString = @"SELECT Garage.slot 
+                            FROM Garage
+                            WHERE Garage.AccountId = @playerID ";
+            string[,] queryParameters = new string[,] { { "playerId", playerId } };
+            string[] stringType = new string[] { "int" };
+            List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            Console.WriteLine("amount of slots - " + requestAnswer[0].Count);
+            int amountsOfSlots = requestAnswer[0].Count;
+
             //   MIDDLE SLOT
 
             // does not looks like a good query, because of doubling some positions (TO FIX)
-            string queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
-                            FROM Garage, AccountShip 
-                            WHERE Garage.AccountId = @playerID
-                            AND (Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot == 0)
+             queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
+                            FROM Garage, AccountShip, Account 
+                            WHERE Account.AccountId = @playerID AND Account.AccountId = Garage.AccountId
+                            AND Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot = Account.GarageActiveSlot
                             ORDER BY Garage.slot ASC";
-            string[,] queryParameters = new string[,] { { "playerId", playerId } };
-            string[] stringType = new string[] { "int", "int", "int" };
-            List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+             queryParameters = new string[,] { { "playerId", playerId } };
+             stringType = new string[] { "int", "int", "int" };
+             requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
             List<string> slots = requestAnswer[0];
             List<string> shipsID = requestAnswer[1];
@@ -876,85 +890,86 @@ namespace Server
            // Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
             if (shipsID.Count > 0)
             {
-                slotShip[0] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[0] = Convert.ToInt32(slots[0]);
+                slotIdInfo[0] = Convert.ToInt32(shipsID[0]);
+                slotShip[0] = Convert.ToInt32(slots[0]);
+                Console.WriteLine("DEBUG - middle slot -  " + slotShip[0]);
             }
             else
             {
-                slotShip[0] = 0;
                 slotIdInfo[0] = 0;
+                slotShip[0] = 0;
             }
-           // Console.WriteLine("DEBUG slot  - " + slotIdInfo[0]);
+            // Console.WriteLine("DEBUG slot  - " + slotShip[0]);
 
 
 
-            // RIGHT SLOT
+            ////// RIGHT SLOT
 
-            // does not looks like a good query, because of doubling some positions (TO FIX)
-            queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
-                            FROM Garage, AccountShip 
-                            WHERE Garage.AccountId = @playerID
-                            AND (Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot = 1)
-                            ORDER BY Garage.slot ASC";
-            queryParameters = new string[,] { { "playerId", playerId } };
-            stringType = new string[] { "int", "int", "int" };
-            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+            //////// does not looks like a good query, because of doubling some positions (TO FIX)
+            //////queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
+            //////                  FROM Garage, AccountShip 
+            //////                  WHERE Garage.AccountId = @playerID
+            //////                  AND (Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot = 1)
+            //////                  ORDER BY Garage.slot ASC";
+            //////queryParameters = new string[,] { { "playerId", playerId } };
+            //////stringType = new string[] { "int", "int", "int" };
+            //////requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-            slots = requestAnswer[0];
-            shipsID = requestAnswer[1];
+            //////slots = requestAnswer[0];
+            //////shipsID = requestAnswer[1];
 
-           // Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
-            if (shipsID.Count > 0)
-            {
-                slotShip[1] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[1] = Convert.ToInt32(slots[0]);
-            }
-            else
-            {
-                slotShip[1] = 0;
-                slotIdInfo[1] = 0;
-            }
-           // Console.WriteLine("DEBUG slot  - " + slotIdInfo[1]);
-
-
-            // LEFT SLOT
-            // get all amount of slots user has
-            queryString = @"SELECT COUNT(Garage.slot )
-                            FROM Garage
-                            WHERE Garage.AccountId = @playerID
-                            ORDER BY Garage.slot ASC";
-            queryParameters = new string[,] { { "playerId", playerId } };
-            stringType = new string[] { "int" };
-            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+            //////// Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
+            //////if (shipsID.Count > 0)
+            //////{
+            //////    slotIdInfo[1] = Convert.ToInt32(shipsID[0]);
+            //////    slotShip[1] = Convert.ToInt32(slots[0]);
+            //////}
+            //////else
+            //////{
+            //////    slotIdInfo[1] = 0;
+            //////    slotShip[1] = 0;
+            //////}
+            // Console.WriteLine("DEBUG slot  - " + slotShip[1]);
 
 
-            int leftSlot = Convert.ToInt32(requestAnswer[0][0]) - 1;
+            ////// LEFT SLOT
+            ////// get all amount of slots user has
+            ////queryString = @"SELECT COUNT(Garage.slot )
+            ////                  FROM Garage
+            ////                  WHERE Garage.AccountId = @playerID
+            ////                  ORDER BY Garage.slot ASC";
+            ////queryParameters = new string[,] { { "playerId", playerId } };
+            ////stringType = new string[] { "int" };
+            ////requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-            // does not looks like a good query, because of doubling some positions (TO FIX)
-            queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
-                            FROM Garage, AccountShip 
-                            WHERE Garage.AccountId = @playerID
-                            AND (Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot = @rightSlot)
-                            ORDER BY Garage.slot ASC";
-            queryParameters = new string[,] { { "playerId", playerId }, { "rightSlot", Convert.ToString(leftSlot) } };
-            stringType = new string[] { "int", "int", "int" };
-            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-            slots = requestAnswer[0];
-            shipsID = requestAnswer[1];
+            ////int leftSlot = Convert.ToInt32(requestAnswer[0][0]) - 1;
 
-          //  Console.WriteLine("DEBUG - " + requestAnswer[1].Count);
-            if (shipsID.Count > 0)
-            {
-                slotShip[2] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[2] = Convert.ToInt32(slots[0]);
-            }
-            else
-            {
-                slotShip[2] = 0;
-                slotIdInfo[2] = leftSlot;
-            }
-          //  Console.WriteLine("DEBUG slot  - " + slotIdInfo[2]);
+            ////// does not looks like a good query, because of doubling some positions (TO FIX)
+            ////queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
+            ////                  FROM Garage, AccountShip 
+            ////                  WHERE Garage.AccountId = @playerID
+            ////                  AND (Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot = @rightSlot)
+            ////                  ORDER BY Garage.slot ASC";
+            ////queryParameters = new string[,] { { "playerId", playerId }, { "rightSlot", Convert.ToString(leftSlot) } };
+            ////stringType = new string[] { "int", "int", "int" };
+            ////requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            ////slots = requestAnswer[0];
+            ////shipsID = requestAnswer[1];
+
+            //////  Console.WriteLine("DEBUG - " + requestAnswer[1].Count);
+            ////if (shipsID.Count > 0)
+            ////{
+            ////    slotIdInfo[2] = Convert.ToInt32(shipsID[0]);
+            ////    slotShip[2] = Convert.ToInt32(slots[0]);
+            ////}
+            ////else
+            ////{
+            ////    slotIdInfo[2] = 0;
+            ////    slotShip[2] = leftSlot;
+            ////}
+            //  Console.WriteLine("DEBUG slot  - " + slotShip[2]);
 
 
             //-------------------------------------------------------------
@@ -1104,7 +1119,7 @@ namespace Server
 
             // Answer should include AccountItemId (for future manupulations with item) and ItemId 
             //(for big slot - does not matter if shield of etc, because DB system duplicated in the client)
-            answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] +
+            answerToClient = slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2] +
                  ";" + accountEngineSlot + ";" + engineSlotId + ";" + accountCockpitSlot + ";" + cockpitSlotId +
                  ";" + accountBigSlot[0] + ";" + bigSlotId[0] + ";" + accountBigSlot[1] + ";" + bigSlotId[1] +
                  ";" + accountBigSlot[2] + ";" + bigSlotId[2] + ";" + accountBigSlot[3] + ";" + bigSlotId[3] +
@@ -1118,7 +1133,7 @@ namespace Server
                  ";" + accountWeapon[0] + ";" + weaponId[0] + ";" + accountWeapon[1] + ";" + weaponId[1] +
                  ";" + accountWeapon[2] + ";" + weaponId[2] + ";" + accountWeapon[3] + ";" + weaponId[3] +
                  ";" + accountWeapon[4] + ";" + weaponId[4] +
-                 ";" + slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2] +
+                 ";" + slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] +
                  ";" + crew[0] + ";" + crew[1] + ";" + crew[2] + ";" + crew[3] + ";" + crew[4] + ";" + crew[5] +
                  ";" + crew[6] + ";" + crew[7] + ";" + crew[8] + ";" + crew[9] + ";" + crew[10] + ";" + crew[11] +
                  ";" + crew[12] + ";" + crew[13] + ";" + crew[14];
@@ -1158,8 +1173,8 @@ namespace Server
 
             ///-------------------------------
             ///
-            int[] slotShip = new int[] { 0, 0, 0 }; // middle, right, left
             int[] slotIdInfo = new int[] { 0, 0, 0 }; // middle, right, left
+            int[] slotShip = new int[] { 0, 0, 0 }; // middle, right, left
 
             // does not looks like a good query, because of doubling some positions (TO FIX)
             string queryString = @"SELECT Garage.slot, AccountShip.ShipId, Garage.AccountShipId 
@@ -1177,18 +1192,18 @@ namespace Server
 
             if (shipsID.Count > 0)
             {
-                slotShip[0] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[0] = Convert.ToInt32(slots[0]);
+                slotIdInfo[0] = Convert.ToInt32(shipsID[0]);
+                slotShip[0] = Convert.ToInt32(slots[0]);
                 shipIdtoClient = accountShipId[0];
             }
             else
             {
-                slotShip[0] = 0;
-                slotIdInfo[0] = Convert.ToInt32(slotShipId);
+                slotIdInfo[0] = 0;
+                slotShip[0] = Convert.ToInt32(slotShipId);
                 shipIdtoClient = "0";
             }
 
-          //  Console.WriteLine("DEBUG slot middle  - " + slotIdInfo[0] + " shipID - " + slotShip[0]);
+          //  Console.WriteLine("DEBUG slot middle  - " + slotShip[0] + " shipID - " + slotIdInfo[0]);
 
 
 
@@ -1232,16 +1247,16 @@ namespace Server
 
             if (shipsID.Count > 0)
             {
-                slotShip[1] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[1] = Convert.ToInt32(slots[0]);
+                slotIdInfo[1] = Convert.ToInt32(shipsID[0]);
+                slotShip[1] = Convert.ToInt32(slots[0]);
             }
             else
             {
-                slotShip[1] = 0;
-                slotIdInfo[1] = Convert.ToInt32(slotShipId);
+                slotIdInfo[1] = 0;
+                slotShip[1] = Convert.ToInt32(slotShipId);
             }
 
-          //  Console.WriteLine("DEBUG slot right  - " + slotIdInfo[1] + " shipID - " + slotShip[1]);
+          //  Console.WriteLine("DEBUG slot right  - " + slotShip[1] + " shipID - " + slotIdInfo[1]);
 
 
 
@@ -1269,16 +1284,16 @@ namespace Server
 
             if (shipsID.Count > 0)
             {
-                slotShip[2] = Convert.ToInt32(shipsID[0]);
-                slotIdInfo[2] = Convert.ToInt32(slots[0]);
+                slotIdInfo[2] = Convert.ToInt32(shipsID[0]);
+                slotShip[2] = Convert.ToInt32(slots[0]);
             }
             else
             {
-                slotShip[2] = 0;
-                slotIdInfo[2] = Convert.ToInt32(slotShipId);
+                slotIdInfo[2] = 0;
+                slotShip[2] = Convert.ToInt32(slotShipId);
             }
 
-          //  Console.WriteLine("DEBUG slot left  - " + slotIdInfo[2] + " shipID - " + slotShip[2]);
+          //  Console.WriteLine("DEBUG slot left  - " + slotShip[2] + " shipID - " + slotIdInfo[2]);
             //-------------------------------------
 
 
@@ -1419,7 +1434,7 @@ namespace Server
 
             // Answer should include AccountItemId (for future manupulations with item) and ItemId 
             //(for big slot - does not matter if shield of etc, because DB system duplicated in the client)
-            answerToClient = slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] +
+            answerToClient = slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2] +
                  ";" + accountEngineSlot + ";" + engineSlotId + ";" + accountCockpitSlot + ";" + cockpitSlotId +
                  ";" + accountBigSlot[0] + ";" + bigSlotId[0] + ";" + accountBigSlot[1] + ";" + bigSlotId[1] +
                  ";" + accountBigSlot[2] + ";" + bigSlotId[2] + ";" + accountBigSlot[3] + ";" + bigSlotId[3] +
@@ -1433,7 +1448,7 @@ namespace Server
                  ";" + accountWeapon[0] + ";" + weaponId[0] + ";" + accountWeapon[1] + ";" + weaponId[1] +
                  ";" + accountWeapon[2] + ";" + weaponId[2] + ";" + accountWeapon[3] + ";" + weaponId[3] +
                  ";" + accountWeapon[4] + ";" + weaponId[4] +
-                 ";" + slotIdInfo[0] + ";" + slotIdInfo[1] + ";" + slotIdInfo[2] +
+                 ";" + slotShip[0] + ";" + slotShip[1] + ";" + slotShip[2] +
                  ";" + crew[0] + ";" + crew[1] + ";" + crew[2] + ";" + crew[3] + ";" + crew[4] + ";" + crew[5] +
                  ";" + crew[6] + ";" + crew[7] + ";" + crew[8] + ";" + crew[9] + ";" + crew[10] + ";" + crew[11] +
                  ";" + crew[12] + ";" + crew[13] + ";" + crew[14];
