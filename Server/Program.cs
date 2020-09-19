@@ -1177,9 +1177,6 @@ namespace Server
             return answerToClient;
         }
 
-
-
-
         static private string RecieveNewShipScrollInformation(String[] recievedMessage)
         {
             string answerToClient = "";
@@ -1482,8 +1479,180 @@ namespace Server
         static private string RemoveItemFromTheShip(String[] recievedMessage) 
         {
             string answerToClient = "";
+            string playerId = recievedMessage[1];
+            string slotToSelect = "";
+            string slotToUpdate = "";
+            Console.WriteLine("DEBUG Delete ITEM from ship - " + recievedMessage[4]);
 
-            Console.WriteLine("DEBUG Delete ITEM from inventory - " + recievedMessage[4]);
+
+            if(recievedMessage[4] == "0") 
+            { 
+                slotToSelect = "AccountShip.EngineSlot";
+                slotToUpdate = "EngineSlot";
+            }
+            else if (recievedMessage[4] == "1") 
+            { 
+                slotToSelect = "AccountShip.CockpitSlot";
+                slotToUpdate = "CockpitSlot";
+            }
+            else if (recievedMessage[4] == "2") 
+            { 
+                slotToSelect = "AccountShip.Weapon1";
+                slotToUpdate = "Weapon1";
+            }
+            else if (recievedMessage[4] == "3") 
+            { 
+                slotToSelect = "AccountShip.Weapon2";
+                slotToUpdate = "Weapon2";
+            }
+            else if (recievedMessage[4] == "4") 
+            { 
+                slotToSelect = "AccountShip.Weapon3";
+                slotToUpdate = "Weapon3";
+            }
+            else if (recievedMessage[4] == "5") 
+            { 
+                slotToSelect = "AccountShip.Weapon4";
+                slotToUpdate = "Weapon4";
+            }
+            else if (recievedMessage[4] == "6") 
+            { 
+                slotToSelect = "AccountShip.Weapon5";
+                slotToUpdate = "Weapon5";
+            }
+            else if (recievedMessage[4] == "7") 
+            { 
+                slotToSelect = "AccountShip.BigSlot1";
+                slotToUpdate = "BigSlot1";
+            }
+            else if (recievedMessage[4] == "8") 
+            { 
+                slotToSelect = "AccountShip.BigSlot2";
+                slotToUpdate = "BigSlot2";
+            }
+            else if (recievedMessage[4] == "9") 
+            { 
+                slotToSelect = "AccountShip.BigSlot3";
+                slotToUpdate = "BigSlot3";
+            }
+            else if (recievedMessage[4] == "10") 
+            { 
+                slotToSelect = "AccountShip.BigSlot4";
+                slotToUpdate = "BigSlot4";
+            }
+            else if (recievedMessage[4] == "11") 
+            { 
+                slotToSelect = "AccountShip.BigSlot5";
+                slotToUpdate = "BigSlot5";
+            }
+            else if (recievedMessage[4] == "12") 
+            { 
+                slotToSelect = "AccountShip.MediumSlot1";
+                slotToUpdate = "MediumSlot1";
+            }
+            else if (recievedMessage[4] == "13") 
+            { 
+                slotToSelect = "AccountShip.MediumSlot2";
+                slotToUpdate = "MediumSlot2";
+            }
+            else if (recievedMessage[4] == "14") 
+            { 
+                slotToSelect = "AccountShip.MediumSlot3";
+                slotToUpdate = "MediumSlot3";
+            }
+            else if (recievedMessage[4] == "15") 
+            { 
+                slotToSelect = "AccountShip.MediumSlot4";
+                slotToUpdate = "MediumSlot4";
+            }
+            else if (recievedMessage[4] == "16") 
+            { 
+                slotToSelect = "AccountShip.MediumSlot5";
+                slotToUpdate = "MediumSlot5";
+            }
+            else if (recievedMessage[4] == "17") 
+            { 
+                slotToSelect = "AccountShip.SmallSlot1";
+                slotToUpdate = "SmallSlot1";
+            }
+            else if (recievedMessage[4] == "18") 
+            { 
+                slotToSelect = "AccountShip.SmallSlot2";
+                slotToUpdate = "SmallSlot2";
+            }
+            else if (recievedMessage[4] == "19") 
+            { 
+                slotToSelect = "AccountShip.SmallSlot3";
+                slotToUpdate = "SmallSlot3";
+            }
+            else if (recievedMessage[4] == "20") 
+            { 
+                slotToSelect = "AccountShip.SmallSlot4";
+                slotToUpdate = "SmallSlot4";
+            }
+            else if (recievedMessage[4] == "21") 
+            { 
+                slotToSelect = "AccountShip.SmallSlot5";
+                slotToUpdate = "SmallSlot5";
+            }
+
+            string queryString = @"SELECT "+ slotToSelect + @", AccountShip.AccountShipId
+                            FROM Account, Garage, AccountShip
+                            WHERE Account.AccountId = @playerId and Account.GarageActiveSlot = Garage.Slot 
+                            AND Garage.AccountShipId = AccountShip.AccountShipId";
+            string[,] queryParameters = new string[,] { { "playerId", playerId } };
+
+            string[] stringType = new string[] { "int", "int" };
+            List<string>[] requestAnswerItem = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+            Console.WriteLine("DEBUG TEST UNFIT" + requestAnswerItem[0][0]);
+
+            if (requestAnswerItem[0][0] != "0" && requestAnswerItem[0][0] != "-1")
+            {
+                //remove slot from the ship
+                Console.WriteLine("DEBUG TEST UNFIT 1" + requestAnswerItem[0][0]);
+
+
+                // set new active slot number 
+                using var connectionToDB = new SQLiteConnection(connectionToDBString);
+                connectionToDB.Open();
+                string enqueryUpdate = @"UPDATE AccountShip SET " + slotToUpdate + @" = 0 WHERE AccountShipId = " +requestAnswerItem[1][0] + @"";
+                using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
+
+                try
+                {
+                    commandUpdate.ExecuteNonQuery();
+
+                    // change slot placement to inventory
+                     enqueryUpdate = @"UPDATE AccountItem SET AccountShipId = 0 WHERE AccountItemId = " + requestAnswerItem[0][0] + @"";
+                    using var commandUpdate2 = new SQLiteCommand(enqueryUpdate, connectionToDB);
+                    try
+                    {
+                        commandUpdate2.ExecuteNonQuery();
+                    }
+                    catch 
+                    {
+                        Console.WriteLine("ERROR updating login table with new GarageActiveSlot information 2");
+                    }
+                    }
+                catch
+                {
+                    Console.WriteLine("ERROR updating login table with new GarageActiveSlot information 1");
+                }
+                finally
+                {
+                    connectionToDB.Close();
+                }
+
+
+
+
+
+
+
+
+
+            }
 
             answerToClient = "1";
 
