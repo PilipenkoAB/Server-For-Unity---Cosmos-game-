@@ -128,6 +128,8 @@ namespace Server
                                     // Set time of moving of projectile
                                     sessionsBattle1v1AI[battleSessionId].ProjectilesMoveTime();
 
+                                    // Calculate movement trajectory for player
+                                    sessionsBattle1v1AI[battleSessionId].PlayerMovement();
 
                                     // AI
                                     // power modules (for example, if module was unpowered by something
@@ -266,6 +268,10 @@ namespace Server
                             // require information for UI starting
                             if (recievedMessage[4] == "0")
                             {
+                                System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+                                customCulture.NumberFormat.NumberDecimalSeparator = ".";
+                                System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+
                                 int battleSessionId = Convert.ToInt32(recievedMessage[3]);
 
                                 // prepare infromation to send for UI
@@ -286,6 +292,11 @@ namespace Server
 
                                 // answer to client
                                 answerToClient = sessionsBattle1v1AI[battleSessionId].playerShipId
+
+                                         + ";" + sessionsBattle1v1AI[battleSessionId].playerPositionX
+                                               + "," + sessionsBattle1v1AI[battleSessionId].playerPositionY
+                                               + "," + sessionsBattle1v1AI[battleSessionId].playerPositionRotation
+
                                          + ";" + sessionsBattle1v1AI[battleSessionId].playerShipMaxHealth
                                          + ";" + sessionsBattle1v1AI[battleSessionId].playerShipMaxEnergy
 
@@ -426,6 +437,12 @@ namespace Server
 
 
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aIShipId
+
+                                        + ";" + sessionsBattle1v1AI[battleSessionId].aIPositionX
+                                               + "," + sessionsBattle1v1AI[battleSessionId].aIPositionY
+                                               + "," + sessionsBattle1v1AI[battleSessionId].aIPositionRotation
+
+
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aIShipMaxHealth
                                          + ";" + sessionsBattle1v1AI[battleSessionId].aIShipMaxEnergy
 
@@ -465,12 +482,21 @@ namespace Server
                             // require information for update UI without action
                             else if (recievedMessage[4] == "2")
                             {
+                                System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+                                customCulture.NumberFormat.NumberDecimalSeparator = ".";
+                                System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+
                                 int battleSessionId = Convert.ToInt32(recievedMessage[3]);
 
                                 // ???????????????// correct it to all active weapons! 
                                 int playerWeapon1ReloadCurrent = sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[0];
 
                                 answerToClient = sessionsBattle1v1AI[battleSessionId].battleTime
+
+                                          + ";" + sessionsBattle1v1AI[battleSessionId].playerPositionX
+                                               + "," + sessionsBattle1v1AI[battleSessionId].playerPositionY
+                                               + "," + sessionsBattle1v1AI[battleSessionId].playerPositionRotation
+
 
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerShipCurrentHealth
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerShipFreeEnergy
@@ -543,7 +569,12 @@ namespace Server
                                         + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotCurrentReloadTime[4]
                                         + "," + sessionsBattle1v1AI[battleSessionId].playerWeaponSlotProjectileTime[4]
 
-                                        // ai
+                                                                            // ai
+
+
+                                   + ";" + sessionsBattle1v1AI[battleSessionId].aIPositionX
+                                         + "," + sessionsBattle1v1AI[battleSessionId].aIPositionY
+                                         + "," + sessionsBattle1v1AI[battleSessionId].aIPositionRotation
 
                                     + ";" + sessionsBattle1v1AI[battleSessionId].aIShipCurrentHealth
 
@@ -614,6 +645,16 @@ namespace Server
                                 {
                                     // down energy on the weaponSlotId
                                     sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyDown(Convert.ToInt32(recievedMessage[6]));
+
+                                    // answer to client  - 0 means that action was successeful
+                                    answerToClient = "0";
+                                }
+                                
+                                // request for move
+                                else if (recievedMessage[5] == "6")
+                                {
+                                    // down energy on the weaponSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetDestinationPointToMove(recievedMessage[6]);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -1843,56 +1884,6 @@ namespace Server
 
             return answer;
         }
-
-
-        // GarageMainInformation - > BigSlotProcess subfunction
-        //static private int[] GarageMainInformationBigSlotProcess(int bigSlotNumber, int bigSlot, string accountShipId)
-        //{
-        //    int shieldId = 0;
-        //    int weaponControlId = 0;
-        //    int bigSlotType = 0;
-
-        //    // AccountShip.BigSlot1 = BigSlot[0];
-        //    string queryString = @"SELECT BigSlot.ShieldId, BigSlot.WeaponControlId
-        //                            FROM AccountShip, AccountItem, BigSlot
-        //                            WHERE AccountShip.AccountShipId = @accountShipId
-        //                            and AccountShip.BigSlot" + bigSlotNumber + @" = AccountItem.AccountItemId  
-        //                            and AccountItem.BigSlotId = BigSlot.BigSlotId";
-        //    string[,] queryParameters = new string[,] { { "accountShipId", accountShipId } };
-        //    string[] stringType = new string[] { "int", "int" };
-        //    List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-
-        //    shieldId = Convert.ToInt32(requestAnswer[0][0]);
-        //    weaponControlId = Convert.ToInt32(requestAnswer[1][0]);
-
-        //    if (shieldId > 0)
-        //    {
-        //        bigSlotType = 1;
-
-        //        queryString = @"SELECT Shield.ShieldId
-        //                            FROM Shield
-        //                            WHERE Shield.ShieldId = @shieldId";
-        //        queryParameters = new string[,] { { "shieldId", Convert.ToString(shieldId) } };
-        //        stringType = new string[] { "int" };
-        //        requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-        //        bigSlot = Convert.ToInt32(requestAnswer[0][0]);
-        //    }
-        //    else if (weaponControlId > 0)
-        //    {
-        //        bigSlotType = 2;
-
-        //        queryString = @"SELECT WeaponContol.WeaponControlId
-        //                            FROM WeaponContol
-        //                            WHERE WeaponContol.WeaponControlId = @weaponControlId";
-        //        queryParameters = new string[,] { { "weaponControlId", Convert.ToString(weaponControlId) } };
-        //        stringType = new string[] { "int" };
-        //        requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
-        //        bigSlot = Convert.ToInt32(requestAnswer[0][0]);
-        //    }
-
-        //    int[] answer = new int[] { bigSlotType, bigSlot };
-        //    return answer;
-        //}
 
 
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace Server
@@ -15,12 +17,24 @@ namespace Server
         // Constructor that takes - starting point no arguments:
         public Battle1v1AI()
         {
+
+
+
             toStart = 0;
             started = 0;
             finished = 0;
             battleTime = 0;
             playerReady = 0;
             // Calculatet starting parameters after getting them at creating the class
+            
+            // start position on the map
+            playerPositionX = 0f;
+            playerPositionY = 0f;
+            playerPositionRotation = 0f;
+
+            aIPositionX = 0;
+            aIPositionY = 0;
+            aIPositionRotation = 0;
 
         }
 
@@ -553,11 +567,103 @@ namespace Server
                 playerWeaponSlotCurrentReloadTime[weaponSlotId] = playerWeaponSlotReloadTime[weaponSlotId];
             }
         }
-       
-        
-        
-        
-        
+
+
+        // Player set destination point
+        public void PlayerSetDestinationPointToMove(string moveToCoordinates) 
+        {
+            System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+            customCulture.NumberFormat.NumberDecimalSeparator = ".";
+            System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+
+            Console.WriteLine("request coordinates" + moveToCoordinates);
+
+            String[] coordinates = moveToCoordinates.Split(", ");
+            double coordinateX = Convert.ToDouble(coordinates[0]);
+            double coordinateY = Convert.ToDouble(coordinates[2]);
+
+            playerDestinationPositionX = coordinateX;
+            playerDestinationPositionY = coordinateY;
+
+            //Console.WriteLine("Xnew=" + playerPositionX);
+            //Console.WriteLine("Ynew=" + playerPositionY);
+
+        }
+
+        // move player to the point
+        public void PlayerMovement() 
+        {
+            // if engine active and not destroyed and exist
+            if (playerSlotExist[0] != 0 && playerSlotExist[0] != -1 && playerSlotPowered[0] == 0 && playerSlotHealth[0] > 0)
+            {
+
+                double playerSpeed = 0.1;
+
+
+
+                // the most retardest way to get the next move point
+                // calculate trajectory and move
+                double distanceToPoint = Math.Sqrt(Math.Pow(playerDestinationPositionX - playerPositionX,2) + Math.Pow(playerDestinationPositionY - playerPositionY,2));
+
+                double[] newDistanceToPoint = new double[8];
+                double[] newX = new double[8];
+                double[] newY = new double[8];
+
+                if (distanceToPoint > 0.1) 
+                {
+                    newX[0] = playerPositionX + playerSpeed;
+                    newY[0] = playerPositionY + 0;
+                    newDistanceToPoint[0] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[0], 2) + Math.Pow(playerDestinationPositionY - newY[0], 2));
+
+                    newX[1] = playerPositionX + playerSpeed / 2;
+                    newY[1] = playerPositionY + playerSpeed / 2;
+                    newDistanceToPoint[1] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[1], 2) + Math.Pow(playerDestinationPositionY - newY[1], 2));
+
+                    newX[2] = playerPositionX + 0;
+                    newY[2] = playerPositionY + playerSpeed;
+                    newDistanceToPoint[2] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[2], 2) + Math.Pow(playerDestinationPositionY - newY[2], 2));
+
+
+                    newX[3] = playerPositionX - playerSpeed / 2;
+                    newY[3] = playerPositionY + playerSpeed / 2;
+                    newDistanceToPoint[3] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[3], 2) + Math.Pow(playerDestinationPositionY - newY[3], 2));
+
+
+                    newX[4] = playerPositionX - playerSpeed;
+                    newY[4] = playerPositionY - 0;
+                    newDistanceToPoint[4] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[4], 2) + Math.Pow(playerDestinationPositionY - newY[4], 2));
+
+
+                    newX[5] = playerPositionX - playerSpeed / 2;
+                    newY[5] = playerPositionY - playerSpeed / 2;
+                    newDistanceToPoint[5] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[5], 2) + Math.Pow(playerDestinationPositionY - newY[5], 2));
+
+
+                    newX[6] = playerPositionX - 0;
+                    newY[6] = playerPositionY - playerSpeed;
+                    newDistanceToPoint[6] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[6], 2) + Math.Pow(playerDestinationPositionY - newY[6], 2));
+
+
+                    newX[7] = playerPositionX + playerSpeed / 2;
+                    newY[7] = playerPositionY - playerSpeed / 2;
+                    newDistanceToPoint[7] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[7], 2) + Math.Pow(playerDestinationPositionY - newY[7], 2));
+
+                    newDistanceToPoint.Min();
+                    for (int i = 0; i < newDistanceToPoint.Length; i++)
+                    {
+                        if (newDistanceToPoint[i] == newDistanceToPoint.Min()) 
+                        {
+                            playerPositionX = newX[i];
+                            playerPositionY = newY[i];
+                        }
+                    }
+                }
+            
+            
+            }
+        }
+
+
         //Variables
         public int battle1v1AIId { get; set; }
 
@@ -584,6 +690,18 @@ namespace Server
         // NEW SYSTEM
 
         // PLAYER
+
+        // position on the map
+
+        public double playerPositionX { get; set; }
+        public double playerPositionY { get; set; }
+        public double playerPositionRotation { get; set; }
+
+        // destination point
+
+        public double playerDestinationPositionX { get; set; }
+        public double playerDestinationPositionY { get; set; }
+        public double playerDestinationPositionRotation { get; set; }
 
         // ship
 
@@ -645,6 +763,12 @@ namespace Server
 
 
         // AI
+
+        // position on the map
+
+        public double aIPositionX { get; set; }
+        public double aIPositionY { get; set; }
+        public double aIPositionRotation { get; set; }
 
         // ship
 
