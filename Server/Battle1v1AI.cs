@@ -32,9 +32,9 @@ namespace Server
             playerPositionY = 0f;
             playerPositionRotation = 0f;
 
-            aIPositionX = 0;
-            aIPositionY = 0;
-            aIPositionRotation = 0;
+            aIPositionX = 0f;
+            aIPositionY = 0f;
+            aIPositionRotation = -180f;
 
         }
 
@@ -597,7 +597,7 @@ namespace Server
             if (playerSlotExist[0] != 0 && playerSlotExist[0] != -1 && playerSlotPowered[0] == 0 && playerSlotHealth[0] > 0)
             {
 
-                double playerSpeed = 0.1;
+                double playerSpeed = 0.5;
 
 
 
@@ -609,57 +609,160 @@ namespace Server
                 double[] newX = new double[8];
                 double[] newY = new double[8];
 
-                if (distanceToPoint > 0.1) 
+                if (distanceToPoint > 0.1)
                 {
-                    newX[0] = playerPositionX + playerSpeed;
-                    newY[0] = playerPositionY + 0;
-                    newDistanceToPoint[0] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[0], 2) + Math.Pow(playerDestinationPositionY - newY[0], 2));
+                    //    newX[0] = playerPositionX + playerSpeed;
+                    //    newY[0] = playerPositionY + 0;
+                    //    newDistanceToPoint[0] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[0], 2) + Math.Pow(playerDestinationPositionY - newY[0], 2));
 
-                    newX[1] = playerPositionX + playerSpeed / 2;
-                    newY[1] = playerPositionY + playerSpeed / 2;
-                    newDistanceToPoint[1] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[1], 2) + Math.Pow(playerDestinationPositionY - newY[1], 2));
+                    //    newX[1] = playerPositionX + playerSpeed / 2;
+                    //    newY[1] = playerPositionY + playerSpeed / 2;
+                    //    newDistanceToPoint[1] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[1], 2) + Math.Pow(playerDestinationPositionY - newY[1], 2));
 
-                    newX[2] = playerPositionX + 0;
-                    newY[2] = playerPositionY + playerSpeed;
-                    newDistanceToPoint[2] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[2], 2) + Math.Pow(playerDestinationPositionY - newY[2], 2));
-
-
-                    newX[3] = playerPositionX - playerSpeed / 2;
-                    newY[3] = playerPositionY + playerSpeed / 2;
-                    newDistanceToPoint[3] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[3], 2) + Math.Pow(playerDestinationPositionY - newY[3], 2));
+                    //    newX[2] = playerPositionX + 0;
+                    //    newY[2] = playerPositionY + playerSpeed;
+                    //    newDistanceToPoint[2] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[2], 2) + Math.Pow(playerDestinationPositionY - newY[2], 2));
 
 
-                    newX[4] = playerPositionX - playerSpeed;
-                    newY[4] = playerPositionY - 0;
-                    newDistanceToPoint[4] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[4], 2) + Math.Pow(playerDestinationPositionY - newY[4], 2));
+                    //    newX[3] = playerPositionX - playerSpeed / 2;
+                    //    newY[3] = playerPositionY + playerSpeed / 2;
+                    //    newDistanceToPoint[3] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[3], 2) + Math.Pow(playerDestinationPositionY - newY[3], 2));
 
 
-                    newX[5] = playerPositionX - playerSpeed / 2;
-                    newY[5] = playerPositionY - playerSpeed / 2;
-                    newDistanceToPoint[5] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[5], 2) + Math.Pow(playerDestinationPositionY - newY[5], 2));
+                    //    newX[4] = playerPositionX - playerSpeed;
+                    //    newY[4] = playerPositionY - 0;
+                    //    newDistanceToPoint[4] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[4], 2) + Math.Pow(playerDestinationPositionY - newY[4], 2));
 
 
-                    newX[6] = playerPositionX - 0;
-                    newY[6] = playerPositionY - playerSpeed;
-                    newDistanceToPoint[6] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[6], 2) + Math.Pow(playerDestinationPositionY - newY[6], 2));
+                    //    newX[5] = playerPositionX - playerSpeed / 2;
+                    //    newY[5] = playerPositionY - playerSpeed / 2;
+                    //    newDistanceToPoint[5] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[5], 2) + Math.Pow(playerDestinationPositionY - newY[5], 2));
 
 
-                    newX[7] = playerPositionX + playerSpeed / 2;
-                    newY[7] = playerPositionY - playerSpeed / 2;
-                    newDistanceToPoint[7] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[7], 2) + Math.Pow(playerDestinationPositionY - newY[7], 2));
+                    //    newX[6] = playerPositionX - 0;
+                    //    newY[6] = playerPositionY - playerSpeed;
+                    //    newDistanceToPoint[6] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[6], 2) + Math.Pow(playerDestinationPositionY - newY[6], 2));
 
-                    newDistanceToPoint.Min();
-                    for (int i = 0; i < newDistanceToPoint.Length; i++)
+
+                    //    newX[7] = playerPositionX + playerSpeed / 2;
+                    //    newY[7] = playerPositionY - playerSpeed / 2;
+                    //    newDistanceToPoint[7] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[7], 2) + Math.Pow(playerDestinationPositionY - newY[7], 2));
+
+                    //    newDistanceToPoint.Min();
+                    //    for (int i = 0; i < newDistanceToPoint.Length; i++)
+                    //    {
+                    //        if (newDistanceToPoint[i] == newDistanceToPoint.Min())
+                    //        {
+                    //            playerPositionX = newX[i];
+                    //            playerPositionY = newY[i];
+                    //        }
+                    //    }
+
+
+
+
+                   // playerPositionX += playerSpeed;
+                   // playerPositionY += playerSpeed;
+                }
+
+
+                // ROTATION
+                double rotationSpeed = 0.5;
+
+                double xDiff = playerDestinationPositionX - playerPositionX;
+                double yDiff = playerDestinationPositionY - playerPositionY;
+
+                // Console.WriteLine("diff y- " + yDiff +" x-"+ xDiff);
+
+                double c = yDiff;
+                double b = xDiff;
+                double a = Math.Sqrt(Math.Pow(b, 2) + Math.Pow(c, 2));
+                double destinationDegrees = (180 / Math.PI) * (Math.Acos((Math.Pow(a, 2) + Math.Pow(c, 2) - Math.Pow(b, 2)) / (2 * a * c)));
+              //  Console.WriteLine("destinationDegrees= " + destinationDegrees);
+               // Console.WriteLine("playerPositionRotation= " + playerPositionRotation);
+
+
+
+
+
+
+                //if (xDiff > 0 && yDiff > 0) // first quarter 
+                //{
+                //    //   playerPositionRotation = destinationDegrees;
+                //    Console.WriteLine("FIRST");
+                //}
+                //else if (xDiff == 0 && yDiff > 0) // up
+                //{
+                //    //   playerPositionRotation = 0;
+                //    Console.WriteLine("UP");
+                //}
+                if (xDiff < 0 && yDiff > 0 && destinationDegrees > 0) // second quarter 
+                {
+                    //  playerPositionRotation = -destinationDegrees;
+                    destinationDegrees = -destinationDegrees;
+                    //Console.WriteLine("SECOND");
+
+                }
+                //else if (xDiff < 0 && yDiff == 0) // left  
+                //{
+                //    // playerPositionRotation = -90;
+                //    Console.WriteLine("LEFT");
+                //}
+                else if (xDiff < 0 && yDiff < 0 && destinationDegrees > 0) // third quarter 
+                {
+                    //  playerPositionRotation = -destinationDegrees;
+                    destinationDegrees = -destinationDegrees;
+                    //Console.WriteLine("THIRD");
+                }
+                //else if (xDiff == 0 && yDiff < 0) // down  
+                //{
+                //    //   playerPositionRotation = 180;
+                //    Console.WriteLine("DOWN");
+                //}
+                //else if (xDiff > 0 && yDiff < 0) // fourth quarter 
+                //{
+                //    //  playerPositionRotation = destinationDegrees;
+                //    //Console.WriteLine("fOURTH");
+                //}
+                //else if (xDiff > 0 && yDiff == 0) // right  
+                //{
+                //    //  playerPositionRotation = 90;
+                //    //Console.WriteLine("RIGHT");
+                //}
+
+                Console.WriteLine("destinationDegrees= " + destinationDegrees);
+                Console.WriteLine("playerPositionRotation= " + playerPositionRotation);
+
+                if (playerPositionRotation != destinationDegrees)
+                {
+                    if (destinationDegrees >= 0 && playerPositionRotation > (destinationDegrees - 180) && playerPositionRotation < destinationDegrees)
                     {
-                        if (newDistanceToPoint[i] == newDistanceToPoint.Min()) 
-                        {
-                            playerPositionX = newX[i];
-                            playerPositionY = newY[i];
-                        }
+                        playerPositionRotation += rotationSpeed;
+                    }
+                    else if (destinationDegrees >= 0 && (playerPositionRotation < (destinationDegrees - 180) || playerPositionRotation > destinationDegrees))
+                    {
+                        playerPositionRotation -= rotationSpeed;
+                    }
+                    else if (destinationDegrees < 0 && playerPositionRotation < (destinationDegrees + 180) && playerPositionRotation > destinationDegrees)
+                    {
+                        playerPositionRotation -= rotationSpeed;
+                    }
+                    else if (destinationDegrees < 0 && (playerPositionRotation > (destinationDegrees + 180) || playerPositionRotation < destinationDegrees))
+                    {
+                        playerPositionRotation += rotationSpeed;
+                    }
+
+
+                    if (playerPositionRotation > 180) { playerPositionRotation = -179.999; }
+                    if (playerPositionRotation < -180) { playerPositionRotation = 179.999; }
+
+                    if (playerPositionRotation >= destinationDegrees - 1 && playerPositionRotation <= destinationDegrees + 1)
+                    {
+                        playerPositionRotation = destinationDegrees;
                     }
                 }
-            
-            
+
+
             }
         }
 
