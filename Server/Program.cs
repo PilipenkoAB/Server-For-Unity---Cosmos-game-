@@ -497,6 +497,8 @@ namespace Server
                                                + "," + sessionsBattle1v1AI[battleSessionId].playerPositionY
                                                + "," + sessionsBattle1v1AI[battleSessionId].playerPositionRotation
 
+                                    + ";" + sessionsBattle1v1AI[battleSessionId].playerFocus
+
 
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerShipCurrentHealth
                                     + ";" + sessionsBattle1v1AI[battleSessionId].playerShipFreeEnergy
