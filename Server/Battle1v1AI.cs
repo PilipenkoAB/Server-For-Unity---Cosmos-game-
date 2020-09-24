@@ -15,31 +15,59 @@ namespace Server
     {
 
         // Constructor that takes - starting point no arguments:
-        public Battle1v1AI()
+        public Battle1v1AI(int[] playersToSetStart, int[] playersTeamToSetStart, int mapIdStart)
         {
+            mapId = mapIdStart;
 
+            playersToSet = playersToSetStart;
+            playersTeamsToSet = playersTeamToSetStart;
 
+            // create empty slots for players
+            for (int i = 0; i < playersToSet.Length; i++)
+            {
+                players.Add(new PlayerBattleInformation());
+                players[i].playerType = playersToSet[i];
+                players[i].playerTeam = playersTeamsToSet[i];
+            }
 
             toStart = 0;
             started = 0;
             finished = 0;
             battleTime = 0;
-            playerReady = 0;
-            // Calculatet starting parameters after getting them at creating the class
-            
-            // start position on the map
-            playerPositionX = 0f;
-            playerPositionY = 0f;
-            playerPositionRotation = 0f;
+    }
 
-            aIPositionX = 100f;
-            aIPositionY = 0f;
-            aIPositionRotation = -180f;
 
-            // focus
-            playerFocus = 0;
-
+      // look through available slots and add requested player or AI to the slot
+        public int AddPlayer(int playerType, int playerTeam, int playerId) // new
+        {
+            int idOfArray = -1;
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[i].playerType == playerType && players[i].playerTeam == playerTeam && players[i].playerId == 0) 
+                {
+                    players[i].playerId = playerId;
+                    idOfArray = i;
+                }
+            }
+            return idOfArray;
         }
+
+        public int RequestForIdInArray(int playerId) 
+        {
+            int idOfArray = -1;
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[i].playerId == playerId)
+                {
+                    idOfArray = i;
+                }
+            }
+            return idOfArray;
+        }
+
+
+
+        // ----------------
 
         public void SetStartHealth()
         {
@@ -823,32 +851,78 @@ namespace Server
         }
 
 
-        //Variables
-        public int battle1v1AIId { get; set; }
+
+
+        //----------------------------------------
+        //----------------------------------------
+
+
+
+        // CLASS SYSTEM
+
+        public List<PlayerBattleInformation> players { get; set; } = new List<PlayerBattleInformation>();
+
+        public int[] playersToSet;
+        public int[] playersTeamsToSet;
+
+        public int mapId;
+
+
+
+
+        //Variables OLD
+        public int battleId { get; set; }
 
         public int toStart { get; set; }
         public int started { get; set; }
 
-        public int playerReady { get; set; }
+    //    public int playerReady { get; set; } // DELETE
         public int finished { get; set; }
         public int battleTime { get; set; } // in ms
 
-        // PLAYER and AI ID
-        public int aiId { get; set; } // DO I NEED THIS???
 
-        public int playerID { get; set; } // DO I NEED THIS???
-
-        // player shipId and ai shipId
-        public int playerShipId { get; set; }
-
-        public int aIShipId { get; set; }
+    }
 
 
-        ////-------------------- Player -------------------------
+
+
+
+
+
+
+    /*
+         PlayerBattleInformation - class for battle, contain all information about the battle
+           and all actions that can be in that battle---------------
+       */
+
+    public class PlayerBattleInformation
+    {
+        public PlayerBattleInformation()
+        {
+            playerId = 0;
+
+            playerReady = 0;
+
+            // start position on the map
+            playerPositionX = 0f;
+            playerPositionY = 0f;
+            playerPositionRotation = 0f;
+
+            // focus
+            playerFocus = 0;
+
+        }
+
+        public int playerType { get; set; } // 0 - Human, 1 - AI
+        public int playerId { get; set; } //ID of the player in DB or ID of the AI in the DB depends on the playerType
+        public int playerTeam { get; set; } // team of the players 
+
+        public int playerReady { get; set; } // if AI - should be set ready immidiately, if player - set appropriately when player is ready
+
+        public int playerShipId { get; set; } // ship ID // ???????? is it different for AI and player??
+
 
         // NEW SYSTEM
-
-        // PLAYER
 
         // position on the map
 
@@ -871,6 +945,7 @@ namespace Server
         public int playerShipCurrentHealth { get; set; }
         public int playerShipMaxEnergy { get; set; }
         public int playerShipFreeEnergy { get; set; }
+
 
         // sum shield
 
@@ -911,9 +986,9 @@ namespace Server
         public int[] playerWeaponSlotProjectileAimModule { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
 
         //test // -1 = does not exist, 0 - hit by time, N- time
-        public int[,] playerWeaponSlotProjectileTime1 { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } }; 
+        public int[,] playerWeaponSlotProjectileTime1 { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } };
 
-        public int[] playerWeaponSlotProjectileAimModule1 { get; set; } = new int[5] { 0,0,0,0,0 };
+        public int[] playerWeaponSlotProjectileAimModule1 { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
         //------------------------
 
         // Crew
@@ -922,107 +997,6 @@ namespace Server
         public int[] playerCrewHealth { get; set; }
         public int[] playerCrewDamage { get; set; }
 
-
-
-        // AI
-
-        // position on the map
-
-        public double aIPositionX { get; set; }
-        public double aIPositionY { get; set; }
-        public double aIPositionRotation { get; set; }
-
-        // ship
-
-        public int aIShipMaxHealth { get; set; }
-        public int aIShipCurrentHealth { get; set; }
-        public int aIShipMaxEnergy { get; set; }
-        public int aIShipFreeEnergy { get; set; }
-
-
-        // sum shield
-
-        public int aISumShieldCapacity { get; set; }
-        public int aISumShieldCurrentCapacity { get; set; } = 0;
-
-        // p modules
-
-        //[ engine , cockpit, biglot1 .. 5, mediumslot 1 .. 5]
-
-        public int[] aISlotExist { get; set; } = new int[17];
-        public int[] aISlotHealth { get; set; } = new int[17];
-        public int[] aISlotPowered { get; set; } = new int[17];
-        public int[] aISlotEnergyRequired { get; set; } = new int[17];
-        public string[] aISlotType { get; set; } = new string[17];
-
-        //bigslot difference slots
-        public int[] aISlotShieldCapacity { get; set; } = new int[17];
-        public int[] aISlotShieldRechargeTime { get; set; } = new int[17];
-        public int[] aISlotShieldRechargeCurrentTime { get; set; } = new int[17];
-        public int[] aISlotShieldRechargeRate { get; set; } = new int[17];
-        public int[] aISlotShieldCurrentCapacity { get; set; } = new int[17];
-
-        public int[] aISlotWeaponControlAmountOfWeapons { get; set; } = new int[17];
-
-        // weapons
-
-        public int[] aIWeaponSlotExist { get; set; } = new int[5];
-        public int[] aIWeaponSlotPowered { get; set; } = new int[5];
-        public int[] aIWeaponSlotEnergyRequired { get; set; } = new int[5];
-        public int[] aIWeaponSlotDamage { get; set; } = new int[5];
-        public int[] aIWeaponSlotReloadTime { get; set; } = new int[5];
-        public int[] aIWeaponSlotCurrentReloadTime { get; set; } = new int[5];
-
-        //test // -1 = does not exist, 0 - hit by time, N- time
-        public int[,] aIWeaponSlotProjectileTime { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } };
-
-        public int[] aIWeaponSlotProjectileAimModule { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
-
-        // Crew
-
-        public int[] aICrewExist { get; set; }
-        public int[] aICrewHealth { get; set; }
-        public int[] aICrewDamage { get; set; }
-
-
     }
 
-
-
-
-
-    /*
-     Class - PlayerShip
-     */
-    //public class PlayerShip : Battle1v1AI
-    //{
-    //    public PlayerShip()
-    //    {
-    //    }
-
-    //}
-
-    ///*
-    // Class - AiShip
-    //*/
-    //public class AIShip : Battle1v1AI
-    //{
-    //    public AIShip()
-    //    {
-    //    }
-
-    //}
-
-    /*
-    Class - slot
-    */
-    //public class ModuleShipSlot
-    //{
-    //    public ModuleShipSlot()
-    //    {
-    //    }
-
-    //  //  public int aIId { get; set; }
-    //  //  public int aIShipId { get; set; }
-    //}
 }
