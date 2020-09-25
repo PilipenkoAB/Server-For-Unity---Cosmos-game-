@@ -67,25 +67,27 @@ namespace Server
 
 
 
-        // ----------------
+
 
         public void SetStartHealth()
         {
-            playerShipCurrentHealth = playerShipMaxHealth;
-            aIShipCurrentHealth = aIShipMaxHealth;
+            for (int i = 0; i < players.Count; i++)
+            {
+                players[i].playerShipCurrentHealth = players[i].playerShipMaxHealth;
+
+            }
         }
 
         public void SetStartReload()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < players.Count; i++)
             {
-                if (playerWeaponSlotExist[i] == 1) 
+                for (int ii = 0; ii < 5; ii++)
                 {
-                    playerWeaponSlotCurrentReloadTime[i] = playerWeaponSlotReloadTime[i];
-                }
-                if (aIWeaponSlotExist[i] == 1)
-                {
-                    aIWeaponSlotCurrentReloadTime[i] = aIWeaponSlotReloadTime[i];
+                    if (players[i].playerWeaponSlotExist[ii] == 1)
+                    {
+                        players[i].playerWeaponSlotCurrentReloadTime[ii] = players[i].playerWeaponSlotReloadTime[ii];
+                    }
                 }
             }
         }
@@ -95,30 +97,20 @@ namespace Server
         {
             int reloadOneTick = 50; // ms
 
-            // reload of the player weapon
-            for (int i = 0; i < playerWeaponSlotCurrentReloadTime.Length; i++)
+            for (int i = 0; i < players.Count; i++)
             {
-                if (playerWeaponSlotCurrentReloadTime[i] > 0 && playerWeaponSlotPowered[i] > 0)
+                // reload of the player weapon
+                for (int ii = 0; ii < players[i].playerWeaponSlotCurrentReloadTime.Length; ii++)
                 {
-                    playerWeaponSlotCurrentReloadTime[i] -= reloadOneTick;
+                    if (players[i].playerWeaponSlotCurrentReloadTime[ii] > 0 && players[i].playerWeaponSlotPowered[ii] > 0)
+                    {
+                        players[i].playerWeaponSlotCurrentReloadTime[ii] -= reloadOneTick;
 
-                }
-                else if (playerWeaponSlotCurrentReloadTime[i] <= 0)
-                {
-                    playerWeaponSlotCurrentReloadTime[i] = 0;
-                }
-            }
-
-            // reload of the ai weapon
-            for (int i = 0; i < aIWeaponSlotCurrentReloadTime.Length; i++)
-            {
-                if (aIWeaponSlotCurrentReloadTime[i] > 0 && aIWeaponSlotPowered[i] > 0)
-                {
-                    aIWeaponSlotCurrentReloadTime[i] -= reloadOneTick;
-                }
-                else if (aIWeaponSlotCurrentReloadTime[i] <= 0)
-                {
-                    aIWeaponSlotCurrentReloadTime[i] = 0;
+                    }
+                    else if (players[i].playerWeaponSlotCurrentReloadTime[ii] <= 0)
+                    {
+                        players[i].playerWeaponSlotCurrentReloadTime[ii] = 0;
+                    }
                 }
             }
         }
@@ -129,144 +121,108 @@ namespace Server
             int reloadOneTick = 50; // ms
 
             int playerSumCapasity = 0;
-            int aISumCapasity = 0;
-            //player shields
-            for (int i = 0; i < 5; i++) 
+
+            for (int i = 0; i < players.Count; i++)
             {
-                if (playerSlotExist[i + 2] != 0 && playerSlotExist[i + 2] != -1 && playerSlotType[i + 2] == "shield" && playerSlotPowered[i + 2] <= 0) 
+                //player shields
+                for (int ii = 0; ii < 5; ii++)
                 {
-                    playerSlotShieldCurrentCapacity[i + 2] = 0;
-                    playerSlotShieldRechargeCurrentTime[i + 2] = playerSlotShieldRechargeTime[i + 2];
-                }
-                else if (playerSlotExist[i + 2] != 0 && playerSlotExist[i + 2] != -1 && playerSlotType[i + 2] == "shield" && playerSlotPowered[i + 2] > 0 && playerSlotHealth[i + 2] > 0 && playerSlotShieldRechargeCurrentTime[i + 2] > 0)
-                {
-                  //  Console.WriteLine("DEBUG - recharge time before - " + playerSlotShieldRechargeCurrentTime[i + 2]);
-                    playerSlotShieldRechargeCurrentTime[i + 2] -= reloadOneTick;
-                  //  Console.WriteLine("DEBUG - recharge time after - " + playerSlotShieldRechargeCurrentTime[i + 2]);
-                }
-                else if(playerSlotShieldRechargeCurrentTime[i + 2] <= 0)
-                {
-                    playerSlotShieldCurrentCapacity[i + 2] += playerSlotShieldRechargeRate[i + 2];
-
-                    if (playerSlotShieldCurrentCapacity[i + 2] > playerSlotShieldCapacity[i + 2])
+                    if (players[i].playerSlotExist[ii + 2] != 0 && players[i].playerSlotExist[ii + 2] != -1 && players[i].playerSlotType[ii + 2] == "shield" && players[i].playerSlotPowered[ii + 2] <= 0)
                     {
-                        playerSlotShieldCurrentCapacity[i + 2] = playerSlotShieldCapacity[i + 2];
+                        players[i].playerSlotShieldCurrentCapacity[ii + 2] = 0;
+                        players[i].playerSlotShieldRechargeCurrentTime[ii + 2] = players[i].playerSlotShieldRechargeTime[ii + 2];
                     }
-
-                    playerSlotShieldRechargeCurrentTime[i + 2] = playerSlotShieldRechargeTime[i + 2];
-                   // Console.WriteLine("DEBUG - playerSlotShieldRechargeTime[i + 2] - " + playerSlotShieldRechargeTime[i + 2]);
-
-                }
-
-                playerSumCapasity += playerSlotShieldCurrentCapacity[i + 2];
-                // sum capacity
-                playerSumShieldCurrentCapacity = playerSumCapasity;
-            }
-
-            //ai shields
-            for (int i = 0; i < 5; i++)
-            {
-                if (aISlotExist[i + 2] != 0 && aISlotExist[i + 2] != -1 && aISlotType[i + 2] == "shield" && aISlotPowered[i + 2] <= 0)
-                {
-                    aISlotShieldCurrentCapacity[i + 2] = 0;
-                    aISlotShieldRechargeCurrentTime[i + 2] = aISlotShieldRechargeTime[i + 2];
-                }
-                else if (aISlotExist[i + 2] != 0 && aISlotExist[i + 2] != -1 && aISlotType[i + 2] == "shield" && aISlotPowered[i + 2] > 0 && aISlotHealth[i + 2] > 0 && aISlotShieldRechargeCurrentTime[i + 2] > 0)
-                {
-                    //  Console.WriteLine("DEBUG - recharge time before - " + playerSlotShieldRechargeCurrentTime[i + 2]);
-                    aISlotShieldRechargeCurrentTime[i + 2] -= reloadOneTick;
-                    //  Console.WriteLine("DEBUG - recharge time after - " + playerSlotShieldRechargeCurrentTime[i + 2]);
-                }
-                else if (aISlotShieldRechargeCurrentTime[i + 2] <= 0)
-                {
-                    aISlotShieldCurrentCapacity[i + 2] += aISlotShieldRechargeRate[i + 2];
-
-                    if (aISlotShieldCurrentCapacity[i + 2] > aISlotShieldCapacity[i + 2])
+                    else if (players[i].playerSlotExist[ii + 2] != 0 && players[i].playerSlotExist[ii + 2] != -1 && players[i].playerSlotType[ii + 2] == "shield" && players[i].playerSlotPowered[ii + 2] > 0 && players[i].playerSlotHealth[ii + 2] > 0 && players[i].playerSlotShieldRechargeCurrentTime[ii + 2] > 0)
                     {
-                        aISlotShieldCurrentCapacity[i + 2] = aISlotShieldCapacity[i + 2];
+                        //  Console.WriteLine("DEBUG - recharge time before - " + playerSlotShieldRechargeCurrentTime[i + 2]);
+                        players[i].playerSlotShieldRechargeCurrentTime[ii + 2] -= reloadOneTick;
+                        //  Console.WriteLine("DEBUG - recharge time after - " + playerSlotShieldRechargeCurrentTime[i + 2]);
                     }
+                    else if (players[i].playerSlotShieldRechargeCurrentTime[ii + 2] <= 0)
+                    {
+                        players[i].playerSlotShieldCurrentCapacity[ii + 2] += players[i].playerSlotShieldRechargeRate[ii + 2];
 
-                    aISlotShieldRechargeCurrentTime[i + 2] = aISlotShieldRechargeTime[i + 2];
-                    // Console.WriteLine("DEBUG - playerSlotShieldRechargeTime[i + 2] - " + playerSlotShieldRechargeTime[i + 2]);
-
+                        if (players[i].playerSlotShieldCurrentCapacity[ii + 2] > players[i].playerSlotShieldCapacity[ii + 2])
+                        {
+                            players[i].playerSlotShieldCurrentCapacity[ii + 2] = players[i].playerSlotShieldCapacity[ii + 2];
+                        }
+                        players[i].playerSlotShieldRechargeCurrentTime[ii + 2] = players[i].playerSlotShieldRechargeTime[ii + 2];
+                        // Console.WriteLine("DEBUG - playerSlotShieldRechargeTime[i + 2] - " + playerSlotShieldRechargeTime[i + 2]);
+                    }
+                    playerSumCapasity += players[i].playerSlotShieldCurrentCapacity[ii + 2];
+                    // sum capacity
+                    players[i].playerSumShieldCurrentCapacity = playerSumCapasity;
                 }
-
-                aISumCapasity += aISlotShieldCurrentCapacity[i + 2];
-                // sum capacity
-                aISumShieldCurrentCapacity = aISumCapasity;
             }
-
-
-          //  Console.WriteLine("DEBUG playerSumCapasity - " + playerSumCapasity);
-         //  Console.WriteLine("DEBUG aISumCapasity - " + aISumCapasity);
         }
 
         //-----------------------
 
-        public void AIAttackAllWeaponsCooldown() 
+            // not sure about that one 
+        public void AIAttackAllWeaponsCooldown(int aIId) 
         {
-            for (int i = 0; i < aIWeaponSlotCurrentReloadTime.Length; i++)
+            for (int i = 0; i < players[aIId].playerWeaponSlotCurrentReloadTime.Length; i++)
             {
-                if (aIWeaponSlotCurrentReloadTime[i] == 0 && aISlotType[i] == "weaponcontrol" && aISlotPowered[i] == 1)
+                if (players[aIId].playerWeaponSlotCurrentReloadTime[i] == 0 && players[aIId].playerSlotType[i] == "weaponcontrol" && players[aIId].playerSlotPowered[i] == 1)
                 {
                     //    Console.WriteLine("DEBUG weapon - "+i);
-                    aIWeaponSlotProjectileTime[i, 0] = 1500; // need to set if how many projectles ?????
-                    aIWeaponSlotCurrentReloadTime[i] = aIWeaponSlotReloadTime[i];
+                    players[aIId].playerWeaponSlotProjectileTime1[i, 0] = 1500; // need to set if how many projectles ?????
+                    players[aIId].playerWeaponSlotCurrentReloadTime[i] = players[aIId].playerWeaponSlotReloadTime[i];
 
                     //get random slot to attack
                     Random randomSlotToAttack = new Random();
                     int slotToAttack = randomSlotToAttack.Next(0,11); // 11 because not small slots to attack
-                    while (playerSlotExist[slotToAttack] < 0) 
+                    while (players[aIId].playerSlotExist[slotToAttack] < 0) 
                     {
                         slotToAttack = randomSlotToAttack.Next(0, 11);
                     //    Console.WriteLine("DEBUG RANDOM try - " + slotToAttack);
                     }
-                  //  Console.WriteLine("DEBUG RANDOM attack - " + slotToAttack);
-                    aIWeaponSlotProjectileAimModule[i] = slotToAttack;
+                    //  Console.WriteLine("DEBUG RANDOM attack - " + slotToAttack);
+                    players[aIId].playerWeaponSlotProjectileAimModule[i] = slotToAttack;
                 }
             }
         }
 
 
-        public void AIPowerModules() 
+        public void AIPowerModules(int aIId) 
         {
-            for (int i = 0; i < aISlotExist.Length; i++)
+            for (int i = 0; i < players[aIId].playerSlotExist.Length; i++)
             {
-                if (aISlotExist[i] > 0 && aISlotPowered[i] != 1 && aISlotHealth[i] > 0 && aIShipFreeEnergy > 0)
+                if (players[aIId].playerSlotExist[i] > 0 && players[aIId].playerSlotPowered[i] != 1 && players[aIId].playerSlotHealth[i] > 0 && players[aIId].playerShipFreeEnergy > 0)
                 {
-                    aISlotPowered[i] = 1;
-                    aIShipFreeEnergy -= 1;
+                    players[aIId].playerSlotPowered[i] = 1;
+                    players[aIId].playerShipFreeEnergy -= 1;
                 }
             }
 
-            for (int i = 0; i < aIWeaponSlotExist.Length; i++)
+            for (int i = 0; i < players[aIId].playerWeaponSlotExist.Length; i++)
             {
-                if (aIWeaponSlotExist[i] > 0 && aIWeaponSlotPowered[i] != 1 && aIShipFreeEnergy > 0)
+                if (players[aIId].playerWeaponSlotExist[i] > 0 && players[aIId].playerWeaponSlotPowered[i] != 1 && players[aIId].playerShipFreeEnergy > 0)
                 {
-                    aIWeaponSlotPowered[i] = 1;
-                    aIShipFreeEnergy -= 1;
+                    players[aIId].playerWeaponSlotPowered[i] = 1;
+                    players[aIId].playerShipFreeEnergy -= 1;
                 }
             }
         }
         //----------------
 
 
-        public bool PlayerAttackModule(int weaponIdint, int moduleSlotId) 
+        public bool PlayerAttackModule(int weaponIdint, int moduleSlotId, int playerId) 
         {
             // player attack AI
             // Console.WriteLine("DEBUG - weaponIdint - " + weaponIdint);
             //if weapon control exist and powered
             
-            for (int i = 0; i < playerSlotType.Length; i++)
+            for (int i = 0; i < players[playerId].playerSlotType.Length; i++)
             {
                // Console.WriteLine("DEBUG i -"+i+ " playerSlotType[i] -"+ playerSlotType[i]);
 
-                if (playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] == 1 && playerWeaponSlotPowered[weaponIdint] == 1)
+                if (players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && players[playerId].playerSlotType[i] == "weaponcontrol" && players[playerId].playerSlotPowered[i] == 1 && players[playerId].playerWeaponSlotPowered[weaponIdint] == 1)
                 {
-                //    Console.WriteLine("DEBUG weapon - "+i);
-                    playerWeaponSlotProjectileTime[weaponIdint] = 1500;
-                    playerWeaponSlotCurrentReloadTime[weaponIdint] = playerWeaponSlotReloadTime[weaponIdint];
-                    playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
+                    //    Console.WriteLine("DEBUG weapon - "+i);
+                    players[playerId].playerWeaponSlotProjectileTime[weaponIdint] = 1500;
+                    players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] = players[playerId].playerWeaponSlotReloadTime[weaponIdint];
+                    players[playerId].playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
                     // shot is happened
                     return true;
                 }
@@ -276,27 +232,28 @@ namespace Server
             return false;
         }
 
+        // that is broken for sure
         public void ProjectilesMoveTime() 
         {
             int reloadOneTick = 50; // ms
 
-            for (int i = 0; i < playerWeaponSlotProjectileTime.Length; i++)
+            for (int i = 0; i < players[0].playerWeaponSlotProjectileTime.Length; i++)
             {
-                if (playerWeaponSlotProjectileTime[i] > 0)
+                if (players[0].playerWeaponSlotProjectileTime[i] > 0)
                 {
 
-                    playerWeaponSlotProjectileTime[i] -= reloadOneTick;
+                    players[0].playerWeaponSlotProjectileTime[i] -= reloadOneTick;
 
                    // Console.WriteLine("DEBUG projectile before - i "+i+" - " + playerWeaponSlotProjectileTime[i]);
 
-                    if (playerWeaponSlotProjectileTime[i] <= 0) 
+                    if (players[0].playerWeaponSlotProjectileTime[i] <= 0) 
                     {
                         // projectile hit the enemyAI
                         Random randomChanceToHit = new Random();
                         int ChanceToHit = randomChanceToHit.Next(0, 100);
 
                         Random randomDamage = new Random();
-                        int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(playerWeaponSlotDamage[i]) * 1.1));
+                        int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(players[0].playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(players[0].playerWeaponSlotDamage[i]) * 1.1));
                         int resultShieldCapasityAfterDamage = 0;
 
                         if (ChanceToHit <= 50) // if hit the ship but not module
@@ -304,25 +261,25 @@ namespace Server
                             for (int i1 = 0; i1 < 5; i1++)
                             {
                                 // layers of the shields. first - destroy first layer, then next then next
-                                if (aISlotType[i1 + 2] == "shield" && aISlotHealth[i1 + 2] > 0 && aISlotPowered[i1 + 2] > 0)
+                                if (players[1].playerSlotType[i1 + 2] == "shield" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
                                 {
                                     // in progress !!!
-                                    resultShieldCapasityAfterDamage = aISlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                    resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
                                     if (resultShieldCapasityAfterDamage <= 0)
                                     {
-                                        aISlotShieldCurrentCapacity[i1 + 2] = 0;
+                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
                                         damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
                                     }
                                     else
                                     {
-                                        aISlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
                                         damageToShip = 0;
                                     }
                                 }
                             }
 
                             // damage to ship if no shields (all damage in 1 take)
-                            aIShipCurrentHealth -= damageToShip;
+                            players[1].playerShipCurrentHealth -= damageToShip;
                             damageToShip = 0;
                         } 
                         else if(ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
@@ -330,46 +287,46 @@ namespace Server
                             for (int i1 = 0; i1 < 5; i1++)
                             {
                                 // layers of the shields. first - destroy first layer, then next then next
-                                if (aISlotType[i1 + 2] == "shield" && aISlotHealth[i1 + 2] > 0 && aISlotPowered[i1 + 2] > 0)
+                                if (players[1].playerSlotType[i1 + 2] == "shield" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
                                 {
                                     // in progress !!!
-                                    resultShieldCapasityAfterDamage = aISlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                    resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
                                     if (resultShieldCapasityAfterDamage <= 0)
                                     {
-                                        aISlotShieldCurrentCapacity[i1 + 2] = 0;
+                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
                                         damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
                                     }
                                     else
                                     {
-                                        aISlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
                                         damageToShip = 0;
                                     }
                                 }
                             }
 
-                            aIShipCurrentHealth -= damageToShip / 2;
-                            aISlotHealth[playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
+                            players[1].playerShipCurrentHealth -= damageToShip / 2;
+                            players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
 
-                            if (aISlotHealth[playerWeaponSlotProjectileAimModule[i]] <= 0)
+                            if (players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] <= 0)
                             {
-                                aIShipCurrentHealth -= damageToShip / 2; // aditional damage if module was destroyed
+                                players[1].playerShipCurrentHealth -= damageToShip / 2; // aditional damage if module was destroyed
 
-                                aISlotHealth[playerWeaponSlotProjectileAimModule[i]] = 0;
-                                aISlotPowered[playerWeaponSlotProjectileAimModule[i]] = 0;
+                                players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
+                                players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
 
-                                if (aISlotPowered[playerWeaponSlotProjectileAimModule[i]] > 0)
+                                if (players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] > 0)
                                 {
-                                    aISlotPowered[playerWeaponSlotProjectileAimModule[i]] = 0;
-                                    aIShipFreeEnergy += 1;
+                                    players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
+                                    players[1].playerShipFreeEnergy += 1;
 
-                                    if (aISlotType[playerWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
+                                    if (players[1].playerSlotType[players[0].playerWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
                                     {
-                                        for (int iii = 0; iii < aIWeaponSlotPowered.Length; iii++)
+                                        for (int iii = 0; iii < players[1].playerWeaponSlotPowered.Length; iii++)
                                         {
-                                            if (aIWeaponSlotPowered[iii] > 0)
+                                            if (players[1].playerWeaponSlotPowered[iii] > 0)
                                             {
-                                                aIShipFreeEnergy += 1;
-                                                aIWeaponSlotPowered[iii] = 0;
+                                                players[1].playerShipFreeEnergy += 1;
+                                                players[1].playerWeaponSlotPowered[iii] = 0;
                                             }
                                         }
                                     }
@@ -384,7 +341,7 @@ namespace Server
 
                         // Console.WriteLine("DEBUG projectile after - " + playerWeaponSlotProjectileTime[i]);
 
-                        playerWeaponSlotProjectileTime[i] = -1; 
+                        players[0].playerWeaponSlotProjectileTime[i] = -1; 
                     }
                 }
             }
@@ -395,21 +352,21 @@ namespace Server
             {
                 for (int ii = 0; ii < 5; ii++) //projectile N
                 {
-                    if (aIWeaponSlotProjectileTime[i,ii] > 0)
+                    if (players[1].playerWeaponSlotProjectileTime1[i,ii] > 0)
                     {
 
-                        aIWeaponSlotProjectileTime[i,ii] -= reloadOneTick;
+                        players[1].playerWeaponSlotProjectileTime1[i,ii] -= reloadOneTick;
 
                        // Console.WriteLine("DEBUG ai projectile before - i " + i + " - " + aIWeaponSlotProjectileTime[i,ii]);
 
-                        if (aIWeaponSlotProjectileTime[i,ii] <= 0)
+                        if (players[1].playerWeaponSlotProjectileTime1[i,ii] <= 0)
                         {
                             // projectile hit the enemyAI
                             Random randomChanceToHit = new Random();
                             int ChanceToHit = randomChanceToHit.Next(0, 100);
 
                             Random randomDamage = new Random();
-                            int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(aIWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(aIWeaponSlotDamage[i]) * 1.1));
+                            int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(players[1].playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(players[1].playerWeaponSlotDamage[i]) * 1.1));
                             int resultShieldCapasityAfterDamage = 0;
 
                             if (ChanceToHit <= 50) // if hit the ship but not module
@@ -420,25 +377,25 @@ namespace Server
                                 for (int i1 = 0; i1 < 5; i1++)
                                 {
                                     // layers of the shields. first - destroy first layer, then next then next
-                                    if (playerSlotType[i1 + 2] == "shield" && playerSlotHealth[i1 + 2] > 0 && playerSlotPowered[i1 + 2] > 0)
+                                    if (players[0].playerSlotType[i1 + 2] == "shield" && players[0].playerSlotHealth[i1 + 2] > 0 && players[0].playerSlotPowered[i1 + 2] > 0)
                                     {
                                         // in progress !!!
-                                        resultShieldCapasityAfterDamage = playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                        resultShieldCapasityAfterDamage = players[0].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
                                         if (resultShieldCapasityAfterDamage <= 0)
                                         {
-                                            playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
                                             damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
                                         }
                                         else
                                         {
-                                            playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
                                             damageToShip = 0;
                                         }
                                     }
                                 }
 
                                 // damage to ship if no shields (all damage in 1 take)
-                                playerShipCurrentHealth -= damageToShip;
+                                players[0].playerShipCurrentHealth -= damageToShip;
                                 damageToShip = 0;
 
                                // Console.WriteLine("damage = " + damageToShip);
@@ -453,47 +410,47 @@ namespace Server
                                 for (int i1 = 0; i1 < 5; i1++)
                                 {
                                     // layers of the shields. first - destroy first layer, then next then next
-                                    if (playerSlotType[i1 + 2] == "shield" && playerSlotHealth[i1 + 2] > 0 && playerSlotPowered[i1 + 2] > 0)
+                                    if (players[0].playerSlotType[i1 + 2] == "shield" && players[0].playerSlotHealth[i1 + 2] > 0 && players[0].playerSlotPowered[i1 + 2] > 0)
                                     {
                                         // in progress !!!
-                                        resultShieldCapasityAfterDamage = playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+                                        resultShieldCapasityAfterDamage = players[0].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
                                         if (resultShieldCapasityAfterDamage <= 0)
                                         {
-                                            playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
                                             damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
                                         }
                                         else
                                         {
-                                            playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
                                             damageToShip = 0;
                                         }
                                     }
                                 }
 
 
-                                playerShipCurrentHealth -= damageToShip / 2;
-                                playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
+                                players[0].playerShipCurrentHealth -= damageToShip / 2;
+                                players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
 
                               
                                 //---
-                                if (playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] <= 0) 
+                                if (players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] <= 0) 
                                 {
-                                    playerSlotHealth[aIWeaponSlotProjectileAimModule[i]] = 0;
-                                    playerShipCurrentHealth -= damageToShip / 2;
+                                    players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] = 0;
+                                    players[0].playerShipCurrentHealth -= damageToShip / 2;
 
-                                    if (playerSlotPowered[aIWeaponSlotProjectileAimModule[i]] > 0)
+                                    if (players[0].playerSlotPowered[players[1].playerWeaponSlotProjectileAimModule[i]] > 0)
                                     {
-                                        playerSlotPowered[aIWeaponSlotProjectileAimModule[i]] = 0;
-                                        playerShipFreeEnergy += 1;
+                                        players[0].playerSlotPowered[players[1].playerWeaponSlotProjectileAimModule[i]] = 0;
+                                        players[0].playerShipFreeEnergy += 1;
 
-                                        if (playerSlotType[aIWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
+                                        if (players[0].playerSlotType[players[1].playerWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
                                         {
-                                            for (int iii = 0; iii < playerWeaponSlotPowered.Length; iii++)
+                                            for (int iii = 0; iii < players[0].playerWeaponSlotPowered.Length; iii++)
                                             {
-                                                if (playerWeaponSlotPowered[iii] > 0)
+                                                if (players[0].playerWeaponSlotPowered[iii] > 0)
                                                 {
-                                                    playerShipFreeEnergy += 1;
-                                                    playerWeaponSlotPowered[iii] = 0;
+                                                    players[0].playerShipFreeEnergy += 1;
+                                                    players[0].playerWeaponSlotPowered[iii] = 0;
                                                 }
                                             }  
                                         }
@@ -507,9 +464,9 @@ namespace Server
                             // if missed
                             //-- nothing(?)
 
-                           // Console.WriteLine("DEBUG ai projectile after - " + aIWeaponSlotProjectileTime[i,ii]);
+                            // Console.WriteLine("DEBUG ai projectile after - " + aIWeaponSlotProjectileTime[i,ii]);
 
-                            aIWeaponSlotProjectileTime[i,ii] = -1;
+                            players[1].playerWeaponSlotProjectileTime1[i,ii] = -1;
                         }
                     }
                 }
@@ -522,33 +479,33 @@ namespace Server
 
 
         // ENERGY manipulation
-        public void PlayerModuleEnergyUp(int moduleSlotId)
+        public void PlayerModuleEnergyUp(int moduleSlotId, int idInArray)
         {
-            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy && playerSlotHealth[moduleSlotId] > 0)
+            if (players[idInArray].playerSlotExist[moduleSlotId] != 0 && players[idInArray].playerSlotExist[moduleSlotId] != -1 && players[idInArray].playerSlotPowered[moduleSlotId] == 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy && players[idInArray].playerSlotHealth[moduleSlotId] > 0)
             {
-                playerSlotPowered[moduleSlotId] = 1;
-                playerShipFreeEnergy -= 1;
+                players[idInArray].playerSlotPowered[moduleSlotId] = 1;
+                players[idInArray].playerShipFreeEnergy -= 1;
             }
         }
 
-        public void PlayerModuleEnergyDown(int moduleSlotId)
+        public void PlayerModuleEnergyDown(int moduleSlotId, int idInArray)
         {
-            if (playerSlotExist[moduleSlotId] != 0 && playerSlotExist[moduleSlotId] != -1 && playerSlotPowered[moduleSlotId] != 0 && playerShipFreeEnergy >= 0 && playerSlotHealth[moduleSlotId] > 0)
+            if (players[idInArray].playerSlotExist[moduleSlotId] != 0 && players[idInArray].playerSlotExist[moduleSlotId] != -1 && players[idInArray].playerSlotPowered[moduleSlotId] != 0 && players[idInArray].playerShipFreeEnergy >= 0 && players[idInArray].playerSlotHealth[moduleSlotId] > 0)
             {
-                playerSlotPowered[moduleSlotId] = 0;
-                playerShipFreeEnergy += 1;
+                players[idInArray].playerSlotPowered[moduleSlotId] = 0;
+                players[idInArray].playerShipFreeEnergy += 1;
 
                 // unpower all weapons if weapon control was unpowered
-                if (playerSlotType[moduleSlotId] == "weaponcontrol") 
+                if (players[idInArray].playerSlotType[moduleSlotId] == "weaponcontrol") 
                 {
-                    for (int i = 0; i < playerWeaponSlotPowered.Length; i++)
+                    for (int i = 0; i < players[idInArray].playerWeaponSlotPowered.Length; i++)
                     {
-                        if (playerWeaponSlotPowered[i] > 0)
+                        if (players[idInArray].playerWeaponSlotPowered[i] > 0)
                         {
-                            playerWeaponSlotPowered[i] = 0;
-                            playerShipFreeEnergy += 1;
+                            players[idInArray].playerWeaponSlotPowered[i] = 0;
+                            players[idInArray].playerShipFreeEnergy += 1;
 
-                            playerWeaponSlotCurrentReloadTime[i] = playerWeaponSlotReloadTime[i];
+                            players[idInArray].playerWeaponSlotCurrentReloadTime[i] = players[idInArray].playerWeaponSlotReloadTime[i];
                         }
                     }
                 }
@@ -556,19 +513,19 @@ namespace Server
         }
 
 
-        public void PlayerWeaponEnergyUp(int weaponSlotId)
+        public void PlayerWeaponEnergyUp(int weaponSlotId, int idInArray)
         {
             bool weaponControlPowered = false;
             // check if weapon control powered - if not - power first
-            for (int i = 0; i < playerSlotExist.Length; i++)
+            for (int i = 0; i < players[idInArray].playerSlotExist.Length; i++)
             {
-                if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] <= 0 && playerSlotHealth[i] > 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
+                if (players[idInArray].playerSlotType[i] == "weaponcontrol" && players[idInArray].playerSlotPowered[i] <= 0 && players[idInArray].playerSlotHealth[i] > 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy)
                 {
-                   // Console.WriteLine("DEBUG health - " + playerSlotHealth[i]);
-                    playerSlotPowered[i] += 1;
-                    playerShipFreeEnergy -= 1;
+                    // Console.WriteLine("DEBUG health - " + playerSlotHealth[i]);
+                    players[idInArray].playerSlotPowered[i] += 1;
+                    players[idInArray].playerShipFreeEnergy -= 1;
                 }
-                if (playerSlotType[i] == "weaponcontrol" && playerSlotPowered[i] > 0 && playerSlotHealth[i] > 0) 
+                if (players[idInArray].playerSlotType[i] == "weaponcontrol" && players[idInArray].playerSlotPowered[i] > 0 && players[idInArray].playerSlotHealth[i] > 0) 
                 {
                   //  Console.WriteLine("DEBUG health 1  - " + playerSlotHealth[i]);
                     weaponControlPowered = true;
@@ -576,32 +533,32 @@ namespace Server
             }
 
             // power weapon
-            if (weaponControlPowered == true && playerWeaponSlotExist[weaponSlotId] != 0 && playerWeaponSlotExist[weaponSlotId] != -1 && playerWeaponSlotPowered[weaponSlotId] == 0 && playerShipFreeEnergy <= playerShipMaxEnergy)
+            if (weaponControlPowered == true && players[idInArray].playerWeaponSlotExist[weaponSlotId] != 0 && players[idInArray].playerWeaponSlotExist[weaponSlotId] != -1 && players[idInArray].playerWeaponSlotPowered[weaponSlotId] == 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy)
             {
                 //Console.WriteLine("DEBUG health power" + weaponControlPowered);
 
-               playerWeaponSlotPowered[weaponSlotId] = 1;
-                playerShipFreeEnergy -= 1;
+                players[idInArray].playerWeaponSlotPowered[weaponSlotId] = 1;
+                players[idInArray].playerShipFreeEnergy -= 1;
 
                 weaponControlPowered = false;
             }
             
         }
 
-        public void PlayerWeaponEnergyDown(int weaponSlotId)
+        public void PlayerWeaponEnergyDown(int weaponSlotId, int idInArray)
         {
-            if (playerWeaponSlotExist[weaponSlotId] != 0 && playerWeaponSlotExist[weaponSlotId] != -1 && playerWeaponSlotPowered[weaponSlotId] != 0 && playerShipFreeEnergy >= 0)
+            if (players[idInArray].playerWeaponSlotExist[weaponSlotId] != 0 && players[idInArray].playerWeaponSlotExist[weaponSlotId] != -1 && players[idInArray].playerWeaponSlotPowered[weaponSlotId] != 0 && players[idInArray].playerShipFreeEnergy >= 0)
             {
-                playerWeaponSlotPowered[weaponSlotId] = 0;
-                playerShipFreeEnergy += 1;
+                players[idInArray].playerWeaponSlotPowered[weaponSlotId] = 0;
+                players[idInArray].playerShipFreeEnergy += 1;
 
-                playerWeaponSlotCurrentReloadTime[weaponSlotId] = playerWeaponSlotReloadTime[weaponSlotId];
+                players[idInArray].playerWeaponSlotCurrentReloadTime[weaponSlotId] = players[idInArray].playerWeaponSlotReloadTime[weaponSlotId];
             }
         }
 
 
         // Player set destination point
-        public void PlayerSetDestinationPointToMove(string moveToCoordinates) 
+        public void PlayerSetDestinationPointToMove(string moveToCoordinates, int idInArray) 
         {
             System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
             customCulture.NumberFormat.NumberDecimalSeparator = ".";
@@ -613,8 +570,8 @@ namespace Server
             double coordinateX = Convert.ToDouble(coordinates[0]);
             double coordinateY = Convert.ToDouble(coordinates[2]);
 
-            playerDestinationPositionX = coordinateX;
-            playerDestinationPositionY = coordinateY;
+            players[idInArray].playerDestinationPositionX = coordinateX;
+            players[idInArray].playerDestinationPositionY = coordinateY;
 
             //Console.WriteLine("Xnew=" + playerPositionX);
             //Console.WriteLine("Ynew=" + playerPositionY);
@@ -624,8 +581,12 @@ namespace Server
         // move player to the point
         public void PlayerMovement() 
         {
+            for (int i = 0; i < players.Count; i++)
+            {
+
+
             // if engine active and not destroyed and exist
-            if (playerSlotExist[0] != 0 && playerSlotExist[0] != -1 && playerSlotPowered[0] != 0 && playerSlotHealth[0] > 0)
+            if (players[i].playerSlotExist[0] != 0 && players[i].playerSlotExist[0] != -1 && players[i].playerSlotPowered[0] != 0 && players[i].playerSlotHealth[0] > 0)
             {
 
                 double playerSpeed = 3;
@@ -634,7 +595,7 @@ namespace Server
 
                 // the most retardest way to get the next move point
                 // calculate trajectory and move
-                double distanceToPoint = Math.Sqrt(Math.Pow(playerDestinationPositionX - playerPositionX,2) + Math.Pow(playerDestinationPositionY - playerPositionY,2));
+                double distanceToPoint = Math.Sqrt(Math.Pow(players[i].playerDestinationPositionX - players[i].playerPositionX,2) + Math.Pow(players[i].playerDestinationPositionY - players[i].playerPositionY,2));
 
                 double[] newDistanceToPoint = new double[8];
                 double[] newX = new double[8];
@@ -694,14 +655,14 @@ namespace Server
 
                     // playerPositionX += playerSpeed;
                     // playerPositionY += playerSpeed;
-                }
+                
 
 
                 // ROTATION
                 double rotationSpeed = 2;
 
-                double xDiff = playerDestinationPositionX - playerPositionX;
-                double yDiff = playerDestinationPositionY - playerPositionY;
+                double xDiff = players[i].playerDestinationPositionX - players[i].playerPositionX;
+                double yDiff = players[i].playerDestinationPositionY - players[i].playerPositionY;
 
                 // Console.WriteLine("diff y- " + yDiff +" x-"+ xDiff);
 
@@ -764,32 +725,32 @@ namespace Server
               //  Console.WriteLine("destinationDegrees= " + destinationDegrees);
               //  Console.WriteLine("playerPositionRotation= " + playerPositionRotation);
 
-                if (playerPositionRotation != destinationDegrees)
+                if (players[i].playerPositionRotation != destinationDegrees)
                 {
-                    if (destinationDegrees >= 0 && playerPositionRotation > (destinationDegrees - 180) && playerPositionRotation < destinationDegrees)
+                    if (destinationDegrees >= 0 && players[i].playerPositionRotation > (destinationDegrees - 180) && players[i].playerPositionRotation < destinationDegrees)
                     {
-                        playerPositionRotation += rotationSpeed;
+                                players[i].playerPositionRotation += rotationSpeed;
                     }
-                    else if (destinationDegrees >= 0 && (playerPositionRotation < (destinationDegrees - 180) || playerPositionRotation > destinationDegrees))
+                    else if (destinationDegrees >= 0 && (players[i].playerPositionRotation < (destinationDegrees - 180) || players[i].playerPositionRotation > destinationDegrees))
                     {
-                        playerPositionRotation -= rotationSpeed;
+                                players[i].playerPositionRotation -= rotationSpeed;
                     }
-                    else if (destinationDegrees < 0 && playerPositionRotation < (destinationDegrees + 180) && playerPositionRotation > destinationDegrees)
+                    else if (destinationDegrees < 0 && players[i].playerPositionRotation < (destinationDegrees + 180) && players[i].playerPositionRotation > destinationDegrees)
                     {
-                        playerPositionRotation -= rotationSpeed;
+                                players[i].playerPositionRotation -= rotationSpeed;
                     }
-                    else if (destinationDegrees < 0 && (playerPositionRotation > (destinationDegrees + 180) || playerPositionRotation < destinationDegrees))
+                    else if (destinationDegrees < 0 && (players[i].playerPositionRotation > (destinationDegrees + 180) || players[i].playerPositionRotation < destinationDegrees))
                     {
-                        playerPositionRotation += rotationSpeed;
+                                players[i].playerPositionRotation += rotationSpeed;
                     }
 
 
-                    if (playerPositionRotation > 180) { playerPositionRotation = -179.999; }
-                    if (playerPositionRotation < -180) { playerPositionRotation = 179.999; }
+                    if (players[i].playerPositionRotation > 180) { players[i].playerPositionRotation = -179.999; }
+                    if (players[i].playerPositionRotation < -180) { players[i].playerPositionRotation = 179.999; }
 
-                    if (playerPositionRotation >= destinationDegrees - 1 && playerPositionRotation <= destinationDegrees + 1)
+                    if (players[i].playerPositionRotation >= destinationDegrees - 1 && players[i].playerPositionRotation <= destinationDegrees + 1)
                     {
-                        playerPositionRotation = destinationDegrees;
+                                players[i].playerPositionRotation = destinationDegrees;
                     }
                 }
 
@@ -808,44 +769,46 @@ namespace Server
                 //Console.WriteLine("a = " + a);
                 //Console.WriteLine("b = " + b);
 
-                if (playerPositionRotation == 0) // up
+                if (players[i].playerPositionRotation == 0) // up
                 {
-                    playerPositionY += playerSpeed;
+                            players[i].playerPositionY += playerSpeed;
                 }
-                else if (playerPositionRotation > 0 && playerPositionRotation < 90) // first quarter 
+                else if (players[i].playerPositionRotation > 0 && players[i].playerPositionRotation < 90) // first quarter 
                 {
-                    playerPositionY += playerSpeed * Math.Cos((playerPositionRotation * (Math.PI)) / 180);
-                    playerPositionX += playerSpeed * Math.Cos(((180 - playerPositionRotation - 90) * (Math.PI)) / 180);
+                            players[i].playerPositionY += playerSpeed * Math.Cos((players[i].playerPositionRotation * (Math.PI)) / 180);
+                            players[i].playerPositionX += playerSpeed * Math.Cos(((180 - players[i].playerPositionRotation - 90) * (Math.PI)) / 180);
                 }
-                else if (playerPositionRotation == 90) // right
+                else if (players[i].playerPositionRotation == 90) // right
                 {
-                    playerPositionX += playerSpeed;
+                            players[i].playerPositionX += playerSpeed;
                 }
-                else if (playerPositionRotation < 0 && playerPositionRotation > -90) // second quarter 
+                else if (players[i].playerPositionRotation < 0 && players[i].playerPositionRotation > -90) // second quarter 
                 {
-                    playerPositionY += playerSpeed * Math.Cos(((-playerPositionRotation) * (Math.PI)) / 180);
-                    playerPositionX -= playerSpeed * Math.Cos(((180 - (-playerPositionRotation) - 90) * (Math.PI)) / 180);
+                            players[i].playerPositionY += playerSpeed * Math.Cos(((-players[i].playerPositionRotation) * (Math.PI)) / 180);
+                            players[i].playerPositionX -= playerSpeed * Math.Cos(((180 - (-players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
                 }
-                else if (playerPositionRotation == 180 || playerPositionRotation == -180) // down
+                else if (players[i].playerPositionRotation == 180 || players[i].playerPositionRotation == -180) // down
                 {
-                    playerPositionY -= playerSpeed;
+                            players[i].playerPositionY -= playerSpeed;
                 }
-                else if (playerPositionRotation > 90 && playerPositionRotation < 180) // fourth quarter 
+                else if (players[i].playerPositionRotation > 90 && players[i].playerPositionRotation < 180) // fourth quarter 
                 {
-                    playerPositionY -= playerSpeed * Math.Cos(((180 - playerPositionRotation) * (Math.PI)) / 180);
-                    playerPositionX += playerSpeed * Math.Cos(((180 - (180 - playerPositionRotation) - 90) * (Math.PI)) / 180);
+                            players[i].playerPositionY -= playerSpeed * Math.Cos(((180 - players[i].playerPositionRotation) * (Math.PI)) / 180);
+                            players[i].playerPositionX += playerSpeed * Math.Cos(((180 - (180 - players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
                 }
-                else if (playerPositionRotation == -90) // left
+                else if (players[i].playerPositionRotation == -90) // left
                 {
-                    playerPositionX -= playerSpeed;
+                            players[i].playerPositionX -= playerSpeed;
                 }
 
 
 
-                else if (playerPositionRotation < -90 && playerPositionRotation > -180) // third quarter 
+                else if (players[i].playerPositionRotation < -90 && players[i].playerPositionRotation > -180) // third quarter 
                 {
-                    playerPositionY -= playerSpeed * Math.Cos(((180 + playerPositionRotation) * (Math.PI)) / 180);
-                    playerPositionX -= playerSpeed * Math.Cos(((180 - (180 + playerPositionRotation) - 90) * (Math.PI)) / 180);
+                            players[i].playerPositionY -= playerSpeed * Math.Cos(((180 + players[i].playerPositionRotation) * (Math.PI)) / 180);
+                            players[i].playerPositionX -= playerSpeed * Math.Cos(((180 - (180 + players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
+                }
+                    }
                 }
             }
         }
