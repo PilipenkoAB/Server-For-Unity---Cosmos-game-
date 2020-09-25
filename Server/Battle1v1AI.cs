@@ -66,6 +66,147 @@ namespace Server
         }
 
 
+        // give information at start to player who asked that information 
+        public string RequestForStartPlayerInformation(int idInArray) 
+        {
+            string answer = "";
+
+            answer = answer + players[idInArray].playerTeam;
+            answer = answer + ";";
+
+            answer = answer + players[idInArray].playerShipId;
+            answer = answer + ";";
+
+            answer = answer + players[idInArray].playerPositionX;
+            answer = answer + ",";
+            answer = answer + players[idInArray].playerPositionY;
+            answer = answer + ",";
+            answer = answer + players[idInArray].playerPositionRotation;
+            answer = answer + ";";
+
+            answer = answer + players[idInArray].playerVisionRadius;
+            answer = answer + ";";
+
+            answer = answer + players[idInArray].playerShipMaxHealth;
+            answer = answer + ";";
+            answer = answer + players[idInArray].playerShipMaxEnergy;
+            answer = answer + ";";
+
+            for (int i = 0; i < 17; i++)
+            {
+                answer = answer + players[idInArray].playerSlotExist[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotHealth[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotPowered[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotEnergyRequired[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotType[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotAdditionalInfoToClient[i];
+                answer = answer + ",";
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                answer = answer + players[idInArray].playerWeaponSlotExist[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotPowered[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotEnergyRequired[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotDamage[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotReloadTime[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotCurrentReloadTime[i];
+                answer = answer + ",";
+            }
+
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+
+            // other players that in the player's team
+            answer = answer + "|";
+
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[idInArray] != players[i]) // don't choose the player who ask the information
+                {
+                    if (players[idInArray].playerTeam == players[i].playerTeam) // if players from the same team
+                    {
+                        answer = answer + Convert.ToString(i); // IdInTheArray
+                        answer = answer + ";";
+                        answer = answer + players[i].playerTeam;
+                        answer = answer + ";";
+                        answer = answer + players[i].playerShipId;
+                        answer = answer + ";";
+
+                        answer = answer + players[idInArray].playerPositionX;
+                        answer = answer + ",";
+                        answer = answer + players[idInArray].playerPositionY;
+                        answer = answer + ",";
+                        answer = answer + players[idInArray].playerPositionRotation;
+                        answer = answer + ";";
+
+                        answer = answer + players[idInArray].playerShipMaxHealth;
+                        answer = answer + ";";
+                    }
+                    else if (players[idInArray].playerTeam != players[i].playerTeam) // if players from the other team
+                    {
+                        //check vision
+                        double distaneBetweenPlayers = Math.Sqrt(Math.Pow((players[i].playerPositionX - players[idInArray].playerPositionX),2)+ Math.Pow((players[i].playerPositionY - players[idInArray].playerPositionY), 2));
+
+                        if (distaneBetweenPlayers <= players[idInArray].playerVisionRadius) 
+                        {
+                            answer = answer + Convert.ToString(i); // IdInTheArray
+                            answer = answer + ";";
+                            answer = answer + players[i].playerTeam;
+                            answer = answer + ";";
+                            answer = answer + players[i].playerShipId;
+                            answer = answer + ";";
+
+                            answer = answer + players[idInArray].playerPositionX;
+                            answer = answer + ",";
+                            answer = answer + players[idInArray].playerPositionY;
+                            answer = answer + ",";
+                            answer = answer + players[idInArray].playerPositionRotation;
+                            answer = answer + ";";
+
+                            answer = answer + players[idInArray].playerShipMaxHealth;
+                            answer = answer + ";";
+                        }
+                    }
+                }
+            }
+
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+
+            return answer; 
+        }
+
+        // give information at update to player who asked that information 
+        public string RequestForUpdatePlayerInformation(int idInArray) 
+        {
+            string answer = "";
+
+            answer = answer + players[idInArray].playerPositionX;
+            answer = answer + ",";
+            answer = answer + players[idInArray].playerPositionY;
+            answer = answer + ",";
+            answer = answer + players[idInArray].playerPositionRotation;
+            answer = answer + ";";
+
+            answer = answer + players[idInArray].playerShipMaxHealth;
+            answer = answer + ";";
+            answer = answer + players[idInArray].playerShipMaxEnergy;
+            answer = answer + ";";
+
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+
+            return answer;
+        }
+        //--------------
 
 
 
@@ -874,6 +1015,8 @@ namespace Server
             // focus
             playerFocus = 0;
 
+            playerVisionRadius = 100;
+
         }
 
         public int playerType { get; set; } // 0 - Human, 1 - AI
@@ -901,6 +1044,10 @@ namespace Server
 
         // current focus of the player 
         public int playerFocus { get; set; }
+
+        // player vision radious 
+
+        public double playerVisionRadius { get; set; }
 
         // ship
 

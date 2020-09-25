@@ -78,119 +78,126 @@ namespace Server
                     { // next line correct if ALL players are ready
                         if (sessionsBattle1v1AI[battleSessionId].toStart == 1 && sessionsBattle1v1AI[battleSessionId].started == 0 && sessionsBattle1v1AI[battleSessionId].players[0].playerReady == 1)
                         {
-                            // Process battle
-                            sessionsBattle1v1AI[battleSessionId].started = 1;
-                            Task.Run(() => {
-                                Console.WriteLine("battle session number - " + battleSessionId + " is started");
-
-
-
-                                // set start health
-                                sessionsBattle1v1AI[battleSessionId].SetStartHealth();
-                                sessionsBattle1v1AI[battleSessionId].SetStartReload();
-
-
-                                //update battle session status every 50ms
-                                while (sessionsBattle1v1AI[battleSessionId].finished != 1)
+                            // idea is -> if any player is not ready - > set that session is not ready to Start
+                            bool sessionReadyToStart = true; 
+                            for (int i = 0; i < sessionsBattle1v1AI[battleSessionId].players.Count; i++)
+                            {
+                                if (sessionsBattle1v1AI[battleSessionId].players[i].playerReady != 1) 
                                 {
-
-
-                                    //  -------------------------- Battle process -----------------------------
-
-                                    // RELOAD
-                                    sessionsBattle1v1AI[battleSessionId].ReloadAllWeaponsPerTick();
-
-                                    // sheilds reload , shield control if power is off 
-                                    sessionsBattle1v1AI[battleSessionId].ReloadAllShieldsPerTick();
-
-
-                                    // Set time of moving of projectile
-                                    sessionsBattle1v1AI[battleSessionId].ProjectilesMoveTime();
-
-                                    // Calculate movement trajectory for player
-                                    sessionsBattle1v1AI[battleSessionId].PlayerMovement();
-
-                                    // AI
-                                    // power modules (for example, if module was unpowered by something
-                                    sessionsBattle1v1AI[battleSessionId].AIPowerModules(1);
-                                    // attack if no on cooldown
-                                    sessionsBattle1v1AI[battleSessionId].AIAttackAllWeaponsCooldown(1);
-
-                                    // check if someone dead
-                                    if (sessionsBattle1v1AI[battleSessionId].players[0].playerShipCurrentHealth <= 0) {
-                                        Console.WriteLine("player dead in  session number - " + battleSessionId + "  and it finished");
-                                        sessionsBattle1v1AI[battleSessionId].finished = 1;
-                                    }
-                                    if (sessionsBattle1v1AI[battleSessionId].players[1].playerShipCurrentHealth <= 0)
-                                    {
-                                        Console.WriteLine("ai dead in  session number - " + battleSessionId + "  and it finished");
-                                        sessionsBattle1v1AI[battleSessionId].finished = 1;
-                                    }
-
-                                    //------------------------- end of battle process --------------------------
-
-
-
-                                    // -----------------------------------------------------------comments
-                                    //  Console.WriteLine("reload player - "+ sessionsBattle1v1AI[battleSessionId].playerWeapon1ReloadCurrent);
-                                    //  Console.WriteLine("reload ai - "+ sessionsBattle1v1AI[battleSessionId].aiWeapon1ReloadCurrent);
-                                    //  Console.WriteLine("health player - "+ sessionsBattle1v1AI[battleSessionId].playerHealthCurrent);
-                                    //  Console.WriteLine("health ai - "+ sessionsBattle1v1AI[battleSessionId].aiHealthCurrent);
-                                    //--------------------------------------------------------------------
-
-
-                                    // check if time for battle session is up (600000 ms = 10 min)
-                                    if (sessionsBattle1v1AI[battleSessionId].battleTime >= 600000)
-                                    {
-                                        sessionsBattle1v1AI[battleSessionId].finished = 1;
-                                        Console.WriteLine("time for session number - " + battleSessionId + " is up and finished");
-                                    }
-
-
-                                    // update time  
-                                    //Console.WriteLine(sessionsBattle1v1AI[battleSessionId].battleTime);
-                                    sessionsBattle1v1AI[battleSessionId].battleTime += battleTickTime;
-                                    Thread.Sleep(battleTickTime);
-
+                                    sessionReadyToStart = false;
                                 }
+                            }
 
-                                // if finished - update DB with results
-                                if (sessionsBattle1v1AI[battleSessionId].finished == 1)
-                                {
-                                    Console.WriteLine("update DB after finishin in session " + battleSessionId);
+                            if(sessionReadyToStart == true) // if all players ready - > start session
+                            {
+                                // Process battle
+                                sessionsBattle1v1AI[battleSessionId].started = 1;
 
-                                    //Update DB (closed = 1) - close battle in DB
-                                    string enqueryUpdate = "UPDATE Battle1v1Ai SET Closed = 1 WHERE Battle1v1AiId = @battleSessionId";
+                                Task.Run(() => {
+                                    Console.WriteLine("battle session number - " + battleSessionId + " is started");
 
-                                    using var connectionToDB = new SQLiteConnection(connectionToDBString);
-                                    connectionToDB.Open();
-                                    using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
-                                    commandUpdate.Parameters.AddWithValue("@battleSessionId", battleSessionId);
 
-                                    try
+
+                                    // set start health
+                                    sessionsBattle1v1AI[battleSessionId].SetStartHealth();
+                                    sessionsBattle1v1AI[battleSessionId].SetStartReload();
+
+
+                                    //update battle session status every 50ms
+                                    while (sessionsBattle1v1AI[battleSessionId].finished != 1)
                                     {
-                                        commandUpdate.ExecuteNonQuery();
-                                        Console.WriteLine("update DB success");
 
-                                        //Delete battle from class dictionary
-                                        sessionsBattle1v1AI.Remove(battleSessionId);
-                                        if (!sessionsBattle1v1AI.ContainsKey(battleSessionId))
+
+                                        //  -------------------------- Battle process -----------------------------
+
+                                        // RELOAD
+                                        sessionsBattle1v1AI[battleSessionId].ReloadAllWeaponsPerTick();
+
+                                        // sheilds reload , shield control if power is off 
+                                        sessionsBattle1v1AI[battleSessionId].ReloadAllShieldsPerTick();
+
+
+                                        // Set time of moving of projectile
+                                        sessionsBattle1v1AI[battleSessionId].ProjectilesMoveTime();
+
+                                        // Calculate movement trajectory for player
+                                        sessionsBattle1v1AI[battleSessionId].PlayerMovement();
+
+                                        // AI
+                                        // power modules (for example, if module was unpowered by something
+                                        sessionsBattle1v1AI[battleSessionId].AIPowerModules(1);
+                                        // attack if no on cooldown
+                                        sessionsBattle1v1AI[battleSessionId].AIAttackAllWeaponsCooldown(1);
+
+                                        // check if someone dead
+                                        if (sessionsBattle1v1AI[battleSessionId].players[0].playerShipCurrentHealth <= 0)
                                         {
-                                            Console.WriteLine("deleted succecefully");
+                                            Console.WriteLine("player dead in  session number - " + battleSessionId + "  and it finished");
+                                            sessionsBattle1v1AI[battleSessionId].finished = 1;
                                         }
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("update DB FAIL");
-                                    }
-                                    finally
-                                    {
-                                        connectionToDB.Close();
+                                        if (sessionsBattle1v1AI[battleSessionId].players[1].playerShipCurrentHealth <= 0)
+                                        {
+                                            Console.WriteLine("ai dead in  session number - " + battleSessionId + "  and it finished");
+                                            sessionsBattle1v1AI[battleSessionId].finished = 1;
+                                        }
+
+                                        //------------------------- end of battle process --------------------------
+
+
+                                        // check if time for battle session is up (600000 ms = 10 min)
+                                        if (sessionsBattle1v1AI[battleSessionId].battleTime >= 600000)
+                                        {
+                                            sessionsBattle1v1AI[battleSessionId].finished = 1;
+                                            Console.WriteLine("time for session number - " + battleSessionId + " is up and finished");
+                                        }
+
+
+                                        // update time  
+                                        //Console.WriteLine(sessionsBattle1v1AI[battleSessionId].battleTime);
+                                        sessionsBattle1v1AI[battleSessionId].battleTime += battleTickTime;
+                                        Thread.Sleep(battleTickTime);
+
                                     }
 
-                                }
+                                    // if finished - update DB with results
+                                    if (sessionsBattle1v1AI[battleSessionId].finished == 1)
+                                    {
+                                        Console.WriteLine("update DB after finishin in session " + battleSessionId);
 
-                            });
+                                        //Update DB (closed = 1) - close battle in DB
+                                        string enqueryUpdate = "UPDATE Battle1v1Ai SET Closed = 1 WHERE Battle1v1AiId = @battleSessionId";
+
+                                        using var connectionToDB = new SQLiteConnection(connectionToDBString);
+                                        connectionToDB.Open();
+                                        using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
+                                        commandUpdate.Parameters.AddWithValue("@battleSessionId", battleSessionId);
+
+                                        try
+                                        {
+                                            commandUpdate.ExecuteNonQuery();
+                                            Console.WriteLine("update DB success");
+
+                                            //Delete battle from class dictionary
+                                            sessionsBattle1v1AI.Remove(battleSessionId);
+                                            if (!sessionsBattle1v1AI.ContainsKey(battleSessionId))
+                                            {
+                                                Console.WriteLine("deleted succecefully");
+                                            }
+                                        }
+                                        catch
+                                        {
+                                            Console.WriteLine("update DB FAIL");
+                                        }
+                                        finally
+                                        {
+                                            connectionToDB.Close();
+                                        }
+
+                                    }
+
+                                });
+                            }
+
                         }
                     }
                 }
@@ -260,185 +267,53 @@ namespace Server
 
                                 if (idInArray != -1)
                                 {
-                                    // answer to client
-                                    answerToClient = sessionsBattle1v1AI[battleSessionId].players[idInArray].playerShipId
+                                    //// answer to client about AI (OLD)
+                                    //answerToClient = 
 
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionX
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionY
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionRotation
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipId
 
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerShipMaxHealth
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerShipMaxEnergy
-
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[0]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[1]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[2]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[3]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[4]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[5]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[5]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[5]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[5]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[5]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[5]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[6]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[6]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[6]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[6]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[6]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[6]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[7]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[7]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[7]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[7]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[7]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[8]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[8]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[8]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[8]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[8]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[9]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[9]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[9]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[9]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[9]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[10]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[10]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[10]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[10]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[10]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[11]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[11]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[11]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[11]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[11]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[12]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[12]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[12]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[12]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[12]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[13]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[13]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[13]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[13]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[13]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[14]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[14]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[14]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[14]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[14]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[15]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[15]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[15]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[15]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[15]
-                                                   + "," + "-1"
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotExist[16]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[16]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[16]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotEnergyRequired[16]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotType[16]
-                                                   + "," + "-1"
-
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotExist[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotEnergyRequired[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotDamage[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotReloadTime[0]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[0]
-
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotExist[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotEnergyRequired[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotDamage[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotReloadTime[1]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[1]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotExist[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotEnergyRequired[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotDamage[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotReloadTime[2]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[2]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotExist[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotEnergyRequired[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotDamage[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotReloadTime[3]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[3]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotExist[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotEnergyRequired[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotDamage[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotReloadTime[4]
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[4]
-
-                                                   
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipId
-
-                                            + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionX
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionY
-                                                   + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionRotation
+                                    //        + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionX
+                                    //               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionY
+                                    //               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionRotation
 
 
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipMaxHealth
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipMaxEnergy
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipMaxHealth
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipMaxEnergy
 
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[0]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[1]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[2]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[3]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[4]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[5]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[6]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[7]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[8]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[9]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[10]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[11]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[12]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[13]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[14]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[15]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[16]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[0]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[1]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[2]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[3]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[4]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[5]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[6]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[7]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[8]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[9]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[10]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[11]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[12]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[13]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[14]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[15]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[16]
 
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[0]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[1]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[2]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[3]
-                                             + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[4];
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[0]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[1]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[2]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[3]
+                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[4];
+
+
+
+                                    // new system [system]|[environment]|[playerInfo]|[OtherPlayer1]|[OtherPlayer2]...
+                                    answerToClient = ""
+                                        + "|"
+                                        + ""
+                                        + "|"
+                                        + sessionsBattle1v1AI[battleSessionId].RequestForStartPlayerInformation(idInArrayEnemy);
+
+                                    Console.WriteLine("DEBUG - answer to client when preparing to battle = " + answerToClient); 
                                 }
                                 else 
                                 {
@@ -2227,12 +2102,13 @@ namespace Server
                 }
             }
 
+            sessionsBattle1v1AI[newBattleID].players[idInArray].playerReady = 1;
 
          //   Console.WriteLine("DEBUG Session1v1AILoadAI - 8  ");
-            // Crew // TO CORRECT
-            // sessionsBattle1v1AI[newBattleID].aICrewExist[0] = 1;
-            // sessionsBattle1v1AI[newBattleID].aICrewHealth[0] = 10;
-            // sessionsBattle1v1AI[newBattleID].aICrewDamage[0] = 1;
+         // Crew // TO CORRECT
+         // sessionsBattle1v1AI[newBattleID].aICrewExist[0] = 1;
+         // sessionsBattle1v1AI[newBattleID].aICrewHealth[0] = 10;
+         // sessionsBattle1v1AI[newBattleID].aICrewDamage[0] = 1;
 
         }
 
