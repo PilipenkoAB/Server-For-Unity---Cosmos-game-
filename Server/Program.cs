@@ -267,63 +267,14 @@ namespace Server
 
                                 if (idInArray != -1)
                                 {
-                                    //// answer to client about AI (OLD)
-                                    //answerToClient = 
-
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipId
-
-                                    //        + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionX
-                                    //               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionY
-                                    //               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionRotation
-
-
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipMaxHealth
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipMaxEnergy
-
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[0]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[1]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[2]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[3]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[4]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[5]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[6]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[7]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[8]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[9]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[10]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[11]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[12]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[13]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[14]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[15]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSlotExist[16]
-
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[0]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[1]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[2]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[3]
-                                    //         + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotExist[4];
-
-
-
                                     // new system [system]|[environment]|[playerInfo]|[OtherPlayer1]|[OtherPlayer2]...
-                                    answerToClient = ""
-                                        + "|"
-                                        + ""
-                                        + "|"
-                                        + sessionsBattle1v1AI[battleSessionId].RequestForStartPlayerInformation(idInArrayEnemy);
-
-                                    Console.WriteLine("DEBUG - answer to client when preparing to battle = " + answerToClient); 
+                                    answerToClient = sessionsBattle1v1AI[battleSessionId].RequestForStartPlayerInformation(idInArrayEnemy);
                                 }
                                 else 
                                 {
-                                    answerToClient = "0";
+                                    answerToClient = "000";
                                 }
-                                // new system
-
-                              
-
-                                Console.WriteLine("DEBUG - answerToClient - " + answerToClient);
+                                Console.WriteLine("DEBUG - answer to client when preparing to battle = " + answerToClient);
                             }
                             // Telling server that client is ready and may start battleLoop
                             else if (recievedMessage[4] == "1")

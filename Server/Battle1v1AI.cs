@@ -70,6 +70,20 @@ namespace Server
         public string RequestForStartPlayerInformation(int idInArray) 
         {
             string answer = "";
+            //=======================================
+            //          System information
+            //=======================================
+            answer = answer + "";
+            answer = answer + "|";
+            //=======================================
+            //          Environment information
+            //=======================================
+            answer = answer + "";
+            answer = answer + "|";
+
+            //=======================================
+            //          This Player information
+            //=======================================
 
             answer = answer + players[idInArray].playerTeam;
             answer = answer + ";";
@@ -108,6 +122,9 @@ namespace Server
                 answer = answer + ",";
             }
 
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+            answer = answer + ";";
+
             for (int i = 0; i < 5; i++)
             {
                 answer = answer + players[idInArray].playerWeaponSlotExist[i];
@@ -126,7 +143,10 @@ namespace Server
 
             answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
 
-            // other players that in the player's team
+
+            //=================================
+            //          other players
+            //=================================
             answer = answer + "|";
 
             for (int i = 0; i < players.Count; i++)
@@ -150,7 +170,7 @@ namespace Server
                         answer = answer + ";";
 
                         answer = answer + players[idInArray].playerShipMaxHealth;
-                        answer = answer + ";";
+                        answer = answer + "|";
                     }
                     else if (players[idInArray].playerTeam != players[i].playerTeam) // if players from the other team
                     {
@@ -174,13 +194,15 @@ namespace Server
                             answer = answer + ";";
 
                             answer = answer + players[idInArray].playerShipMaxHealth;
-                            answer = answer + ";";
+                            answer = answer + "|";
                         }
                     }
                 }
             }
 
             answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+
+            //============================================
 
             return answer; 
         }
