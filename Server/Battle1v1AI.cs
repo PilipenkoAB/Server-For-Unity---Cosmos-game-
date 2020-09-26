@@ -47,17 +47,18 @@ namespace Server
                 {
                     players[i].playerId = playerId;
                     idOfArray = i;
+                    return idOfArray;
                 }
             }
             return idOfArray;
         }
 
-        public int RequestForIdInArray(int playerId) 
+        public int RequestForIdInArray(int playerId)  // work only for player, not AI
         {
             int idOfArray = -1;
             for (int i = 0; i < players.Count; i++)
             {
-                if (players[i].playerId == playerId)
+                if (players[i].playerId == playerId && players[i].playerType == 0)
                 {
                     idOfArray = i;
                 }
@@ -162,14 +163,14 @@ namespace Server
                         answer = answer + players[i].playerShipId;
                         answer = answer + ";";
 
-                        answer = answer + players[idInArray].playerPositionX;
+                        answer = answer + players[i].playerPositionX;
                         answer = answer + ",";
-                        answer = answer + players[idInArray].playerPositionY;
+                        answer = answer + players[i].playerPositionY;
                         answer = answer + ",";
-                        answer = answer + players[idInArray].playerPositionRotation;
+                        answer = answer + players[i].playerPositionRotation;
                         answer = answer + ";";
 
-                        answer = answer + players[idInArray].playerShipMaxHealth;
+                        answer = answer + players[i].playerShipMaxHealth;
                         answer = answer + "|";
                     }
                     else if (players[idInArray].playerTeam != players[i].playerTeam) // if players from the other team
@@ -186,14 +187,14 @@ namespace Server
                             answer = answer + players[i].playerShipId;
                             answer = answer + ";";
 
-                            answer = answer + players[idInArray].playerPositionX;
+                            answer = answer + players[i].playerPositionX;
                             answer = answer + ",";
-                            answer = answer + players[idInArray].playerPositionY;
+                            answer = answer + players[i].playerPositionY;
                             answer = answer + ",";
-                            answer = answer + players[idInArray].playerPositionRotation;
+                            answer = answer + players[i].playerPositionRotation;
                             answer = answer + ";";
 
-                            answer = answer + players[idInArray].playerShipMaxHealth;
+                            answer = answer + players[i].playerShipMaxHealth;
                             answer = answer + "|";
                         }
                     }

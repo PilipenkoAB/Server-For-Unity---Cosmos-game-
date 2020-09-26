@@ -262,13 +262,11 @@ namespace Server
 
                                 // request to get idInArray
                                 int idInArray = sessionsBattle1v1AI[battleSessionId].RequestForIdInArray(Convert.ToInt32(recievedMessage[1]));
-
-                                int idInArrayEnemy = 1;
-
+                                Console.WriteLine("idInArray ==" + idInArray);
                                 if (idInArray != -1)
                                 {
                                     // new system [system]|[environment]|[playerInfo]|[OtherPlayer1]|[OtherPlayer2]...
-                                    answerToClient = sessionsBattle1v1AI[battleSessionId].RequestForStartPlayerInformation(idInArrayEnemy);
+                                    answerToClient = sessionsBattle1v1AI[battleSessionId].RequestForStartPlayerInformation(idInArray);
                                 }
                                 else 
                                 {
@@ -1782,23 +1780,84 @@ namespace Server
             try
             {
                 // NvN - 1 player + N AI vs N AI
-                int[] playersToSet = new int[] { 0, 1 };  // 0 - player, 1 - AI
-                int[] playersTeamsToSet = new int[] { 0, 1 };
+
+
+                // 1v1 PlayervAI
+
+                //int[] playersToSet = new int[] { 0, 1 };  // 0 - player, 1 - AI
+                //int[] playersTeamsToSet = new int[] { 0, 1 };
+                //int mapToSet = 0;
+
+                //// Start class with battle parameters
+                //sessionsBattle1v1AI.Add(newBattleID, new Battle1v1AI(playersToSet, playersTeamsToSet, mapToSet));
+                //Console.WriteLine("new session with number - " + newBattleID + " is started with player -  " + playerID);
+
+                // // add player who create the battle
+                // int idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(0, 0, playerID); // Type \ team \ PlayerIDFromDB
+                //if (idInArray != -1) 
+                //{
+                //    SessionStartLoadPlayer(Convert.ToString(playerID), newBattleID, idInArray);
+                //}
+
+                //int aIId = 1;
+                //idInArray =  sessionsBattle1v1AI[newBattleID].AddPlayer(1, 1, aIId); // Type \ team \ PlayerIDFromDB
+                //Console.WriteLine("idInArray when created session = "+ idInArray);
+                //if (idInArray != -1)
+                //{
+                //    SessionStartLoadAI(Convert.ToString(aIId), newBattleID, idInArray);
+                //}
+
+
+
+
+                // 3v3 PlayervAI
+
+                int[] playersToSet = new int[] { 0, 1, 1, 1, 1, 1 };  // 0 - player, 1 - AI
+                int[] playersTeamsToSet = new int[] { 0, 0, 0, 1, 1, 1 };
                 int mapToSet = 0;
 
                 // Start class with battle parameters
                 sessionsBattle1v1AI.Add(newBattleID, new Battle1v1AI(playersToSet, playersTeamsToSet, mapToSet));
                 Console.WriteLine("new session with number - " + newBattleID + " is started with player -  " + playerID);
 
-                 // add player who create the battle
-                 int idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(0, 0, playerID); // Type \ team \ PlayerIDFromDB
-                if (idInArray != -1) 
+                // add player who create the battle
+                int idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(0, 0, playerID); // Type \ team \ PlayerIDFromDB
+                if (idInArray != -1)
                 {
                     SessionStartLoadPlayer(Convert.ToString(playerID), newBattleID, idInArray);
                 }
 
                 int aIId = 1;
-                idInArray =  sessionsBattle1v1AI[newBattleID].AddPlayer(0, 0, aIId); // Type \ team \ PlayerIDFromDB
+                idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(1, 0, aIId); // Type \ team \ PlayerIDFromDB
+                Console.WriteLine("idInArray when created session = " + idInArray);
+                if (idInArray != -1)
+                {
+                    SessionStartLoadAI(Convert.ToString(aIId), newBattleID, idInArray);
+                }
+
+                idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(1, 0, aIId); // Type \ team \ PlayerIDFromDB
+                Console.WriteLine("idInArray when created session = " + idInArray);
+                if (idInArray != -1)
+                {
+                    SessionStartLoadAI(Convert.ToString(aIId), newBattleID, idInArray);
+                }
+
+                idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(1, 1, aIId); // Type \ team \ PlayerIDFromDB
+                Console.WriteLine("idInArray when created session = " + idInArray);
+                if (idInArray != -1)
+                {
+                    SessionStartLoadAI(Convert.ToString(aIId), newBattleID, idInArray);
+                }
+
+                idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(1, 1, aIId); // Type \ team \ PlayerIDFromDB
+                Console.WriteLine("idInArray when created session = " + idInArray);
+                if (idInArray != -1)
+                {
+                    SessionStartLoadAI(Convert.ToString(aIId), newBattleID, idInArray);
+                }
+
+                idInArray = sessionsBattle1v1AI[newBattleID].AddPlayer(1, 1, aIId); // Type \ team \ PlayerIDFromDB
+                Console.WriteLine("idInArray when created session = " + idInArray);
                 if (idInArray != -1)
                 {
                     SessionStartLoadAI(Convert.ToString(aIId), newBattleID, idInArray);
@@ -1806,23 +1865,8 @@ namespace Server
 
 
 
-                //  Load information to the class about the battle that going to start
-                //  --------------------------------------------------------
-                // LOAD INFORMATION ABOUT PLAYER TO CLASS
-                //sessionsBattle1v1AI[newBattleID].playerID = playerID;
 
-                //Session1v1AILoadPlayer(Convert.ToString(playerID), newBattleID);
-
-               // Console.WriteLine("Session1v1AILoadPlayer - ready");
-
-                // LOAD INFORMATION ABOUT AI TO CLASS
-               // int aiId = 1;     // CHANGE IT WHEN IT WILL BE AN CHOISE FROM PLAYER TO PLAY AGAINST WHAT AI
-
-               // sessionsBattle1v1AI[newBattleID].aiId = aiId;
-
-               // Session1v1AILoadAI(Convert.ToString(aiId), newBattleID);
-
-               // Console.WriteLine("Session1v1AILoadAI - ready");
+                //==============================================
 
                 sessionsBattle1v1AI[newBattleID].toStart = 1;
                 Console.WriteLine("SESSION TO START - YES - " + sessionsBattle1v1AI[newBattleID].toStart);
@@ -1846,7 +1890,7 @@ namespace Server
             // corrected to new class (maybe connect somehow to player
         static private void SessionStartLoadAI(string aiId, int newBattleID, int idInArray)
         {
-           // Console.WriteLine("DEBUG Session1v1AILoadAI - 1  ");
+            Console.WriteLine("DEBUG Session1v1AILoadAI - TRYING TO LOAD AI  ");
             // get information about ID of all modules and ship
             string queryString = @"SELECT AiShip.AiShipId, AiShip.ShipId, AiShip.EngineSlot, AiShip.CockpitSlot, AiShip.BigSlot1, AiShip.BigSlot2,
                                      AiShip.BigSlot3, AiShip.BigSlot4, AiShip.BigSlot5, AiShip.MediumSlot1, AiShip.MediumSlot2,
@@ -2055,11 +2099,15 @@ namespace Server
 
             sessionsBattle1v1AI[newBattleID].players[idInArray].playerReady = 1;
 
-         //   Console.WriteLine("DEBUG Session1v1AILoadAI - 8  ");
-         // Crew // TO CORRECT
-         // sessionsBattle1v1AI[newBattleID].aICrewExist[0] = 1;
-         // sessionsBattle1v1AI[newBattleID].aICrewHealth[0] = 10;
-         // sessionsBattle1v1AI[newBattleID].aICrewDamage[0] = 1;
+            //   Console.WriteLine("DEBUG Session1v1AILoadAI - 8  ");
+            // Crew // TO CORRECT
+            // sessionsBattle1v1AI[newBattleID].aICrewExist[0] = 1;
+            // sessionsBattle1v1AI[newBattleID].aICrewHealth[0] = 10;
+            // sessionsBattle1v1AI[newBattleID].aICrewDamage[0] = 1;
+
+
+            Console.WriteLine("DEBUG Session1v1AILoadPlayer -idInArray  = " + idInArray);
+            Console.WriteLine("DEBUG sessionsBattle1v1AI[newBattleID].players[idInArray].playerShipId -  = " + sessionsBattle1v1AI[newBattleID].players[idInArray].playerShipId);
 
         }
 
@@ -2314,7 +2362,7 @@ namespace Server
           //  sessionsBattle1v1AI[newBattleID].playerCrewHealth[0] = 10;
           //  sessionsBattle1v1AI[newBattleID].playerCrewDamage[0] = 1;
 
-         //   Console.WriteLine("DEBUG Session1v1AILoadPlayer - LAST");
+            Console.WriteLine("DEBUG Session1v1AILoadPlayer -  = " + idInArray);
 
         }
 
