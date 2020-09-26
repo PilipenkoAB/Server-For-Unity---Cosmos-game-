@@ -33,7 +33,7 @@ namespace Server
     class MainServer
     {
         // Define dictionary with classes of battles
-        private static Dictionary<int, Battle1v1AI> sessionsBattle1v1AI = new Dictionary<int, Battle1v1AI>();
+        private static Dictionary<int, BattleSession> sessionsBattle1v1AI = new Dictionary<int, BattleSession>();
 
         // 04.09.2020 - Change Dictionary to the List?
       //  private static List<Battle1v1AI> sessionsBattle1v1AI = new List<Battle1v1AI>();
@@ -1817,7 +1817,7 @@ namespace Server
                 int mapToSet = 0;
 
                 // Start class with battle parameters
-                sessionsBattle1v1AI.Add(newBattleID, new Battle1v1AI(playersToSet, playersTeamsToSet, mapToSet));
+                sessionsBattle1v1AI.Add(newBattleID, new BattleSession(playersToSet, playersTeamsToSet, mapToSet));
                 Console.WriteLine("new session with number - " + newBattleID + " is started with player -  " + playerID);
 
                 // add player who create the battle

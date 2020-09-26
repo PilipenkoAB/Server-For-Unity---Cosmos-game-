@@ -11,11 +11,11 @@ namespace Server
          Battle1v1AI - class for battle, contain all information about the battle
            and all actions that can be in that battle---------------
        */
-    public class Battle1v1AI
+    public class BattleSession
     {
 
         // Constructor that takes - starting point no arguments:
-        public Battle1v1AI(int[] playersToSetStart, int[] playersTeamToSetStart, int mapIdStart)
+        public BattleSession(int[] playersToSetStart, int[] playersTeamToSetStart, int mapIdStart)
         {
             mapId = mapIdStart;
 
