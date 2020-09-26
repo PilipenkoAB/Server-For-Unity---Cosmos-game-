@@ -36,7 +36,7 @@ namespace Server
         private static Dictionary<int, BattleSession> sessionsBattle1v1AI = new Dictionary<int, BattleSession>();
 
         // 04.09.2020 - Change Dictionary to the List?
-      //  private static List<Battle1v1AI> sessionsBattle1v1AI = new List<Battle1v1AI>();
+        //  private static List<Battle1v1AI> sessionsBattle1v1AI = new List<Battle1v1AI>();
 
         // Define dictionary as cach for logined player
         // key - playerId  values - [sessionToken] \  [battle session]
@@ -79,16 +79,16 @@ namespace Server
                         if (sessionsBattle1v1AI[battleSessionId].toStart == 1 && sessionsBattle1v1AI[battleSessionId].started == 0 && sessionsBattle1v1AI[battleSessionId].players[0].playerReady == 1)
                         {
                             // idea is -> if any player is not ready - > set that session is not ready to Start
-                            bool sessionReadyToStart = true; 
+                            bool sessionReadyToStart = true;
                             for (int i = 0; i < sessionsBattle1v1AI[battleSessionId].players.Count; i++)
                             {
-                                if (sessionsBattle1v1AI[battleSessionId].players[i].playerReady != 1) 
+                                if (sessionsBattle1v1AI[battleSessionId].players[i].playerReady != 1)
                                 {
                                     sessionReadyToStart = false;
                                 }
                             }
 
-                            if(sessionReadyToStart == true) // if all players ready - > start session
+                            if (sessionReadyToStart == true) // if all players ready - > start session
                             {
                                 // Process battle
                                 sessionsBattle1v1AI[battleSessionId].started = 1;
@@ -106,9 +106,23 @@ namespace Server
                                     //update battle session status every 50ms
                                     while (sessionsBattle1v1AI[battleSessionId].finished != 1)
                                     {
+                                        //  -------------------------- Battle process NEW -----------------------------
+                                        // AI
+                                        // try to power modules of all AI (for example, if module was unpowered by something
+                                        for (int i = 0; i < sessionsBattle1v1AI[battleSessionId].players.Count; i++)
+                                        {
+                                            if (sessionsBattle1v1AI[battleSessionId].players[i].playerType == 1)
+                                            {
+                                                sessionsBattle1v1AI[battleSessionId].AIPowerModules(i);
+                                            }
+                                        }
+
+                                        // set destination point to move (test - zero player - human player)
+                                        sessionsBattle1v1AI[battleSessionId].AIDesctinationPointToMove();
 
 
-                                        //  -------------------------- Battle process -----------------------------
+
+                                        //  -------------------------- Battle process - OLD -----------------------------
 
                                         // RELOAD
                                         sessionsBattle1v1AI[battleSessionId].ReloadAllWeaponsPerTick();
@@ -125,7 +139,7 @@ namespace Server
 
                                         // AI
                                         // power modules (for example, if module was unpowered by something
-                                        sessionsBattle1v1AI[battleSessionId].AIPowerModules(1);
+                                        //sessionsBattle1v1AI[battleSessionId].AIPowerModules(1);
                                         // attack if no on cooldown
                                         sessionsBattle1v1AI[battleSessionId].AIAttackAllWeaponsCooldown(1);
 
@@ -268,7 +282,7 @@ namespace Server
                                     // new system [system]|[environment]|[playerInfo]|[OtherPlayer1]|[OtherPlayer2]...
                                     answerToClient = sessionsBattle1v1AI[battleSessionId].RequestForStartPlayerInformation(idInArray);
                                 }
-                                else 
+                                else
                                 {
                                     answerToClient = "000";
                                 }
@@ -291,112 +305,137 @@ namespace Server
                                 customCulture.NumberFormat.NumberDecimalSeparator = ".";
                                 System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
 
-                                                               
                                 int battleSessionId = Convert.ToInt32(recievedMessage[3]);
 
                                 // request to get idInArray
                                 int idInArray = sessionsBattle1v1AI[battleSessionId].RequestForIdInArray(Convert.ToInt32(recievedMessage[1]));
+                                Console.WriteLine("idInArray ==" + idInArray);
+                                if (idInArray != -1)
+                                {
+                                    // new system [system]|[environment]|[playerInfo]|[OtherPlayer1]|[OtherPlayer2]...
+                                    answerToClient = sessionsBattle1v1AI[battleSessionId].RequestForUpdatePlayerInformation(idInArray);
+                                }
+                                else
+                                {
+                                    answerToClient = "000";
+                                }
+                                Console.WriteLine("DEBUG - answer to client when updating to battle = " + answerToClient);
 
-                                int idInArrayEnemy = 1;
+
+
+
+
+
+
 
 
                                 // ???????????????// correct it to all active weapons! 
-                                int playerWeapon1ReloadCurrent = sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[0];
+                                //int playerWeapon1ReloadCurrent = sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[0];
 
-                                answerToClient = sessionsBattle1v1AI[battleSessionId].battleTime
+                                //answerToClient = sessionsBattle1v1AI[battleSessionId].battleTime
 
-                                          + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionX
-                                               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionY
-                                               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionRotation
+                                //          + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionX
+                                //               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionY
+                                //               + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerPositionRotation
 
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerFocus
-
-
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerShipCurrentHealth
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerShipFreeEnergy
-
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[0]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[0]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[1]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[1]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[2]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[2]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[2]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[3]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[3]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[3]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[4]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[4]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[4]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[5]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[5]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[5]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[6]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[6]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[6]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[7]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[7]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[8]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[8]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[9]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[9]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[10]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[10]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[11]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[11]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[12]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[12]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[13]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[13]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[14]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[14]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[15]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[15]
-                                        + "," + "-1"
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[16]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[16]
-                                        + "," + "-1"
-
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[0]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[0]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[0]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[1]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[1]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[1]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[2]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[2]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[2]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[3]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[3]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[3]
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[4]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[4]
-                                        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[4]
-
-                                                                            // ai
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerFocus
 
 
-                                   + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionX
-                                         + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionY
-                                         + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionRotation
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerShipCurrentHealth
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerShipFreeEnergy
 
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipCurrentHealth
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[0]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[0]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[1]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[1]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[2]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[2]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[2]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[3]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[3]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[3]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[4]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[4]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[4]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[5]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[5]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[5]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[6]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[6]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotAdditionalInfoToClient[6]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[7]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[7]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[8]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[8]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[9]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[9]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[10]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[10]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[11]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[11]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[12]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[12]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[13]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[13]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[14]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[14]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[15]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[15]
+                                //        + "," + "-1"
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotPowered[16]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSlotHealth[16]
+                                //        + "," + "-1"
 
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotProjectileTime1[0,0]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[0]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[0]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[0]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[1]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[1]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[1]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[2]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[2]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[2]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[3]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[3]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[3]
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotPowered[4]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotCurrentReloadTime[4]
+                                //        + "," + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerWeaponSlotProjectileTime[4]
 
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSumShieldCurrentCapacity
+                                //   // ai
 
-                                    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSumShieldCurrentCapacity;
+
+                                //   + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionX
+                                //         + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionY
+                                //         + "," + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerPositionRotation
+
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerShipCurrentHealth
+
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerWeaponSlotProjectileTime1[0, 0]
+
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArray].playerSumShieldCurrentCapacity
+
+                                //    + ";" + sessionsBattle1v1AI[battleSessionId].players[idInArrayEnemy].playerSumShieldCurrentCapacity;
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
                             }
                             // require information for update UI WITH action
                             else if (recievedMessage[4] == "3")
@@ -406,18 +445,18 @@ namespace Server
                                 if (recievedMessage[5] == "0")
                                 {
                                     // TEST ONE - pressed only button attack weapon1
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]),0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), 0);
 
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
                                 }
-                                
+
                                 // energy module UP
                                 else if (recievedMessage[5] == "1")
                                 {
                                     // up energy on the moduleSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyUp(Convert.ToInt32(recievedMessage[6]),0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyUp(Convert.ToInt32(recievedMessage[6]), 0);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -434,11 +473,11 @@ namespace Server
                                 // Attack module with weapon
                                 else if (recievedMessage[5] == "3")
                                 {
-                                   if (sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), 0) == true)
+                                    if (sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), 0) == true)
                                     {
                                         answerToClient = "1"; // shoot was done
                                     }
-                                    else 
+                                    else
                                     {
                                         // answer to client  - 0 means that action was successeful
                                         answerToClient = "0";
@@ -449,7 +488,7 @@ namespace Server
                                 else if (recievedMessage[5] == "4")
                                 {
                                     // up energy on the weaponSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyUp(Convert.ToInt32(recievedMessage[6]),0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyUp(Convert.ToInt32(recievedMessage[6]), 0);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -458,17 +497,17 @@ namespace Server
                                 else if (recievedMessage[5] == "5")
                                 {
                                     // down energy on the weaponSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyDown(Convert.ToInt32(recievedMessage[6]),0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyDown(Convert.ToInt32(recievedMessage[6]), 0);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
                                 }
-                                
+
                                 // request for move
                                 else if (recievedMessage[5] == "6")
                                 {
                                     // down energy on the weaponSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetDestinationPointToMove(recievedMessage[6],0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetDestinationPointToMove(recievedMessage[6], 0);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -549,7 +588,7 @@ namespace Server
                     //Console.WriteLine("session token = " + sessionToken);
 
                     // add information to the DB
-                   // string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
+                    // string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "', GarageActiveSlot = 0  WHERE Login = '" + login + "'";
                     string enqueryUpdate = "UPDATE Account SET SessionToken = '" + sessionToken + "'  WHERE Login = '" + login + "'";
 
                     using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
@@ -633,14 +672,14 @@ namespace Server
                 if (recievedMessage[4] == "0")
                 {
                     answerToClient = ReceiveGarageMainInformation(recievedMessage);
-                   // Console.WriteLine("DEBUG - 1 - " + recievedMessage[4]);
+                    // Console.WriteLine("DEBUG - 1 - " + recievedMessage[4]);
                 }
                 else if (recievedMessage[4] == "1" || recievedMessage[4] == "2")
                 {
                     answerToClient = RecieveNewShipScrollInformation(recievedMessage);
                     // Console.WriteLine("DEBUG - 2 - " + recievedMessage[4]);
                 }
-                else 
+                else
                 {
                     answerToClient = "0"; // ERROR
                 }
@@ -731,12 +770,12 @@ namespace Server
 
 
             // Active SLOT
-             queryString = @"SELECT Account.GarageActiveSlot 
+            queryString = @"SELECT Account.GarageActiveSlot 
                             FROM Account
                             WHERE Account.AccountId = @playerID ";
-             queryParameters = new string[,] { { "playerId", playerId } };
-             stringType = new string[] { "int" };
-             requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+            queryParameters = new string[,] { { "playerId", playerId } };
+            stringType = new string[] { "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
             Console.WriteLine("active garage slot - " + requestAnswer[0][0]);
             int activeSlot = Convert.ToInt32(requestAnswer[0][0]);
@@ -751,15 +790,15 @@ namespace Server
                             AND Garage.AccountShipId = AccountShip.AccountShipId AND Garage.Slot = @activeSlot
                             ";
 
-             queryParameters = new string[,] { { "playerId", playerId }, { "activeSlot", Convert.ToString(activeSlot) } };
-             stringType = new string[] { "int", "int", "int" };
-             requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+            queryParameters = new string[,] { { "playerId", playerId }, { "activeSlot", Convert.ToString(activeSlot) } };
+            stringType = new string[] { "int", "int", "int" };
+            requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
             List<string> slots = requestAnswer[0];
             List<string> shipsID = requestAnswer[1];
             List<string> accountShipId = requestAnswer[2];
 
-           // Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
+            // Console.WriteLine("DEBUG - " + requestAnswer[0].Count);
             if (shipsID.Count > 0)
             {
                 slotIdInfo[0] = Convert.ToInt32(shipsID[0]);
@@ -914,7 +953,7 @@ namespace Server
             }
             // Console.WriteLine("DEBUG slot  - " + slotShip[0]);
 
-           // int activeSlot = Convert.ToInt32(slotShip[0]);
+            // int activeSlot = Convert.ToInt32(slotShip[0]);
 
 
 
@@ -923,11 +962,11 @@ namespace Server
             ////// RIGHT SLOT
             int rightSlotNumber = 0;
 
-            if (activeSlot != (amountsOfSlots-1))
+            if (activeSlot != (amountsOfSlots - 1))
             {
                 rightSlotNumber = activeSlot + 1;
             }
-            else 
+            else
             {
                 rightSlotNumber = 0;
             }
@@ -956,7 +995,7 @@ namespace Server
                 slotIdInfo[1] = 0;
                 slotShip[1] = rightSlotNumber;
             }
-             Console.WriteLine("DEBUG slot right - " + slotShip[1]);
+            Console.WriteLine("DEBUG slot right - " + slotShip[1]);
 
             ////// LEFT SLOT
             ///
@@ -998,14 +1037,14 @@ namespace Server
                 slotIdInfo[2] = 0;
                 slotShip[2] = leftSlotNumber;
             }
-             Console.WriteLine("DEBUG slot  left - " + slotShip[2]);
+            Console.WriteLine("DEBUG slot  left - " + slotShip[2]);
 
 
             //-------------------------------------------------------------
 
 
 
-            Console.WriteLine("l - "+ leftSlotNumber + " m -" + activeSlot + " r - " + rightSlotNumber);
+            Console.WriteLine("l - " + leftSlotNumber + " m -" + activeSlot + " r - " + rightSlotNumber);
 
 
             // Answer should include AccountItemId (for future manupulations with item) and ItemId 
@@ -1098,7 +1137,7 @@ namespace Server
             // set new active slot number 
             using var connectionToDB = new SQLiteConnection(connectionToDBString);
             connectionToDB.Open();
-            string enqueryUpdate = "UPDATE Account SET GarageActiveSlot = '" + newSlotNumber + "' WHERE AccountId = '" + recievedMessage[1] + "' AND SessionToken = '" + recievedMessage[2]+ "' ";
+            string enqueryUpdate = "UPDATE Account SET GarageActiveSlot = '" + newSlotNumber + "' WHERE AccountId = '" + recievedMessage[1] + "' AND SessionToken = '" + recievedMessage[2] + "' ";
             using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
 
             try
@@ -1109,13 +1148,13 @@ namespace Server
             {
                 Console.WriteLine("ERROR updating login table with new GarageActiveSlot information");
             }
-            finally 
+            finally
             {
                 connectionToDB.Close();
             }
 
-                // request to get information about ship and right\left slots
-                answerToClient = ReceiveGarageMainInformation(recievedMessage);
+            // request to get information about ship and right\left slots
+            answerToClient = ReceiveGarageMainInformation(recievedMessage);
 
             return answerToClient;
         }
@@ -1144,9 +1183,9 @@ namespace Server
                                 FROM AccountItem, Item 
                                 WHERE AccountItem.AccountId = @playerID AND AccountItem.AccountShipId = 0 AND AccountItem.ItemId = Item.ItemId";
 
-           // string queryString = "SELECT * FROM AccountItem WHERE AccountItem.AccountId = @playerID AND AccountItem.AccountShipId = 0";
+            // string queryString = "SELECT * FROM AccountItem WHERE AccountItem.AccountId = @playerID AND AccountItem.AccountShipId = 0";
             string[,] queryParameters = new string[,] { { "playerID", playerId } };
-            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int"};
+            string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int" };
             List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
             // starts from 4 - because item type starts from 4 in DB
@@ -1180,7 +1219,7 @@ namespace Server
                         Item.EngineId, Item.CockpitId, Item.WeaponId, Item.BigSlotId, Item.MediumSlotId, Item.SmallSlotId
                         FROM ShopItem, Item
                         WHERE ShopItem.ItemId = Item.ItemId";
-            string[,] queryParameters = new string[,] {  };
+            string[,] queryParameters = new string[,] { };
             string[] stringType = new string[] { "int", "int", "int", "int", "int", "int", "int", "int" };
             List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
@@ -1194,7 +1233,7 @@ namespace Server
 
                 if (requestAnswer[2][i] != "0")
                 {
-                    answerToClient = answerToClient + ";" + 0 +";" + requestAnswer[2][i];
+                    answerToClient = answerToClient + ";" + 0 + ";" + requestAnswer[2][i];
                 }
                 else if (requestAnswer[3][i] != "0")
                 {
@@ -1216,14 +1255,14 @@ namespace Server
                 {
                     answerToClient = answerToClient + ";" + 5 + ";" + requestAnswer[7][i];
                 }
-                else 
+                else
                 {
                     answerToClient = answerToClient + ";" + 0 + ";" + 0;
                 }
 
-                if(i != (requestAnswer[0].Count - 1)) 
-                { 
-                answerToClient = answerToClient + ";";
+                if (i != (requestAnswer[0].Count - 1))
+                {
+                    answerToClient = answerToClient + ";";
                 }
             }
 
@@ -1232,7 +1271,7 @@ namespace Server
         }
 
 
-        static private string BuyItemFromTheShop(String[] recievedMessage) 
+        static private string BuyItemFromTheShop(String[] recievedMessage)
         {
             string answerToClient = "";
 
@@ -1253,7 +1292,7 @@ namespace Server
             stringType = new string[] { "int" };
             List<string>[] requestAnswerMoney = RequestToGetValueFromDB(queryString, stringType, queryParameters);
 
-            
+
             // if enough money in account
             if (Convert.ToInt32(requestAnswerMoney[0][0]) >= Convert.ToInt32(requestAnswerItem[0][0]))
             {
@@ -1266,8 +1305,8 @@ namespace Server
                 // Create Session with SesionID, playerID, playerSlot
                 // add information to the DB
                 string enqueryUpdate = @"INSERT INTO AccountItem (AccountId, Amount, AccountShipId, ItemId) 
-                        VALUES (@playerID, 1, 0, @itemId)"; 
-                                                                                                                      
+                        VALUES (@playerID, 1, 0, @itemId)";
+
                 using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
 
                 commandUpdate.Parameters.AddWithValue("@playerID", playerId);
@@ -1293,8 +1332,8 @@ namespace Server
 
 
 
-                        try
-                     {
+                    try
+                    {
                         commandUpdate1.ExecuteNonQuery();
                     }
                     catch (InvalidCastException e)
@@ -1308,7 +1347,7 @@ namespace Server
                 {
                     Console.WriteLine("error updating DB for buying an item" + e);
                 }
-                finally 
+                finally
                 {
                     connectionToDB.Close();
                 }
@@ -1320,7 +1359,7 @@ namespace Server
             return answerToClient;
         }
 
-        static private string SellItemFromTheInventory(String[] recievedMessage) 
+        static private string SellItemFromTheInventory(String[] recievedMessage)
         {
             string answerToClient = "";
 
@@ -1331,7 +1370,7 @@ namespace Server
             return answerToClient;
         }
 
-        static private string RemoveItemFromTheShip(String[] recievedMessage) 
+        static private string RemoveItemFromTheShip(String[] recievedMessage)
         {
             string answerToClient = "";
             string playerId = recievedMessage[1];
@@ -1340,118 +1379,118 @@ namespace Server
             Console.WriteLine("DEBUG Delete ITEM from ship - " + recievedMessage[4]);
 
 
-            if(recievedMessage[4] == "0") 
-            { 
+            if (recievedMessage[4] == "0")
+            {
                 slotToSelect = "AccountShip.EngineSlot";
                 slotToUpdate = "EngineSlot";
             }
-            else if (recievedMessage[4] == "1") 
-            { 
+            else if (recievedMessage[4] == "1")
+            {
                 slotToSelect = "AccountShip.CockpitSlot";
                 slotToUpdate = "CockpitSlot";
             }
-            else if (recievedMessage[4] == "2") 
-            { 
+            else if (recievedMessage[4] == "2")
+            {
                 slotToSelect = "AccountShip.Weapon1";
                 slotToUpdate = "Weapon1";
             }
-            else if (recievedMessage[4] == "3") 
-            { 
+            else if (recievedMessage[4] == "3")
+            {
                 slotToSelect = "AccountShip.Weapon2";
                 slotToUpdate = "Weapon2";
             }
-            else if (recievedMessage[4] == "4") 
-            { 
+            else if (recievedMessage[4] == "4")
+            {
                 slotToSelect = "AccountShip.Weapon3";
                 slotToUpdate = "Weapon3";
             }
-            else if (recievedMessage[4] == "5") 
-            { 
+            else if (recievedMessage[4] == "5")
+            {
                 slotToSelect = "AccountShip.Weapon4";
                 slotToUpdate = "Weapon4";
             }
-            else if (recievedMessage[4] == "6") 
-            { 
+            else if (recievedMessage[4] == "6")
+            {
                 slotToSelect = "AccountShip.Weapon5";
                 slotToUpdate = "Weapon5";
             }
-            else if (recievedMessage[4] == "7") 
-            { 
+            else if (recievedMessage[4] == "7")
+            {
                 slotToSelect = "AccountShip.BigSlot1";
                 slotToUpdate = "BigSlot1";
             }
-            else if (recievedMessage[4] == "8") 
-            { 
+            else if (recievedMessage[4] == "8")
+            {
                 slotToSelect = "AccountShip.BigSlot2";
                 slotToUpdate = "BigSlot2";
             }
-            else if (recievedMessage[4] == "9") 
-            { 
+            else if (recievedMessage[4] == "9")
+            {
                 slotToSelect = "AccountShip.BigSlot3";
                 slotToUpdate = "BigSlot3";
             }
-            else if (recievedMessage[4] == "10") 
-            { 
+            else if (recievedMessage[4] == "10")
+            {
                 slotToSelect = "AccountShip.BigSlot4";
                 slotToUpdate = "BigSlot4";
             }
-            else if (recievedMessage[4] == "11") 
-            { 
+            else if (recievedMessage[4] == "11")
+            {
                 slotToSelect = "AccountShip.BigSlot5";
                 slotToUpdate = "BigSlot5";
             }
-            else if (recievedMessage[4] == "12") 
-            { 
+            else if (recievedMessage[4] == "12")
+            {
                 slotToSelect = "AccountShip.MediumSlot1";
                 slotToUpdate = "MediumSlot1";
             }
-            else if (recievedMessage[4] == "13") 
-            { 
+            else if (recievedMessage[4] == "13")
+            {
                 slotToSelect = "AccountShip.MediumSlot2";
                 slotToUpdate = "MediumSlot2";
             }
-            else if (recievedMessage[4] == "14") 
-            { 
+            else if (recievedMessage[4] == "14")
+            {
                 slotToSelect = "AccountShip.MediumSlot3";
                 slotToUpdate = "MediumSlot3";
             }
-            else if (recievedMessage[4] == "15") 
-            { 
+            else if (recievedMessage[4] == "15")
+            {
                 slotToSelect = "AccountShip.MediumSlot4";
                 slotToUpdate = "MediumSlot4";
             }
-            else if (recievedMessage[4] == "16") 
-            { 
+            else if (recievedMessage[4] == "16")
+            {
                 slotToSelect = "AccountShip.MediumSlot5";
                 slotToUpdate = "MediumSlot5";
             }
-            else if (recievedMessage[4] == "17") 
-            { 
+            else if (recievedMessage[4] == "17")
+            {
                 slotToSelect = "AccountShip.SmallSlot1";
                 slotToUpdate = "SmallSlot1";
             }
-            else if (recievedMessage[4] == "18") 
-            { 
+            else if (recievedMessage[4] == "18")
+            {
                 slotToSelect = "AccountShip.SmallSlot2";
                 slotToUpdate = "SmallSlot2";
             }
-            else if (recievedMessage[4] == "19") 
-            { 
+            else if (recievedMessage[4] == "19")
+            {
                 slotToSelect = "AccountShip.SmallSlot3";
                 slotToUpdate = "SmallSlot3";
             }
-            else if (recievedMessage[4] == "20") 
-            { 
+            else if (recievedMessage[4] == "20")
+            {
                 slotToSelect = "AccountShip.SmallSlot4";
                 slotToUpdate = "SmallSlot4";
             }
-            else if (recievedMessage[4] == "21") 
-            { 
+            else if (recievedMessage[4] == "21")
+            {
                 slotToSelect = "AccountShip.SmallSlot5";
                 slotToUpdate = "SmallSlot5";
             }
 
-            string queryString = @"SELECT "+ slotToSelect + @", AccountShip.AccountShipId
+            string queryString = @"SELECT " + slotToSelect + @", AccountShip.AccountShipId
                             FROM Account, Garage, AccountShip
                             WHERE Account.AccountId = @playerId and Account.GarageActiveSlot = Garage.Slot 
                             AND Garage.AccountShipId = AccountShip.AccountShipId";
@@ -1471,7 +1510,7 @@ namespace Server
                 // set new active slot number 
                 using var connectionToDB = new SQLiteConnection(connectionToDBString);
                 connectionToDB.Open();
-                string enqueryUpdate = @"UPDATE AccountShip SET " + slotToUpdate + @" = 0 WHERE AccountShipId = " +requestAnswerItem[1][0] + @"";
+                string enqueryUpdate = @"UPDATE AccountShip SET " + slotToUpdate + @" = 0 WHERE AccountShipId = " + requestAnswerItem[1][0] + @"";
                 using var commandUpdate = new SQLiteCommand(enqueryUpdate, connectionToDB);
 
                 try
@@ -1479,17 +1518,17 @@ namespace Server
                     commandUpdate.ExecuteNonQuery();
 
                     // change slot placement to inventory
-                     enqueryUpdate = @"UPDATE AccountItem SET AccountShipId = 0 WHERE AccountItemId = " + requestAnswerItem[0][0] + @"";
+                    enqueryUpdate = @"UPDATE AccountItem SET AccountShipId = 0 WHERE AccountItemId = " + requestAnswerItem[0][0] + @"";
                     using var commandUpdate2 = new SQLiteCommand(enqueryUpdate, connectionToDB);
                     try
                     {
                         commandUpdate2.ExecuteNonQuery();
                     }
-                    catch 
+                    catch
                     {
                         Console.WriteLine("ERROR updating login table with new GarageActiveSlot information 2");
                     }
-                    }
+                }
                 catch
                 {
                     Console.WriteLine("ERROR updating login table with new GarageActiveSlot information 1");
@@ -1512,6 +1551,24 @@ namespace Server
             answerToClient = "1";
 
             return answerToClient;
+        }
+
+
+        //==
+        // get coordintates for players to set at the start
+        static private string[] GetPlayersPositionsToSetAtStart(int mapIdStart)
+        {
+            string queryString = "SELECT PositionsTeam1, PositionsTeam2  FROM BattleMap where BattleMapId = @mapId ";
+            string[,] queryParameters = new string[,] { { "mapId", Convert.ToString(mapIdStart) } };
+            string[] stringType = new string[] { "string", "string" };
+            List<string>[] requestAnswer = RequestToGetValueFromDB(queryString, stringType, queryParameters);
+
+
+            string[] answer = new string[3];
+            answer[0] = Convert.ToString(mapIdStart);
+            answer[1] = requestAnswer[0][0];
+            answer[2] = requestAnswer[1][0];
+            return answer;
         }
         /*
          * --------------------------------------
@@ -1538,7 +1595,7 @@ namespace Server
                 server.Start();
 
                 // Buffer for reading data
-                Byte[] bytes = new Byte[612]; // 64 symbols
+                Byte[] bytes = new Byte[1024]; // 64 symbols
                 String data = null;
 
                 // Enter the listening loop.
@@ -1810,11 +1867,14 @@ namespace Server
 
 
 
-                // 3v3 PlayervAI
+                // 3v3 PlayervAI - test
 
                 int[] playersToSet = new int[] { 0, 1, 1, 1, 1, 1 };  // 0 - player, 1 - AI
                 int[] playersTeamsToSet = new int[] { 0, 0, 0, 1, 1, 1 };
-                int mapToSet = 0;
+
+
+                int mapId = 1; 
+                string[] mapToSet = GetPlayersPositionsToSetAtStart(mapId);
 
                 // Start class with battle parameters
                 sessionsBattle1v1AI.Add(newBattleID, new BattleSession(playersToSet, playersTeamsToSet, mapToSet));

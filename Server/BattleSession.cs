@@ -15,19 +15,79 @@ namespace Server
     {
 
         // Constructor that takes - starting point no arguments:
-        public BattleSession(int[] playersToSetStart, int[] playersTeamToSetStart, int mapIdStart)
+        public BattleSession(int[] playersToSetStart, int[] playersTeamToSetStart, string[] mapIdStart)
         {
-            mapId = mapIdStart;
 
+            mapId = Convert.ToInt32(mapIdStart[0]);
+
+            // TEST SYSTEM
+            string[] positionsTeam1All = mapIdStart[1].Split('|');
+
+            string[] positionsTeam1X = new string[3];
+            string[] positionsTeam1Y = new string[3];
+            string[] positionsTeam1Rotation = new string[3];
+
+            for (int i = 0; i < positionsTeam1All.Length; i++)
+            {
+                string[] positionsTeam1Separated = positionsTeam1All[i].Split(';');
+
+                positionsTeam1X[i] = positionsTeam1Separated[0];
+                positionsTeam1Y[i] = positionsTeam1Separated[1];
+                positionsTeam1Rotation[i] = positionsTeam1Separated[2];
+            }
+
+            string[] positionsTeam2X = new string[3];
+            string[] positionsTeam2Y = new string[3];
+            string[] positionsTeam2Rotation = new string[3];
+
+            string[] positionsTeam2All = mapIdStart[2].Split('|');
+
+            for (int i = 0; i < positionsTeam2All.Length; i++)
+            {
+                string[] positionsTeam2Separated = positionsTeam2All[i].Split(';');
+
+                positionsTeam2X[i] = positionsTeam2Separated[0];
+                positionsTeam2Y[i] = positionsTeam2Separated[1];
+                positionsTeam2Rotation[i] = positionsTeam2Separated[2];
+            }
+
+
+
+            //----
             playersToSet = playersToSetStart;
             playersTeamsToSet = playersTeamToSetStart;
 
             // create empty slots for players
+            int positionTeam1i = 0;
+            int positionTeam2i = 0;
             for (int i = 0; i < playersToSet.Length; i++)
             {
                 players.Add(new PlayerBattleInformation());
                 players[i].playerType = playersToSet[i];
                 players[i].playerTeam = playersTeamsToSet[i];
+
+                //set position
+                if (players[i].playerTeam == 0)
+                {
+                    players[i].playerPositionX = Convert.ToDouble(positionsTeam1X[positionTeam1i]);
+                    players[i].playerPositionY = Convert.ToDouble(positionsTeam1Y[positionTeam1i]);
+                    players[i].playerPositionRotation = Convert.ToDouble(positionsTeam1Rotation[positionTeam1i]);
+                    positionTeam1i += 1;
+                }
+                else if (players[i].playerTeam == 1)
+                {
+                    players[i].playerPositionX = Convert.ToDouble(positionsTeam2X[positionTeam2i]);
+                    players[i].playerPositionY = Convert.ToDouble(positionsTeam2Y[positionTeam2i]);
+                    players[i].playerPositionRotation = Convert.ToDouble(positionsTeam2Rotation[positionTeam2i]);
+                    positionTeam2i += 1;
+                }
+                else
+                {
+                    players[i].playerPositionX = 0;
+                    players[i].playerPositionY = 0;
+                    players[i].playerPositionRotation = 0;
+                }
+
             }
 
             toStart = 0;
@@ -65,6 +125,8 @@ namespace Server
             }
             return idOfArray;
         }
+
+
 
 
         // give information at start to player who asked that information 
@@ -208,10 +270,27 @@ namespace Server
             return answer; 
         }
 
+
+
+
         // give information at update to player who asked that information 
         public string RequestForUpdatePlayerInformation(int idInArray) 
         {
             string answer = "";
+            //=======================================
+            //          System information
+            //=======================================
+            answer = answer + battleTime;
+            answer = answer + "|";
+            //=======================================
+            //          Environment information
+            //=======================================
+            answer = answer + "";
+            answer = answer + "|";
+
+            //=======================================
+            //          This Player information
+            //=======================================
 
             answer = answer + players[idInArray].playerPositionX;
             answer = answer + ",";
@@ -220,14 +299,126 @@ namespace Server
             answer = answer + players[idInArray].playerPositionRotation;
             answer = answer + ";";
 
-            answer = answer + players[idInArray].playerShipMaxHealth;
+            answer = answer + players[idInArray].playerFocus;
             answer = answer + ";";
-            answer = answer + players[idInArray].playerShipMaxEnergy;
+
+            answer = answer + players[idInArray].playerShipCurrentHealth;
             answer = answer + ";";
+            answer = answer + players[idInArray].playerShipFreeEnergy;
+            answer = answer + ";";
+
+            for (int i = 0; i < 17; i++)
+            {
+                answer = answer + players[idInArray].playerSlotExist[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotHealth[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotPowered[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotEnergyRequired[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotType[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerSlotAdditionalInfoToClient[i];
+                answer = answer + ",";
+            }
+
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+            answer = answer + ";";
+
+            for (int i = 0; i < 5; i++)
+            {
+                answer = answer + players[idInArray].playerWeaponSlotExist[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotPowered[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotEnergyRequired[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotDamage[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotReloadTime[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotCurrentReloadTime[i];
+                answer = answer + ",";
+            }
 
             answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
 
+
+            //=================================
+            //          other players
+            //=================================
+            answer = answer + "|";
+
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[idInArray] != players[i]) // don't choose the player who ask the information
+                {
+                    if (players[idInArray].playerTeam == players[i].playerTeam) // if players from the same team
+                    {
+                        answer = answer + Convert.ToString(i); // IdInTheArray
+                        answer = answer + ";";
+                        answer = answer + players[i].playerTeam;
+                        answer = answer + ";";
+                        answer = answer + players[i].playerShipId;
+                        answer = answer + ";";
+
+                        answer = answer + players[i].playerPositionX;
+                        answer = answer + ",";
+                        answer = answer + players[i].playerPositionY;
+                        answer = answer + ",";
+                        answer = answer + players[i].playerPositionRotation;
+                        answer = answer + ";";
+
+                        answer = answer + players[i].playerShipMaxHealth;
+                        answer = answer + "|";
+                    }
+                    else if (players[idInArray].playerTeam != players[i].playerTeam) // if players from the other team
+                    {
+                        //check vision
+                        double distaneBetweenPlayers = Math.Sqrt(Math.Pow((players[i].playerPositionX - players[idInArray].playerPositionX), 2) + Math.Pow((players[i].playerPositionY - players[idInArray].playerPositionY), 2));
+
+                        if (distaneBetweenPlayers <= players[idInArray].playerVisionRadius)
+                        {
+                            answer = answer + Convert.ToString(i); // IdInTheArray
+                            answer = answer + ";";
+                            answer = answer + players[i].playerTeam;
+                            answer = answer + ";";
+                            answer = answer + players[i].playerShipId;
+                            answer = answer + ";";
+
+                            answer = answer + players[i].playerPositionX;
+                            answer = answer + ",";
+                            answer = answer + players[i].playerPositionY;
+                            answer = answer + ",";
+                            answer = answer + players[i].playerPositionRotation;
+                            answer = answer + ";";
+
+                            answer = answer + players[i].playerShipMaxHealth;
+                            answer = answer + "|";
+                        }
+                    }
+                }
+            }
+
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+
+            //============================================
+
             return answer;
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
         //--------------
 
@@ -739,7 +930,7 @@ namespace Server
 
             //Console.WriteLine("Xnew=" + playerPositionX);
             //Console.WriteLine("Ynew=" + playerPositionY);
-
+            Console.WriteLine("PlayerSetDestinationPointToMove - idInArray=" + idInArray);
         }
 
         // move player to the point
@@ -767,79 +958,16 @@ namespace Server
 
                 if (distanceToPoint > 0.1)
                 {
-                    //newX[0] = playerPositionX + playerSpeed;
-                    //newY[0] = playerPositionY + 0;
-                    //newDistanceToPoint[0] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[0], 2) + Math.Pow(playerDestinationPositionY - newY[0], 2));
-
-                    //newX[1] = playerPositionX + playerSpeed / 2;
-                    //newY[1] = playerPositionY + playerSpeed / 2;
-                    //newDistanceToPoint[1] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[1], 2) + Math.Pow(playerDestinationPositionY - newY[1], 2));
-
-                    //newX[2] = playerPositionX + 0;
-                    //newY[2] = playerPositionY + playerSpeed;
-                    //newDistanceToPoint[2] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[2], 2) + Math.Pow(playerDestinationPositionY - newY[2], 2));
-
-
-                    //newX[3] = playerPositionX - playerSpeed / 2;
-                    //newY[3] = playerPositionY + playerSpeed / 2;
-                    //newDistanceToPoint[3] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[3], 2) + Math.Pow(playerDestinationPositionY - newY[3], 2));
-
-
-                    //newX[4] = playerPositionX - playerSpeed;
-                    //newY[4] = playerPositionY - 0;
-                    //newDistanceToPoint[4] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[4], 2) + Math.Pow(playerDestinationPositionY - newY[4], 2));
-
-
-                    //newX[5] = playerPositionX - playerSpeed / 2;
-                    //newY[5] = playerPositionY - playerSpeed / 2;
-                    //newDistanceToPoint[5] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[5], 2) + Math.Pow(playerDestinationPositionY - newY[5], 2));
-
-
-                    //newX[6] = playerPositionX - 0;
-                    //newY[6] = playerPositionY - playerSpeed;
-                    //newDistanceToPoint[6] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[6], 2) + Math.Pow(playerDestinationPositionY - newY[6], 2));
-
-
-                    //newX[7] = playerPositionX + playerSpeed / 2;
-                    //newY[7] = playerPositionY - playerSpeed / 2;
-                    //newDistanceToPoint[7] = Math.Sqrt(Math.Pow(playerDestinationPositionX - newX[7], 2) + Math.Pow(playerDestinationPositionY - newY[7], 2));
-
-                    //newDistanceToPoint.Min();
-                    //for (int i = 0; i < newDistanceToPoint.Length; i++)
-                    //{
-                    //    if (newDistanceToPoint[i] == newDistanceToPoint.Min())
-                    //    {
-                    //        playerPositionX = newX[i];
-                    //        playerPositionY = newY[i];
-                    //    }
-                    //}
-
-
-
-
-                    // playerPositionX += playerSpeed;
-                    // playerPositionY += playerSpeed;
-                
-
-
                 // ROTATION
                 double rotationSpeed = 2;
 
                 double xDiff = players[i].playerDestinationPositionX - players[i].playerPositionX;
                 double yDiff = players[i].playerDestinationPositionY - players[i].playerPositionY;
 
-                // Console.WriteLine("diff y- " + yDiff +" x-"+ xDiff);
-
                 double c = yDiff;
                 double b = xDiff;
                 double a = Math.Sqrt(Math.Pow(b, 2) + Math.Pow(c, 2));
                 double destinationDegrees = (180 / Math.PI) * (Math.Acos((Math.Pow(a, 2) + Math.Pow(c, 2) - Math.Pow(b, 2)) / (2 * a * c)));
-              //  Console.WriteLine("destinationDegrees= " + destinationDegrees);
-               // Console.WriteLine("playerPositionRotation= " + playerPositionRotation);
-
-
-
-
 
 
                 //if (xDiff > 0 && yDiff > 0) // first quarter 
@@ -978,7 +1106,17 @@ namespace Server
         }
 
 
-
+        public void AIDesctinationPointToMove() 
+        {
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[i].playerType == 1)
+                {
+                    players[i].playerDestinationPositionX = players[0].playerPositionX;
+                    players[i].playerDestinationPositionY = players[0].playerPositionY;
+                }
+            }
+        }
 
         //----------------------------------------
         //----------------------------------------
@@ -1030,10 +1168,6 @@ namespace Server
 
             playerReady = 0;
 
-            // start position on the map
-            playerPositionX = 0f;
-            playerPositionY = 0f;
-            playerPositionRotation = 0f;
 
             // focus
             playerFocus = 0;
