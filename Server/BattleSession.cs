@@ -23,9 +23,9 @@ namespace Server
             // TEST SYSTEM
             string[] positionsTeam1All = mapIdStart[1].Split('|');
 
-            string[] positionsTeam1X = new string[3];
-            string[] positionsTeam1Y = new string[3];
-            string[] positionsTeam1Rotation = new string[3];
+            string[] positionsTeam1X = new string[positionsTeam1All.Length];
+            string[] positionsTeam1Y = new string[positionsTeam1All.Length];
+            string[] positionsTeam1Rotation = new string[positionsTeam1All.Length];
 
             for (int i = 0; i < positionsTeam1All.Length; i++)
             {
@@ -36,11 +36,13 @@ namespace Server
                 positionsTeam1Rotation[i] = positionsTeam1Separated[2];
             }
 
-            string[] positionsTeam2X = new string[3];
-            string[] positionsTeam2Y = new string[3];
-            string[] positionsTeam2Rotation = new string[3];
+
 
             string[] positionsTeam2All = mapIdStart[2].Split('|');
+
+            string[] positionsTeam2X = new string[positionsTeam2All.Length];
+            string[] positionsTeam2Y = new string[positionsTeam2All.Length];
+            string[] positionsTeam2Rotation = new string[positionsTeam2All.Length];
 
             for (int i = 0; i < positionsTeam2All.Length; i++)
             {
@@ -238,7 +240,7 @@ namespace Server
                     else if (players[idInArray].playerTeam != players[i].playerTeam) // if players from the other team
                     {
                         //check vision
-                        double distaneBetweenPlayers = Math.Sqrt(Math.Pow((players[i].playerPositionX - players[idInArray].playerPositionX),2)+ Math.Pow((players[i].playerPositionY - players[idInArray].playerPositionY), 2));
+                        double distaneBetweenPlayers = Math.Sqrt(Math.Pow(players[idInArray].playerPositionX - players[i].playerPositionX,2)+ Math.Pow(players[idInArray].playerPositionY - players[i].playerPositionY, 2));
 
                         if (distaneBetweenPlayers <= players[idInArray].playerVisionRadius) 
                         {
@@ -376,7 +378,7 @@ namespace Server
                     else if (players[idInArray].playerTeam != players[i].playerTeam) // if players from the other team
                     {
                         //check vision
-                        double distaneBetweenPlayers = Math.Sqrt(Math.Pow((players[i].playerPositionX - players[idInArray].playerPositionX), 2) + Math.Pow((players[i].playerPositionY - players[idInArray].playerPositionY), 2));
+                        double distaneBetweenPlayers = Math.Sqrt(Math.Pow(players[idInArray].playerPositionX - players[i].playerPositionX, 2) + Math.Pow(players[idInArray].playerPositionY - players[i].playerPositionY, 2));
 
                         if (distaneBetweenPlayers <= players[idInArray].playerVisionRadius)
                         {
@@ -489,9 +491,7 @@ namespace Server
                     }
                     else if (players[i].playerSlotExist[ii + 2] != 0 && players[i].playerSlotExist[ii + 2] != -1 && players[i].playerSlotType[ii + 2] == "shield" && players[i].playerSlotPowered[ii + 2] > 0 && players[i].playerSlotHealth[ii + 2] > 0 && players[i].playerSlotShieldRechargeCurrentTime[ii + 2] > 0)
                     {
-                        //  Console.WriteLine("DEBUG - recharge time before - " + playerSlotShieldRechargeCurrentTime[i + 2]);
                         players[i].playerSlotShieldRechargeCurrentTime[ii + 2] -= reloadOneTick;
-                        //  Console.WriteLine("DEBUG - recharge time after - " + playerSlotShieldRechargeCurrentTime[i + 2]);
                     }
                     else if (players[i].playerSlotShieldRechargeCurrentTime[ii + 2] <= 0)
                     {
@@ -502,7 +502,6 @@ namespace Server
                             players[i].playerSlotShieldCurrentCapacity[ii + 2] = players[i].playerSlotShieldCapacity[ii + 2];
                         }
                         players[i].playerSlotShieldRechargeCurrentTime[ii + 2] = players[i].playerSlotShieldRechargeTime[ii + 2];
-                        // Console.WriteLine("DEBUG - playerSlotShieldRechargeTime[i + 2] - " + playerSlotShieldRechargeTime[i + 2]);
                     }
                     playerSumCapasity += players[i].playerSlotShieldCurrentCapacity[ii + 2];
                     // sum capacity
@@ -520,7 +519,6 @@ namespace Server
             {
                 if (players[aIId].playerWeaponSlotCurrentReloadTime[i] == 0 && players[aIId].playerSlotType[i] == "weaponcontrol" && players[aIId].playerSlotPowered[i] == 1)
                 {
-                    //    Console.WriteLine("DEBUG weapon - "+i);
                     players[aIId].playerWeaponSlotProjectileTime1[i, 0] = 1500; // need to set if how many projectles ?????
                     players[aIId].playerWeaponSlotCurrentReloadTime[i] = players[aIId].playerWeaponSlotReloadTime[i];
 
@@ -530,9 +528,7 @@ namespace Server
                     while (players[aIId].playerSlotExist[slotToAttack] < 0) 
                     {
                         slotToAttack = randomSlotToAttack.Next(0, 11);
-                    //    Console.WriteLine("DEBUG RANDOM try - " + slotToAttack);
                     }
-                    //  Console.WriteLine("DEBUG RANDOM attack - " + slotToAttack);
                     players[aIId].playerWeaponSlotProjectileAimModule[i] = slotToAttack;
                 }
             }
@@ -565,16 +561,12 @@ namespace Server
         public bool PlayerAttackModule(int weaponIdint, int moduleSlotId, int playerId) 
         {
             // player attack AI
-            // Console.WriteLine("DEBUG - weaponIdint - " + weaponIdint);
             //if weapon control exist and powered
             
             for (int i = 0; i < players[playerId].playerSlotType.Length; i++)
             {
-               // Console.WriteLine("DEBUG i -"+i+ " playerSlotType[i] -"+ playerSlotType[i]);
-
                 if (players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && players[playerId].playerSlotType[i] == "weaponcontrol" && players[playerId].playerSlotPowered[i] == 1 && players[playerId].playerWeaponSlotPowered[weaponIdint] == 1)
                 {
-                    //    Console.WriteLine("DEBUG weapon - "+i);
                     players[playerId].playerWeaponSlotProjectileTime[weaponIdint] = 1500;
                     players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] = players[playerId].playerWeaponSlotReloadTime[weaponIdint];
                     players[playerId].playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
@@ -598,8 +590,6 @@ namespace Server
                 {
 
                     players[0].playerWeaponSlotProjectileTime[i] -= reloadOneTick;
-
-                   // Console.WriteLine("DEBUG projectile before - i "+i+" - " + playerWeaponSlotProjectileTime[i]);
 
                     if (players[0].playerWeaponSlotProjectileTime[i] <= 0) 
                     {
@@ -694,8 +684,6 @@ namespace Server
                         //-- nothing(?)
 
 
-                        // Console.WriteLine("DEBUG projectile after - " + playerWeaponSlotProjectileTime[i]);
-
                         players[0].playerWeaponSlotProjectileTime[i] = -1; 
                     }
                 }
@@ -709,10 +697,7 @@ namespace Server
                 {
                     if (players[1].playerWeaponSlotProjectileTime1[i,ii] > 0)
                     {
-
                         players[1].playerWeaponSlotProjectileTime1[i,ii] -= reloadOneTick;
-
-                       // Console.WriteLine("DEBUG ai projectile before - i " + i + " - " + aIWeaponSlotProjectileTime[i,ii]);
 
                         if (players[1].playerWeaponSlotProjectileTime1[i,ii] <= 0)
                         {
@@ -726,7 +711,6 @@ namespace Server
 
                             if (ChanceToHit <= 50) // if hit the ship but not module
                             {
-                               // Console.WriteLine("DEBUG HIT SHIP");
                                 // damage with shields
 
                                 for (int i1 = 0; i1 < 5; i1++)
@@ -752,16 +736,9 @@ namespace Server
                                 // damage to ship if no shields (all damage in 1 take)
                                 players[0].playerShipCurrentHealth -= damageToShip;
                                 damageToShip = 0;
-
-                               // Console.WriteLine("damage = " + damageToShip);
-                               // Console.WriteLine("shield = "+ playerSumShieldCurrentCapacity);
-                               // Console.WriteLine("health = " + playerShipCurrentHealth);
-
-
                             }
                             else if (ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
                             {
-                              //  Console.WriteLine("DEBUG HIT MODULE - " + damageToShip);
                                 for (int i1 = 0; i1 < 5; i1++)
                                 {
                                     // layers of the shields. first - destroy first layer, then next then next
@@ -813,13 +790,9 @@ namespace Server
                                 }
 
                                 damageToShip = 0;
-                                //----
-                                //  Console.WriteLine("slot - "+ aIWeaponSlotProjectileAimModule[i] + " - "+playerSlotHealth[aIWeaponSlotProjectileAimModule[i]]);
                             }
                             // if missed
                             //-- nothing(?)
-
-                            // Console.WriteLine("DEBUG ai projectile after - " + aIWeaponSlotProjectileTime[i,ii]);
 
                             players[1].playerWeaponSlotProjectileTime1[i,ii] = -1;
                         }
@@ -876,13 +849,11 @@ namespace Server
             {
                 if (players[idInArray].playerSlotType[i] == "weaponcontrol" && players[idInArray].playerSlotPowered[i] <= 0 && players[idInArray].playerSlotHealth[i] > 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy)
                 {
-                    // Console.WriteLine("DEBUG health - " + playerSlotHealth[i]);
                     players[idInArray].playerSlotPowered[i] += 1;
                     players[idInArray].playerShipFreeEnergy -= 1;
                 }
                 if (players[idInArray].playerSlotType[i] == "weaponcontrol" && players[idInArray].playerSlotPowered[i] > 0 && players[idInArray].playerSlotHealth[i] > 0) 
                 {
-                  //  Console.WriteLine("DEBUG health 1  - " + playerSlotHealth[i]);
                     weaponControlPowered = true;
                 }
             }
@@ -890,8 +861,6 @@ namespace Server
             // power weapon
             if (weaponControlPowered == true && players[idInArray].playerWeaponSlotExist[weaponSlotId] != 0 && players[idInArray].playerWeaponSlotExist[weaponSlotId] != -1 && players[idInArray].playerWeaponSlotPowered[weaponSlotId] == 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy)
             {
-                //Console.WriteLine("DEBUG health power" + weaponControlPowered);
-
                 players[idInArray].playerWeaponSlotPowered[weaponSlotId] = 1;
                 players[idInArray].playerShipFreeEnergy -= 1;
 
@@ -919,18 +888,12 @@ namespace Server
             customCulture.NumberFormat.NumberDecimalSeparator = ".";
             System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
 
-            Console.WriteLine("request coordinates" + moveToCoordinates);
-
             String[] coordinates = moveToCoordinates.Split(", ");
             double coordinateX = Convert.ToDouble(coordinates[0]);
             double coordinateY = Convert.ToDouble(coordinates[2]);
 
             players[idInArray].playerDestinationPositionX = coordinateX;
             players[idInArray].playerDestinationPositionY = coordinateY;
-
-            //Console.WriteLine("Xnew=" + playerPositionX);
-            //Console.WriteLine("Ynew=" + playerPositionY);
-            Console.WriteLine("PlayerSetDestinationPointToMove - idInArray=" + idInArray);
         }
 
         // move player to the point
@@ -938,20 +901,18 @@ namespace Server
         {
             for (int i = 0; i < players.Count; i++)
             {
-
-
             // if engine active and not destroyed and exist
             if (players[i].playerSlotExist[0] != 0 && players[i].playerSlotExist[0] != -1 && players[i].playerSlotPowered[0] != 0 && players[i].playerSlotHealth[0] > 0)
             {
 
-                double playerSpeed = 3;
+                int playerSpeed = players[i].playerShipMaxSpeed;
 
 
 
                 // the most retardest way to get the next move point
                 // calculate trajectory and move
                 double distanceToPoint = Math.Sqrt(Math.Pow(players[i].playerDestinationPositionX - players[i].playerPositionX,2) + Math.Pow(players[i].playerDestinationPositionY - players[i].playerPositionY,2));
-
+                    
                 double[] newDistanceToPoint = new double[8];
                 double[] newX = new double[8];
                 double[] newY = new double[8];
@@ -1172,7 +1133,8 @@ namespace Server
             // focus
             playerFocus = 0;
 
-            playerVisionRadius = 100;
+            playerVisionRadius = 350;
+            playerShipMaxSpeed = 3;
 
         }
 
@@ -1212,6 +1174,8 @@ namespace Server
         public int playerShipCurrentHealth { get; set; }
         public int playerShipMaxEnergy { get; set; }
         public int playerShipFreeEnergy { get; set; }
+
+        public int playerShipMaxSpeed { get; set; }
 
 
         // sum shield
