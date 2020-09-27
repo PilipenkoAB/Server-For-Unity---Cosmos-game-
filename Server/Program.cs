@@ -517,7 +517,8 @@ namespace Server
                                 else if (recievedMessage[5] == "7")
                                 {
                                     // down energy on the weaponSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetFocusTarget(Convert.ToInt32(recievedMessage[6]));
+                                    int playerIdInArray = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].RequestForIdInArray(Convert.ToInt32(recievedMessage[1]));
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetFocusTarget(playerIdInArray, Convert.ToInt32(recievedMessage[6]));
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";

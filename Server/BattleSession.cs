@@ -869,9 +869,9 @@ namespace Server
         }
 
 
-        public void PlayerSetFocusTarget(int playerIdInArray, int targetIdInArray)
+        public void PlayerSetFocusTarget(int idInArray, int targetIdInArray)
         {
-
+            players[idInArray].playerFocus = targetIdInArray;
         }
 
         // Player set destination point
