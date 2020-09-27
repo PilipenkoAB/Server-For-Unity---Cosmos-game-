@@ -156,14 +156,14 @@ namespace Server
             answer = answer + players[idInArray].playerShipId;
             answer = answer + ";";
 
-            answer = answer + players[idInArray].playerPositionX;
+            answer = answer + String.Format("{0:0.0}", players[idInArray].playerPositionX);
             answer = answer + ",";
-            answer = answer + players[idInArray].playerPositionY;
+            answer = answer + String.Format("{0:0.0}", players[idInArray].playerPositionY);
             answer = answer + ",";
-            answer = answer + players[idInArray].playerPositionRotation;
+            answer = answer + String.Format("{0:0.0}", players[idInArray].playerPositionRotation);
             answer = answer + ";";
 
-            answer = answer + players[idInArray].playerVisionRadius;
+            answer = answer + String.Format("{0:0.0}", players[idInArray].playerVisionRadius);
             answer = answer + ";";
 
             answer = answer + players[idInArray].playerShipMaxHealth;
@@ -227,11 +227,11 @@ namespace Server
                         answer = answer + players[i].playerShipId;
                         answer = answer + ";";
 
-                        answer = answer + players[i].playerPositionX;
+                        answer = answer + String.Format("{0:0.0}", players[i].playerPositionX);
                         answer = answer + ",";
-                        answer = answer + players[i].playerPositionY;
+                        answer = answer + String.Format("{0:0.0}", players[i].playerPositionY);
                         answer = answer + ",";
-                        answer = answer + players[i].playerPositionRotation;
+                        answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                         answer = answer + ";";
 
                         answer = answer + players[i].playerShipMaxHealth;
@@ -251,11 +251,11 @@ namespace Server
                             answer = answer + players[i].playerShipId;
                             answer = answer + ";";
 
-                            answer = answer + players[i].playerPositionX;
+                            answer = answer + String.Format("{0:0.0}", players[i].playerPositionX);
                             answer = answer + ",";
-                            answer = answer + players[i].playerPositionY;
+                            answer = answer + String.Format("{0:0.0}", players[i].playerPositionY);
                             answer = answer + ",";
-                            answer = answer + players[i].playerPositionRotation;
+                            answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                             answer = answer + ";";
 
                             answer = answer + players[i].playerShipMaxHealth;
@@ -294,11 +294,11 @@ namespace Server
             //          This Player information
             //=======================================
 
-            answer = answer + players[idInArray].playerPositionX;
+            answer = answer + String.Format("{0:0.0}", players[idInArray].playerPositionX); 
             answer = answer + ",";
-            answer = answer + players[idInArray].playerPositionY;
+            answer = answer + String.Format("{0:0.0}", players[idInArray].playerPositionY);
             answer = answer + ",";
-            answer = answer + players[idInArray].playerPositionRotation;
+            answer = answer + String.Format("{0:0.0}", players[idInArray].playerPositionRotation);
             answer = answer + ";";
 
             answer = answer + players[idInArray].playerFocus;
@@ -365,11 +365,11 @@ namespace Server
                         answer = answer + players[i].playerShipId;
                         answer = answer + ";";
 
-                        answer = answer + players[i].playerPositionX;
+                        answer = answer + String.Format("{0:0.0}", players[i].playerPositionX);
                         answer = answer + ",";
-                        answer = answer + players[i].playerPositionY;
+                        answer = answer + String.Format("{0:0.0}", players[i].playerPositionY);
                         answer = answer + ",";
-                        answer = answer + players[i].playerPositionRotation;
+                        answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                         answer = answer + ";";
 
                         answer = answer + players[i].playerShipMaxHealth;
@@ -389,11 +389,11 @@ namespace Server
                             answer = answer + players[i].playerShipId;
                             answer = answer + ";";
 
-                            answer = answer + players[i].playerPositionX;
+                            answer = answer + String.Format("{0:0.0}", players[i].playerPositionX);
                             answer = answer + ",";
-                            answer = answer + players[i].playerPositionY;
+                            answer = answer + String.Format("{0:0.0}", players[i].playerPositionY);
                             answer = answer + ",";
-                            answer = answer + players[i].playerPositionRotation;
+                            answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                             answer = answer + ";";
 
                             answer = answer + players[i].playerShipMaxHealth;
@@ -406,21 +406,7 @@ namespace Server
             answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
 
             //============================================
-
             return answer;
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
         //--------------
 
@@ -1133,8 +1119,8 @@ namespace Server
             // focus
             playerFocus = 0;
 
-            playerVisionRadius = 350;
-            playerShipMaxSpeed = 3;
+            playerVisionRadius = 250;
+            playerShipMaxSpeed = 5;
 
         }
 
