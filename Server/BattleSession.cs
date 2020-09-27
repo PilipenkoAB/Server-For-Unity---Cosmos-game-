@@ -496,9 +496,11 @@ namespace Server
             }
         }
 
+
+
         //-----------------------
 
-            // not sure about that one 
+        // not sure about that one 
         public void AIAttackAllWeaponsCooldown(int aIId) 
         {
             for (int i = 0; i < players[aIId].playerWeaponSlotCurrentReloadTime.Length; i++)
@@ -866,6 +868,11 @@ namespace Server
             }
         }
 
+
+        public void PlayerSetFocusTarget(int playerIdInArray, int targetIdInArray)
+        {
+
+        }
 
         // Player set destination point
         public void PlayerSetDestinationPointToMove(string moveToCoordinates, int idInArray) 

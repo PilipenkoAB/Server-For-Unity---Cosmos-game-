@@ -512,6 +512,16 @@ namespace Server
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
                                 }
+                               
+                                // request for focus target
+                                else if (recievedMessage[5] == "7")
+                                {
+                                    // down energy on the weaponSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetFocusTarget(Convert.ToInt32(recievedMessage[6]));
+
+                                    // answer to client  - 0 means that action was successeful
+                                    answerToClient = "0";
+                                }
                             }
 
                         }
