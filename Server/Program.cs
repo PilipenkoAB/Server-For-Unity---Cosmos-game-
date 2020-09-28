@@ -1651,14 +1651,14 @@ namespace Server
 
 
                                     // Decompress DATA
-                                    bytes = DecompressData(bytes);
-                                    Console.WriteLine(data.Length);
+                                    //bytes = DecompressData(bytes);
+                                    //Console.WriteLine(bytes.Length);
 
 
 
                                     // Translate data bytes to a ASCII string.
                                     data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                                    //Console.WriteLine("Received: {0}", data);
+                                    Console.WriteLine("Received: {0}", data);
 
                                     // transfer message to an array with ; split
                                     String[] separator = { ";" };
@@ -1725,7 +1725,6 @@ namespace Server
         }
 
         // decompress Data
-
         static byte[] DecompressData(byte[] gzip)
         {
             // Create a GZIP stream with decompression mode.
