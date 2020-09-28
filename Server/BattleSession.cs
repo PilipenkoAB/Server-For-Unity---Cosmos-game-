@@ -406,6 +406,7 @@ namespace Server
             answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
 
             //============================================
+            Console.WriteLine("packet size = "+ answer.Length);
             return answer;
         }
         //--------------

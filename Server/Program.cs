@@ -1642,6 +1642,9 @@ namespace Server
                                 int i;
                                 while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                                 {
+                                    // Decompress DATA
+
+
                                     // Translate data bytes to a ASCII string.
                                     data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
                                     //Console.WriteLine("Received: {0}", data);
@@ -1656,9 +1659,13 @@ namespace Server
                                     // Process the data sent by the client.
                                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(dataToSend);
 
+                                    // COMPRESS DATA 
+
+
                                     // Send back a response.
                                     stream.Write(msg, 0, msg.Length);
                                     // Console.WriteLine("Sent: {0}", dataToSend);
+                                   // Console.WriteLine("Sent size: {0}", msg.Length);
                                 }
 
                                 // Shutdown and end connection
