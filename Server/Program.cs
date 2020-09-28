@@ -25,6 +25,12 @@ using System.Text;
 using System.Data;
 using System.Runtime.InteropServices;
 
+
+using System.IO;
+using System.IO.Compression;
+using System.Text;
+
+
 namespace Server
 {
     /*
@@ -1642,7 +1648,12 @@ namespace Server
                                 int i;
                                 while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                                 {
+
+
                                     // Decompress DATA
+                                    bytes = DecompressData(bytes);
+                                    Console.WriteLine(data.Length);
+
 
 
                                     // Translate data bytes to a ASCII string.
@@ -1659,13 +1670,18 @@ namespace Server
                                     // Process the data sent by the client.
                                     byte[] msg = System.Text.Encoding.ASCII.GetBytes(dataToSend);
 
+
+
                                     // COMPRESS DATA 
+                                    Console.WriteLine("Sent before Compression =" + msg.Length);
+                                    msg = CompressData(msg);
+                                    Console.WriteLine("Sent after Compression =" + msg.Length);
+
 
 
                                     // Send back a response.
                                     stream.Write(msg, 0, msg.Length);
                                     // Console.WriteLine("Sent: {0}", dataToSend);
-                                   // Console.WriteLine("Sent size: {0}", msg.Length);
                                 }
 
                                 // Shutdown and end connection
@@ -1692,6 +1708,51 @@ namespace Server
                 server.Stop();
             }
         }
+
+
+        // Compress Data
+        public static byte[] CompressData(byte[] raw)
+        {
+            using (MemoryStream memory = new MemoryStream())
+            {
+                using (GZipStream gzip = new GZipStream(memory,
+                    CompressionMode.Compress, true))
+                {
+                    gzip.Write(raw, 0, raw.Length);
+                }
+                return memory.ToArray();
+            }
+        }
+
+        // decompress Data
+
+        static byte[] DecompressData(byte[] gzip)
+        {
+            // Create a GZIP stream with decompression mode.
+            // ... Then create a buffer and write into while reading from the GZIP stream.
+            using (GZipStream stream = new GZipStream(new MemoryStream(gzip),
+                CompressionMode.Decompress))
+            {
+                const int size = 4096;
+                byte[] buffer = new byte[size];
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    int count = 0;
+                    do
+                    {
+                        count = stream.Read(buffer, 0, size);
+                        if (count > 0)
+                        {
+                            memory.Write(buffer, 0, count);
+                        }
+                    }
+                    while (count > 0);
+                    return memory.ToArray();
+                }
+            }
+        }
+
+
 
 
         // Request to DB to recieve value from SINGLE and MULTIPLE column (SELECT QUERY)
