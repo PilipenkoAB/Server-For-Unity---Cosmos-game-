@@ -497,7 +497,22 @@ namespace Server
         }
 
 
+        public void UpdateAllFocus() 
+        {
+            for (int i = 0; i < players.Count; i++)
+            {
+                // if focus not in vision - > remove focus
+                if (players[i].playerFocus != 0) 
+                {
+                    double distanceToPoint = Math.Sqrt(Math.Pow(players[players[i].playerFocus].playerPositionX - players[i].playerPositionX, 2) + Math.Pow(players[players[i].playerFocus].playerPositionY - players[i].playerPositionY, 2));
 
+                    if (distanceToPoint > players[i].playerVisionRadius)
+                    {
+                        players[i].playerFocus = 0;
+                    }
+                }
+            }
+        }
         //-----------------------
 
         // not sure about that one 
@@ -546,6 +561,10 @@ namespace Server
         //----------------
 
 
+
+
+
+        // that is broken for sure
         public bool PlayerAttackModule(int weaponIdint, int moduleSlotId, int playerId) 
         {
             // player attack AI
@@ -791,6 +810,9 @@ namespace Server
             //---
 
         }
+
+
+
 
 
 

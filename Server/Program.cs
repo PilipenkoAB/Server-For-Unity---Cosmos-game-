@@ -137,6 +137,9 @@ namespace Server
                                         // Calculate movement trajectory for player
                                         sessionsBattle1v1AI[battleSessionId].PlayerMovement();
 
+                                        // set focus update if out of vision range or something else - remove focus
+                                        sessionsBattle1v1AI[battleSessionId].UpdateAllFocus();
+
                                         // AI
                                         // power modules (for example, if module was unpowered by something
                                         //sessionsBattle1v1AI[battleSessionId].AIPowerModules(1);
@@ -440,12 +443,14 @@ namespace Server
                             // require information for update UI WITH action
                             else if (recievedMessage[4] == "3")
                             {
+                                int playerIdInArray = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].RequestForIdInArray(Convert.ToInt32(recievedMessage[1]));
+
                                 // code system of pressed buttons
                                 // ????????????????????
                                 if (recievedMessage[5] == "0")
                                 {
                                     // TEST ONE - pressed only button attack weapon1
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), 0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), playerIdInArray);
 
 
                                     // answer to client  - 0 means that action was successeful
@@ -455,8 +460,8 @@ namespace Server
                                 // energy module UP
                                 else if (recievedMessage[5] == "1")
                                 {
-                                    // up energy on the moduleSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyUp(Convert.ToInt32(recievedMessage[6]), 0);
+                                     // up energy on the moduleSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyUp(Convert.ToInt32(recievedMessage[6]), playerIdInArray);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -464,16 +469,17 @@ namespace Server
                                 // energy module Down
                                 else if (recievedMessage[5] == "2")
                                 {
-                                    // down energy on the moduleSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyDown(Convert.ToInt32(recievedMessage[6]), 0);
+                                     // down energy on the moduleSlotId
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerModuleEnergyDown(Convert.ToInt32(recievedMessage[6]), playerIdInArray);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
                                 }
+                                
                                 // Attack module with weapon
                                 else if (recievedMessage[5] == "3")
                                 {
-                                    if (sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), 0) == true)
+                                    if (sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), playerIdInArray) == true)
                                     {
                                         answerToClient = "1"; // shoot was done
                                     }
@@ -488,7 +494,7 @@ namespace Server
                                 else if (recievedMessage[5] == "4")
                                 {
                                     // up energy on the weaponSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyUp(Convert.ToInt32(recievedMessage[6]), 0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyUp(Convert.ToInt32(recievedMessage[6]), playerIdInArray);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -497,7 +503,7 @@ namespace Server
                                 else if (recievedMessage[5] == "5")
                                 {
                                     // down energy on the weaponSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyDown(Convert.ToInt32(recievedMessage[6]), 0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerWeaponEnergyDown(Convert.ToInt32(recievedMessage[6]), playerIdInArray);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -507,7 +513,7 @@ namespace Server
                                 else if (recievedMessage[5] == "6")
                                 {
                                     // down energy on the weaponSlotId
-                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetDestinationPointToMove(recievedMessage[6], 0);
+                                    sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetDestinationPointToMove(recievedMessage[6], playerIdInArray);
 
                                     // answer to client  - 0 means that action was successeful
                                     answerToClient = "0";
@@ -517,7 +523,6 @@ namespace Server
                                 else if (recievedMessage[5] == "7")
                                 {
                                     // down energy on the weaponSlotId
-                                    int playerIdInArray = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].RequestForIdInArray(Convert.ToInt32(recievedMessage[1]));
                                     sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].PlayerSetFocusTarget(playerIdInArray, Convert.ToInt32(recievedMessage[6]));
 
                                     // answer to client  - 0 means that action was successeful
