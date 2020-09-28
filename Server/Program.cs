@@ -445,7 +445,7 @@ namespace Server
                             {
                                 int playerIdInArray = sessionsBattle1v1AI[Convert.ToInt32(recievedMessage[3])].RequestForIdInArray(Convert.ToInt32(recievedMessage[1]));
 
-                                // code system of pressed buttons
+                                // code system of pressed buttons 
                                 // ????????????????????
                                 if (recievedMessage[5] == "0")
                                 {

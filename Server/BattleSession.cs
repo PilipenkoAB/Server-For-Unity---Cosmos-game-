@@ -9,7 +9,7 @@ namespace Server
 {
     /*
          Battle1v1AI - class for battle, contain all information about the battle
-           and all actions that can be in that battle---------------
+           and all actions that can be in that battle--------------- 
        */
     public class BattleSession
     {
