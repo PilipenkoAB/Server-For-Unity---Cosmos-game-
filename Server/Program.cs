@@ -1656,7 +1656,7 @@ namespace Server
 
                                     // Translate data bytes to a ASCII string.
                                    // data = System.Text.Encoding.ASCII.GetString(bytes, 0, i); // old version 
-                                    Console.WriteLine("Received: {0}", data);
+                                 //   Console.WriteLine("Received: {0}", data);
 
                                     // transfer message to an array with ; split
                                     String[] separator = { ";" };
@@ -1671,10 +1671,10 @@ namespace Server
 
 
                                     // COMPRESS DATA 
-                                    Console.WriteLine("Sent before Compression =" + msg.Length);
+                                  //  Console.WriteLine("Sent before Compression =" + msg.Length);
                                    // Console.WriteLine("Sent before Compression message =" + dataToSend);
                                     msg = CompressData(msg);
-                                    Console.WriteLine("Sent after Compression =" + msg.Length);
+                                   // Console.WriteLine("Sent after Compression =" + msg.Length);
 
 
 

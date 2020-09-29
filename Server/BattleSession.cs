@@ -406,7 +406,7 @@ namespace Server
             answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
 
             //============================================
-            Console.WriteLine("packet size = "+ answer.Length);
+           // Console.WriteLine("packet size = "+ answer.Length);
             return answer;
         }
         //--------------
@@ -918,165 +918,238 @@ namespace Server
             for (int i = 0; i < players.Count; i++)
             {
             // if engine active and not destroyed and exist
-            if (players[i].playerSlotExist[0] != 0 && players[i].playerSlotExist[0] != -1 && players[i].playerSlotPowered[0] != 0 && players[i].playerSlotHealth[0] > 0)
-            {
+                if (players[i].playerSlotExist[0] != 0 && players[i].playerSlotExist[0] != -1 && players[i].playerSlotPowered[0] != 0 && players[i].playerSlotHealth[0] > 0)
+                {
 
-                int playerSpeed = players[i].playerShipMaxSpeed;
+                    int playerSpeed = players[i].playerShipMaxSpeed;
 
 
 
-                // the most retardest way to get the next move point
-                // calculate trajectory and move
-                double distanceToPoint = Math.Sqrt(Math.Pow(players[i].playerDestinationPositionX - players[i].playerPositionX,2) + Math.Pow(players[i].playerDestinationPositionY - players[i].playerPositionY,2));
+                 // the most retardest way to get the next move point
+                    // calculate trajectory and move
+                    double distanceToPoint = Math.Sqrt(Math.Pow(players[i].playerDestinationPositionX - players[i].playerPositionX,2) + Math.Pow(players[i].playerDestinationPositionY - players[i].playerPositionY,2));
                     
-                double[] newDistanceToPoint = new double[8];
-                double[] newX = new double[8];
-                double[] newY = new double[8];
+                    double[] newDistanceToPoint = new double[8];
+                    double[] newX = new double[8];
+                    double[] newY = new double[8];
 
-                if (distanceToPoint > 0.1)
-                {
-                // ROTATION
-                double rotationSpeed = 2;
-
-                double xDiff = players[i].playerDestinationPositionX - players[i].playerPositionX;
-                double yDiff = players[i].playerDestinationPositionY - players[i].playerPositionY;
-
-                double c = yDiff;
-                double b = xDiff;
-                double a = Math.Sqrt(Math.Pow(b, 2) + Math.Pow(c, 2));
-                double destinationDegrees = (180 / Math.PI) * (Math.Acos((Math.Pow(a, 2) + Math.Pow(c, 2) - Math.Pow(b, 2)) / (2 * a * c)));
-
-
-                //if (xDiff > 0 && yDiff > 0) // first quarter 
-                //{
-                //    //   playerPositionRotation = destinationDegrees;
-                //    Console.WriteLine("FIRST");
-                //}
-                //else if (xDiff == 0 && yDiff > 0) // up
-                //{
-                //    //   playerPositionRotation = 0;
-                //    Console.WriteLine("UP");
-                //}
-                if (xDiff < 0 && yDiff > 0 && destinationDegrees > 0) // second quarter 
-                {
-                    //  playerPositionRotation = -destinationDegrees;
-                    destinationDegrees = -destinationDegrees;
-                    //Console.WriteLine("SECOND");
-
-                }
-                //else if (xDiff < 0 && yDiff == 0) // left  
-                //{
-                //    // playerPositionRotation = -90;
-                //    Console.WriteLine("LEFT");
-                //}
-                else if (xDiff < 0 && yDiff < 0 && destinationDegrees > 0) // third quarter 
-                {
-                    //  playerPositionRotation = -destinationDegrees;
-                    destinationDegrees = -destinationDegrees;
-                    //Console.WriteLine("THIRD");
-                }
-                //else if (xDiff == 0 && yDiff < 0) // down  
-                //{
-                //    //   playerPositionRotation = 180;
-                //    Console.WriteLine("DOWN");
-                //}
-                //else if (xDiff > 0 && yDiff < 0) // fourth quarter 
-                //{
-                //    //  playerPositionRotation = destinationDegrees;
-                //    //Console.WriteLine("fOURTH");
-                //}
-                //else if (xDiff > 0 && yDiff == 0) // right  
-                //{
-                //    //  playerPositionRotation = 90;
-                //    //Console.WriteLine("RIGHT");
-                //}
-
-              //  Console.WriteLine("destinationDegrees= " + destinationDegrees);
-              //  Console.WriteLine("playerPositionRotation= " + playerPositionRotation);
-
-                if (players[i].playerPositionRotation != destinationDegrees)
-                {
-                    if (destinationDegrees >= 0 && players[i].playerPositionRotation > (destinationDegrees - 180) && players[i].playerPositionRotation < destinationDegrees)
+                    if (distanceToPoint > 0.1)
                     {
+                    // ROTATION
+                        double rotationSpeed = 2;
+
+                        double xDiff = players[i].playerDestinationPositionX - players[i].playerPositionX;
+                        double yDiff = players[i].playerDestinationPositionY - players[i].playerPositionY;
+
+                        double c = yDiff;
+                        double b = xDiff;
+                        double a = Math.Sqrt(Math.Pow(b, 2) + Math.Pow(c, 2));
+                        double destinationDegrees = (180 / Math.PI) * (Math.Acos((Math.Pow(a, 2) + Math.Pow(c, 2) - Math.Pow(b, 2)) / (2 * a * c)));
+
+
+                        //if (xDiff > 0 && yDiff > 0) // first quarter 
+                        //{  playerPositionRotation = destinationDegrees; }
+                        //else if (xDiff == 0 && yDiff > 0) // up
+                        //{  playerPositionRotation = 0;}
+                        if (xDiff < 0 && yDiff > 0 && destinationDegrees > 0) // second quarter 
+                        {
+                         destinationDegrees = -destinationDegrees;
+                        }
+                        //else if (xDiff < 0 && yDiff == 0) // left  
+                        //{ playerPositionRotation = -90; }
+                        else if (xDiff < 0 && yDiff < 0 && destinationDegrees > 0) // third quarter 
+                        {
+                            destinationDegrees = -destinationDegrees;
+                        }
+                        //else if (xDiff == 0 && yDiff < 0) // down  
+                        //{ playerPositionRotation = 180; }
+                        //else if (xDiff > 0 && yDiff < 0) // fourth quarter 
+                        //{ playerPositionRotation = destinationDegrees; }
+                        //else if (xDiff > 0 && yDiff == 0) // right  
+                        //{ playerPositionRotation = 90; }
+
+                        if (players[i].playerPositionRotation != destinationDegrees)
+                        {
+                             if (destinationDegrees >= 0 && players[i].playerPositionRotation > (destinationDegrees - 180) && players[i].playerPositionRotation < destinationDegrees)
+                             {
                                 players[i].playerPositionRotation += rotationSpeed;
-                    }
-                    else if (destinationDegrees >= 0 && (players[i].playerPositionRotation < (destinationDegrees - 180) || players[i].playerPositionRotation > destinationDegrees))
-                    {
+                             }
+                             else if (destinationDegrees >= 0 && (players[i].playerPositionRotation < (destinationDegrees - 180) || players[i].playerPositionRotation > destinationDegrees))
+                             {
                                 players[i].playerPositionRotation -= rotationSpeed;
-                    }
-                    else if (destinationDegrees < 0 && players[i].playerPositionRotation < (destinationDegrees + 180) && players[i].playerPositionRotation > destinationDegrees)
-                    {
+                             }
+                             else if (destinationDegrees < 0 && players[i].playerPositionRotation < (destinationDegrees + 180) && players[i].playerPositionRotation > destinationDegrees)
+                             {
                                 players[i].playerPositionRotation -= rotationSpeed;
-                    }
-                    else if (destinationDegrees < 0 && (players[i].playerPositionRotation > (destinationDegrees + 180) || players[i].playerPositionRotation < destinationDegrees))
-                    {
+                             }
+                             else if (destinationDegrees < 0 && (players[i].playerPositionRotation > (destinationDegrees + 180) || players[i].playerPositionRotation < destinationDegrees))
+                             {
                                 players[i].playerPositionRotation += rotationSpeed;
-                    }
-
-
-                    if (players[i].playerPositionRotation > 180) { players[i].playerPositionRotation = -179.999; }
-                    if (players[i].playerPositionRotation < -180) { players[i].playerPositionRotation = 179.999; }
-
-                    if (players[i].playerPositionRotation >= destinationDegrees - 1 && players[i].playerPositionRotation <= destinationDegrees + 1)
-                    {
+                             }
+                             if (players[i].playerPositionRotation > 180) { players[i].playerPositionRotation = -179.999; }
+                             if (players[i].playerPositionRotation < -180) { players[i].playerPositionRotation = 179.999; }
+                             if (players[i].playerPositionRotation >= destinationDegrees - 1 && players[i].playerPositionRotation <= destinationDegrees + 1)
+                             {
                                 players[i].playerPositionRotation = destinationDegrees;
-                    }
-                }
+                             }
+                        }
+
+                        // impulse Movement
+
+                        // COLLISION SYSTEM HERE (if not close to other ships  - move, if close - do not move (primitive system for now) - depends on the angle
+                        bool collisionAhead = false;
+                        int playerShipSize = 75; // collision box - TEMPORARY!!
+
+                        // up +
+                        if (players[i].playerPositionRotation == 0)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY < players[i].playerPositionY + playerShipSize && players[ii].playerPositionY > players[i].playerPositionY && players[ii].playerPositionX < players[i].playerPositionX + playerShipSize && players[ii].playerPositionX > players[i].playerPositionX - playerShipSize)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionY += playerSpeed;
+                            }
+                        }
+                        // first quarter +
+                        else if (players[i].playerPositionRotation > 0 && players[i].playerPositionRotation < 90)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY < players[i].playerPositionY + playerShipSize && players[ii].playerPositionY > players[i].playerPositionY && players[ii].playerPositionX < players[i].playerPositionX + playerShipSize && players[ii].playerPositionX > players[i].playerPositionX)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionY += playerSpeed * Math.Cos((players[i].playerPositionRotation * (Math.PI)) / 180);
+                                players[i].playerPositionX += playerSpeed * Math.Cos(((180 - players[i].playerPositionRotation - 90) * (Math.PI)) / 180);
+                            }
+                        }
+                        // right + 
+                        else if (players[i].playerPositionRotation == 90)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY < players[i].playerPositionY + playerShipSize && players[ii].playerPositionY > players[i].playerPositionY - playerShipSize && players[ii].playerPositionX < players[i].playerPositionX + playerShipSize && players[ii].playerPositionX > players[i].playerPositionX)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionX += playerSpeed;
+                            }
+                        }
+                        // second quarter +
+                        else if (players[i].playerPositionRotation < 0 && players[i].playerPositionRotation > -90)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY < players[i].playerPositionY + playerShipSize && players[ii].playerPositionY > players[i].playerPositionY && players[ii].playerPositionX > players[i].playerPositionX - playerShipSize && players[ii].playerPositionX < players[i].playerPositionX)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionY += playerSpeed * Math.Cos(((-players[i].playerPositionRotation) * (Math.PI)) / 180);
+                                players[i].playerPositionX -= playerSpeed * Math.Cos(((180 - (-players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
+                            }
+                        }
+                        // down + 
+                        else if (players[i].playerPositionRotation == 180 || players[i].playerPositionRotation == -180)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY > players[i].playerPositionY - playerShipSize && players[ii].playerPositionY < players[i].playerPositionY && players[ii].playerPositionX < players[i].playerPositionX + playerShipSize && players[ii].playerPositionX > players[i].playerPositionX - playerShipSize)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionY -= playerSpeed;
+                            }
+                        }
+                        // third quarter + 
+                        else if (players[i].playerPositionRotation < -90 && players[i].playerPositionRotation > -180)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY > players[i].playerPositionY - playerShipSize && players[ii].playerPositionY < players[i].playerPositionY && players[ii].playerPositionX > players[i].playerPositionX - playerShipSize && players[ii].playerPositionX < players[i].playerPositionX)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionY -= playerSpeed * Math.Cos(((180 + players[i].playerPositionRotation) * (Math.PI)) / 180);
+                                players[i].playerPositionX -= playerSpeed * Math.Cos(((180 - (180 + players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
+                            }
+                        }
+                        // left +
+                        else if (players[i].playerPositionRotation == -90)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY < players[i].playerPositionY + playerShipSize && players[ii].playerPositionY > players[i].playerPositionY - playerShipSize && players[ii].playerPositionX > players[i].playerPositionX - playerShipSize && players[ii].playerPositionX < players[i].playerPositionX)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionX -= playerSpeed;
+                            }
+                        }    
+                        // fourth quarter +
+                        else if (players[i].playerPositionRotation > 90 && players[i].playerPositionRotation < 180)
+                        {
+                            for (int ii = 0; ii < players.Count; ii++) // COLLISION CHECK
+                            {
+                                if (i != ii)
+                                {
+                                    if (players[ii].playerPositionY > players[i].playerPositionY - playerShipSize && players[ii].playerPositionY < players[i].playerPositionY && players[ii].playerPositionX < players[i].playerPositionX + playerShipSize && players[ii].playerPositionX > players[i].playerPositionX)
+                                    {
+                                        collisionAhead = true;
+                                    }
+                                }
+                            }
+                            if (collisionAhead == false)
+                            {
+                                players[i].playerPositionY -= playerSpeed * Math.Cos(((180 - players[i].playerPositionRotation) * (Math.PI)) / 180);
+                                players[i].playerPositionX += playerSpeed * Math.Cos(((180 - (180 - players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
+                            }
+                        }
 
 
-
-                // impulse vector
-                //double c = 10;
-                //double A = 2;
-                //double C = 90;
-
-                //double B = 180 - A - C;
-
-                //double a = c * Math.Cos((A * (Math.PI)) / 180);  // a = c·sin(A)/sin(C) = 7.07107 = 5√2
-                //double b = c * Math.Cos((B * (Math.PI)) / 180); //b = c·sin(B)/sin(C) = 7.07107 = 5√2
-
-                //Console.WriteLine("a = " + a);
-                //Console.WriteLine("b = " + b);
-
-                if (players[i].playerPositionRotation == 0) // up
-                {
-                            players[i].playerPositionY += playerSpeed;
-                }
-                else if (players[i].playerPositionRotation > 0 && players[i].playerPositionRotation < 90) // first quarter 
-                {
-                            players[i].playerPositionY += playerSpeed * Math.Cos((players[i].playerPositionRotation * (Math.PI)) / 180);
-                            players[i].playerPositionX += playerSpeed * Math.Cos(((180 - players[i].playerPositionRotation - 90) * (Math.PI)) / 180);
-                }
-                else if (players[i].playerPositionRotation == 90) // right
-                {
-                            players[i].playerPositionX += playerSpeed;
-                }
-                else if (players[i].playerPositionRotation < 0 && players[i].playerPositionRotation > -90) // second quarter 
-                {
-                            players[i].playerPositionY += playerSpeed * Math.Cos(((-players[i].playerPositionRotation) * (Math.PI)) / 180);
-                            players[i].playerPositionX -= playerSpeed * Math.Cos(((180 - (-players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
-                }
-                else if (players[i].playerPositionRotation == 180 || players[i].playerPositionRotation == -180) // down
-                {
-                            players[i].playerPositionY -= playerSpeed;
-                }
-                else if (players[i].playerPositionRotation > 90 && players[i].playerPositionRotation < 180) // fourth quarter 
-                {
-                            players[i].playerPositionY -= playerSpeed * Math.Cos(((180 - players[i].playerPositionRotation) * (Math.PI)) / 180);
-                            players[i].playerPositionX += playerSpeed * Math.Cos(((180 - (180 - players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
-                }
-                else if (players[i].playerPositionRotation == -90) // left
-                {
-                            players[i].playerPositionX -= playerSpeed;
-                }
-
-
-
-                else if (players[i].playerPositionRotation < -90 && players[i].playerPositionRotation > -180) // third quarter 
-                {
-                            players[i].playerPositionY -= playerSpeed * Math.Cos(((180 + players[i].playerPositionRotation) * (Math.PI)) / 180);
-                            players[i].playerPositionX -= playerSpeed * Math.Cos(((180 - (180 + players[i].playerPositionRotation) - 90) * (Math.PI)) / 180);
-                }
                     }
                 }
             }
