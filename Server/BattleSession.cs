@@ -631,110 +631,146 @@ namespace Server
         {
             int reloadOneTick = 50; // ms
 
-            for (int i = 0; i < players[0].playerWeaponSlotProjectileTime.Length; i++)
+            // check all projectiles that moves so far
+            for (int i = 0; i < players.Count; i++)
             {
-                if (players[0].playerWeaponSlotProjectileTime[i] > 0)
+                for (int ii = 0; ii < 5; ii++) // because 5 weapons 
                 {
-
-                    players[0].playerWeaponSlotProjectileTime[i] -= reloadOneTick;
-
-                    if (players[0].playerWeaponSlotProjectileTime[i] <= 0) 
+                    if (players[i].playerWeaponSlotExist[ii] > 0) // if weapon exist 
                     {
-                        // projectile hit the enemyAI
-                        Random randomChanceToHit = new Random();
-                        int ChanceToHit = randomChanceToHit.Next(0, 100);
-
-                        Random randomDamage = new Random();
-                        int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(players[0].playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(players[0].playerWeaponSlotDamage[i]) * 1.1));
-                        int resultShieldCapasityAfterDamage = 0;
-
-                        if (ChanceToHit <= 50) // if hit the ship but not module
+                        if (players[i].playerWeaponSlotProjectileTime[ii] > 0)  //if projectile moving
                         {
-                            for (int i1 = 0; i1 < 5; i1++)
+                            players[i].playerWeaponSlotProjectileTime[ii] -= reloadOneTick; // place projectile closer to the target
+
+                            if (players[i].playerWeaponSlotProjectileTime[ii] <= 0) // if projectile hit target
                             {
-                                // layers of the shields. first - destroy first layer, then next then next
-                                if (players[1].playerSlotType[i1 + 2] == "3" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
+                                Random randomChanceToHit = new Random();
+                                int ChanceToHit = randomChanceToHit.Next(0, 100);
+
+                                Random randomDamage = new Random();
+                                int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(players[i].playerWeaponSlotDamage[ii]) * 0.9), Convert.ToInt32(Convert.ToDouble(players[i].playerWeaponSlotDamage[ii]) * 1.1));
+
+                                // simple damage 
+
+                                if (ChanceToHit > 0) // just hit the ship
                                 {
-                                    // in progress !!!
-                                    resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
-                                    if (resultShieldCapasityAfterDamage <= 0)
-                                    {
-                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
-                                        damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
-                                    }
-                                    else
-                                    {
-                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
-                                        damageToShip = 0;
-                                    }
+                                    players[players[i].playerWeaponSlotProjectileAimPlayer[ii]].playerShipCurrentHealth -= damageToShip;
                                 }
+
+
+
+                                players[i].playerWeaponSlotProjectileTime[ii] = -1;
                             }
-
-                            // damage to ship if no shields (all damage in 1 take)
-                            players[1].playerShipCurrentHealth -= damageToShip;
-                            damageToShip = 0;
-                        } 
-                        else if(ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
-                        {
-                            for (int i1 = 0; i1 < 5; i1++)
-                            {
-                                // layers of the shields. first - destroy first layer, then next then next
-                                if (players[1].playerSlotType[i1 + 2] == "3" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
-                                {
-                                    // in progress !!!
-                                    resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
-                                    if (resultShieldCapasityAfterDamage <= 0)
-                                    {
-                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
-                                        damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
-                                    }
-                                    else
-                                    {
-                                        players[1].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
-                                        damageToShip = 0;
-                                    }
-                                }
-                            }
-
-                            players[1].playerShipCurrentHealth -= damageToShip / 2;
-                            players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
-
-                            if (players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] <= 0)
-                            {
-                                players[1].playerShipCurrentHealth -= damageToShip / 2; // aditional damage if module was destroyed
-
-                                players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
-                                players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
-
-                                if (players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] > 0)
-                                {
-                                    players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
-                                    players[1].playerShipFreeEnergy += 1;
-
-                                    if (players[1].playerSlotType[players[0].playerWeaponSlotProjectileAimModule[i]] == "4")
-                                    {
-                                        for (int iii = 0; iii < players[1].playerWeaponSlotPowered.Length; iii++)
-                                        {
-                                            if (players[1].playerWeaponSlotPowered[iii] > 0)
-                                            {
-                                                players[1].playerShipFreeEnergy += 1;
-                                                players[1].playerWeaponSlotPowered[iii] = 0;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            damageToShip = 0;
                         }
-                        // if missed
-                        //-- nothing(?)
-
-
-                        players[0].playerWeaponSlotProjectileTime[i] = -1; 
                     }
                 }
             }
+
+            ////----------------
+            //for (int i = 0; i < players[0].playerWeaponSlotProjectileTime.Length; i++)
+            //{
+            //    if (players[0].playerWeaponSlotProjectileTime[i] > 0)
+            //    {
+
+            //        players[0].playerWeaponSlotProjectileTime[i] -= reloadOneTick;
+
+            //        if (players[0].playerWeaponSlotProjectileTime[i] <= 0) 
+            //        {
+            //            // projectile hit the enemyAI
+            //            Random randomChanceToHit = new Random();
+            //            int ChanceToHit = randomChanceToHit.Next(0, 100);
+
+            //            Random randomDamage = new Random();
+            //            int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(players[0].playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(players[0].playerWeaponSlotDamage[i]) * 1.1));
+            //            int resultShieldCapasityAfterDamage = 0;
+
+            //            if (ChanceToHit <= 50) // if hit the ship but not module
+            //            {
+            //                for (int i1 = 0; i1 < 5; i1++)
+            //                {
+            //                    // layers of the shields. first - destroy first layer, then next then next
+            //                    if (players[1].playerSlotType[i1 + 2] == "3" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
+            //                    {
+            //                        // in progress !!!
+            //                        resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+            //                        if (resultShieldCapasityAfterDamage <= 0)
+            //                        {
+            //                            players[1].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+            //                            damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+            //                        }
+            //                        else
+            //                        {
+            //                            players[1].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+            //                            damageToShip = 0;
+            //                        }
+            //                    }
+            //                }
+
+            //                // damage to ship if no shields (all damage in 1 take)
+            //                players[1].playerShipCurrentHealth -= damageToShip;
+            //                damageToShip = 0;
+            //            } 
+            //            else if(ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
+            //            {
+            //                for (int i1 = 0; i1 < 5; i1++)
+            //                {
+            //                    // layers of the shields. first - destroy first layer, then next then next
+            //                    if (players[1].playerSlotType[i1 + 2] == "3" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
+            //                    {
+            //                        // in progress !!!
+            //                        resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+            //                        if (resultShieldCapasityAfterDamage <= 0)
+            //                        {
+            //                            players[1].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+            //                            damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+            //                        }
+            //                        else
+            //                        {
+            //                            players[1].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+            //                            damageToShip = 0;
+            //                        }
+            //                    }
+            //                }
+
+            //                players[1].playerShipCurrentHealth -= damageToShip / 2;
+            //                players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
+
+            //                if (players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] <= 0)
+            //                {
+            //                    players[1].playerShipCurrentHealth -= damageToShip / 2; // aditional damage if module was destroyed
+
+            //                    players[1].playerSlotHealth[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
+            //                    players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
+
+            //                    if (players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] > 0)
+            //                    {
+            //                        players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
+            //                        players[1].playerShipFreeEnergy += 1;
+
+            //                        if (players[1].playerSlotType[players[0].playerWeaponSlotProjectileAimModule[i]] == "4")
+            //                        {
+            //                            for (int iii = 0; iii < players[1].playerWeaponSlotPowered.Length; iii++)
+            //                            {
+            //                                if (players[1].playerWeaponSlotPowered[iii] > 0)
+            //                                {
+            //                                    players[1].playerShipFreeEnergy += 1;
+            //                                    players[1].playerWeaponSlotPowered[iii] = 0;
+            //                                }
+            //                            }
+            //                        }
+            //                    }
+            //                }
+
+            //                damageToShip = 0;
+            //            }
+            //            // if missed
+            //            //-- nothing(?)
+
+
+            //            players[0].playerWeaponSlotProjectileTime[i] = -1; 
+            //        }
+            //    }
+            //}
 
 
             //ai (multiple projectiles + shields)

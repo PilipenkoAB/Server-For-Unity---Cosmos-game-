@@ -455,8 +455,8 @@ namespace Server
                                 // ????????????????????
                                 if (recievedMessage[5] == "0")
                                 {
-                                    // TEST ONE - pressed only button attack weapon1
-                                    sessionsBattle[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), playerIdInArray);
+                                    // TEST ONE - pressed only button attack weapon1 - DELETE
+                                   // sessionsBattle[Convert.ToInt32(recievedMessage[3])].PlayerAttackModule(Convert.ToInt32(recievedMessage[6]), Convert.ToInt32(recievedMessage[7]), playerIdInArray);
 
 
                                     // answer to client  - 0 means that action was successeful
