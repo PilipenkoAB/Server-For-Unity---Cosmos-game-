@@ -173,7 +173,7 @@ namespace Server
 
             for (int i = 0; i < 17; i++)
             {
-                answer = answer + players[idInArray].playerSlotExist[i];
+                answer = answer + players[idInArray].playerSlotId[i];
                 answer = answer + ",";
                 answer = answer + players[idInArray].playerSlotHealth[i];
                 answer = answer + ",";
@@ -311,7 +311,7 @@ namespace Server
 
             for (int i = 0; i < 17; i++)
             {
-                answer = answer + players[idInArray].playerSlotExist[i];
+                answer = answer + players[idInArray].playerSlotId[i];
                 answer = answer + ",";
                 answer = answer + players[idInArray].playerSlotHealth[i];
                 answer = answer + ",";
@@ -372,7 +372,25 @@ namespace Server
                         answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                         answer = answer + ";";
 
-                        answer = answer + players[i].playerShipMaxHealth;
+                        answer = answer + players[i].playerShipCurrentHealth;
+
+
+                        if (players[idInArray].playerFocus == i)
+                        {
+                            answer = answer + ";";
+
+                            for (int ii = 0; ii < 12; ii++)
+                            {
+                                answer = answer + players[i].playerSlotId[ii];
+                                answer = answer + ",";
+                                answer = answer + players[i].playerSlotHealth[ii];
+                                answer = answer + ",";
+                                answer = answer + players[i].playerSlotType[ii];
+                                answer = answer + ",";
+                            }
+                            answer = answer.Remove(answer.Length - 1, 1); // remove last ","
+                        }
+
                         answer = answer + "|";
                     }
                     else if (players[idInArray].playerTeam != players[i].playerTeam) // if players from the other team
@@ -396,7 +414,25 @@ namespace Server
                             answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                             answer = answer + ";";
 
-                            answer = answer + players[i].playerShipMaxHealth;
+                            answer = answer + players[i].playerShipCurrentHealth;
+
+                            if (players[idInArray].playerFocus == i)
+                            {
+                                answer = answer + ";";
+
+                                for (int ii = 0; ii < 12; ii++)
+                                {
+                                    answer = answer + players[i].playerSlotId[ii];
+                                    answer = answer + ",";
+                                    answer = answer + players[i].playerSlotHealth[ii];
+                                    answer = answer + ",";
+                                    answer = answer + players[i].playerSlotType[ii];
+                                    answer = answer + ",";
+                                  //  Console.WriteLine("DEBUG TEST 2 = " + ii + " - " + players[i].playerSlotId[ii] + " - " + players[i].playerSlotType[ii]);
+                                }
+                                answer = answer.Remove(answer.Length - 1, 1); // remove last ","
+                            }
+
                             answer = answer + "|";
                         }
                     }
@@ -471,12 +507,12 @@ namespace Server
                 //player shields
                 for (int ii = 0; ii < 5; ii++)
                 {
-                    if (players[i].playerSlotExist[ii + 2] != 0 && players[i].playerSlotExist[ii + 2] != -1 && players[i].playerSlotType[ii + 2] == "shield" && players[i].playerSlotPowered[ii + 2] <= 0)
+                    if (players[i].playerSlotId[ii + 2] != 0 && players[i].playerSlotId[ii + 2] != -1 && players[i].playerSlotType[ii + 2] == "3" && players[i].playerSlotPowered[ii + 2] <= 0)
                     {
                         players[i].playerSlotShieldCurrentCapacity[ii + 2] = 0;
                         players[i].playerSlotShieldRechargeCurrentTime[ii + 2] = players[i].playerSlotShieldRechargeTime[ii + 2];
                     }
-                    else if (players[i].playerSlotExist[ii + 2] != 0 && players[i].playerSlotExist[ii + 2] != -1 && players[i].playerSlotType[ii + 2] == "shield" && players[i].playerSlotPowered[ii + 2] > 0 && players[i].playerSlotHealth[ii + 2] > 0 && players[i].playerSlotShieldRechargeCurrentTime[ii + 2] > 0)
+                    else if (players[i].playerSlotId[ii + 2] != 0 && players[i].playerSlotId[ii + 2] != -1 && players[i].playerSlotType[ii + 2] == "3" && players[i].playerSlotPowered[ii + 2] > 0 && players[i].playerSlotHealth[ii + 2] > 0 && players[i].playerSlotShieldRechargeCurrentTime[ii + 2] > 0)
                     {
                         players[i].playerSlotShieldRechargeCurrentTime[ii + 2] -= reloadOneTick;
                     }
@@ -521,15 +557,15 @@ namespace Server
         {
             for (int i = 0; i < players[aIId].playerWeaponSlotCurrentReloadTime.Length; i++)
             {
-                if (players[aIId].playerWeaponSlotCurrentReloadTime[i] == 0 && players[aIId].playerSlotType[i] == "weaponcontrol" && players[aIId].playerSlotPowered[i] == 1)
+                if (players[aIId].playerWeaponSlotCurrentReloadTime[i] == 0 && players[aIId].playerSlotType[i] == "4" && players[aIId].playerSlotPowered[i] == 1)
                 {
-                    players[aIId].playerWeaponSlotProjectileTime1[i, 0] = 1500; // need to set if how many projectles ?????
+                    players[aIId].playerWeaponSlotProjectileTime[i] = 1500; // need to set if how many projectles ?????
                     players[aIId].playerWeaponSlotCurrentReloadTime[i] = players[aIId].playerWeaponSlotReloadTime[i];
 
                     //get random slot to attack
                     Random randomSlotToAttack = new Random();
                     int slotToAttack = randomSlotToAttack.Next(0,11); // 11 because not small slots to attack
-                    while (players[aIId].playerSlotExist[slotToAttack] < 0) 
+                    while (players[aIId].playerSlotId[slotToAttack] < 0) 
                     {
                         slotToAttack = randomSlotToAttack.Next(0, 11);
                     }
@@ -541,9 +577,9 @@ namespace Server
 
         public void AIPowerModules(int aIId) 
         {
-            for (int i = 0; i < players[aIId].playerSlotExist.Length; i++)
+            for (int i = 0; i < players[aIId].playerSlotId.Length; i++)
             {
-                if (players[aIId].playerSlotExist[i] > 0 && players[aIId].playerSlotPowered[i] != 1 && players[aIId].playerSlotHealth[i] > 0 && players[aIId].playerShipFreeEnergy > 0)
+                if (players[aIId].playerSlotId[i] > 0 && players[aIId].playerSlotPowered[i] != 1 && players[aIId].playerSlotHealth[i] > 0 && players[aIId].playerShipFreeEnergy > 0)
                 {
                     players[aIId].playerSlotPowered[i] = 1;
                     players[aIId].playerShipFreeEnergy -= 1;
@@ -563,29 +599,32 @@ namespace Server
 
 
 
-
-
-        // that is broken for sure
-        public bool PlayerAttackModule(int weaponIdint, int moduleSlotId, int playerId) 
+        // player atack enemy that in focus - create projectile that moves to the enemy
+        public bool PlayerAttackModule(int focusId, int weaponIdint, int moduleSlotId, int playerId) 
         {
-            // player attack AI
-            //if weapon control exist and powered
-            
-            for (int i = 0; i < players[playerId].playerSlotType.Length; i++)
+            if (players[playerId].playerTeam != players[focusId].playerTeam) // can only attack enemies
             {
-                if (players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && players[playerId].playerSlotType[i] == "weaponcontrol" && players[playerId].playerSlotPowered[i] == 1 && players[playerId].playerWeaponSlotPowered[weaponIdint] == 1)
+                for (int i = 0; i < players[playerId].playerSlotType.Length; i++)
                 {
-                    players[playerId].playerWeaponSlotProjectileTime[weaponIdint] = 1500;
-                    players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] = players[playerId].playerWeaponSlotReloadTime[weaponIdint];
-                    players[playerId].playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
-                    // shot is happened
-                    return true;
+                    if (players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] == 0 && players[playerId].playerSlotType[i] == "4" && players[playerId].playerSlotPowered[i] == 1 && players[playerId].playerSlotHealth[i] > 0 && players[playerId].playerWeaponSlotPowered[weaponIdint] == 1)
+                    {
+
+                        players[playerId].playerWeaponSlotProjectileTime[weaponIdint] = 1; // all weapon like LAZER for now
+                        players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] = players[playerId].playerWeaponSlotReloadTime[weaponIdint];
+                        players[playerId].playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
+                        players[playerId].playerWeaponSlotProjectileAimPlayer[weaponIdint] = focusId;
+
+                        // shot is happened
+                        return true;
+                    }
                 }
-
             }
-
             return false;
         }
+
+
+
+
 
         // that is broken for sure
         public void ProjectilesMoveTime() 
@@ -614,7 +653,7 @@ namespace Server
                             for (int i1 = 0; i1 < 5; i1++)
                             {
                                 // layers of the shields. first - destroy first layer, then next then next
-                                if (players[1].playerSlotType[i1 + 2] == "shield" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
+                                if (players[1].playerSlotType[i1 + 2] == "3" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
                                 {
                                     // in progress !!!
                                     resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
@@ -640,7 +679,7 @@ namespace Server
                             for (int i1 = 0; i1 < 5; i1++)
                             {
                                 // layers of the shields. first - destroy first layer, then next then next
-                                if (players[1].playerSlotType[i1 + 2] == "shield" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
+                                if (players[1].playerSlotType[i1 + 2] == "3" && players[1].playerSlotHealth[i1 + 2] > 0 && players[1].playerSlotPowered[i1 + 2] > 0)
                                 {
                                     // in progress !!!
                                     resultShieldCapasityAfterDamage = players[1].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
@@ -672,7 +711,7 @@ namespace Server
                                     players[1].playerSlotPowered[players[0].playerWeaponSlotProjectileAimModule[i]] = 0;
                                     players[1].playerShipFreeEnergy += 1;
 
-                                    if (players[1].playerSlotType[players[0].playerWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
+                                    if (players[1].playerSlotType[players[0].playerWeaponSlotProjectileAimModule[i]] == "4")
                                     {
                                         for (int iii = 0; iii < players[1].playerWeaponSlotPowered.Length; iii++)
                                         {
@@ -699,116 +738,116 @@ namespace Server
 
 
             //ai (multiple projectiles + shields)
-            for (int i = 0; i < 5; i++) //weapon N
-            {
-                for (int ii = 0; ii < 5; ii++) //projectile N
-                {
-                    if (players[1].playerWeaponSlotProjectileTime1[i,ii] > 0)
-                    {
-                        players[1].playerWeaponSlotProjectileTime1[i,ii] -= reloadOneTick;
+            //for (int i = 0; i < 5; i++) //weapon N
+            //{
+            //    for (int ii = 0; ii < 5; ii++) //projectile N
+            //    {
+            //        if (players[1].playerWeaponSlotProjectileTime1[i,ii] > 0)
+            //        {
+            //            players[1].playerWeaponSlotProjectileTime1[i,ii] -= reloadOneTick;
 
-                        if (players[1].playerWeaponSlotProjectileTime1[i,ii] <= 0)
-                        {
-                            // projectile hit the enemyAI
-                            Random randomChanceToHit = new Random();
-                            int ChanceToHit = randomChanceToHit.Next(0, 100);
+            //            if (players[1].playerWeaponSlotProjectileTime1[i,ii] <= 0)
+            //            {
+            //                // projectile hit the enemyAI
+            //                Random randomChanceToHit = new Random();
+            //                int ChanceToHit = randomChanceToHit.Next(0, 100);
 
-                            Random randomDamage = new Random();
-                            int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(players[1].playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(players[1].playerWeaponSlotDamage[i]) * 1.1));
-                            int resultShieldCapasityAfterDamage = 0;
+            //                Random randomDamage = new Random();
+            //                int damageToShip = randomDamage.Next(Convert.ToInt32(Convert.ToDouble(players[1].playerWeaponSlotDamage[i]) * 0.9), Convert.ToInt32(Convert.ToDouble(players[1].playerWeaponSlotDamage[i]) * 1.1));
+            //                int resultShieldCapasityAfterDamage = 0;
 
-                            if (ChanceToHit <= 50) // if hit the ship but not module
-                            {
-                                // damage with shields
+            //                if (ChanceToHit <= 50) // if hit the ship but not module
+            //                {
+            //                    // damage with shields
 
-                                for (int i1 = 0; i1 < 5; i1++)
-                                {
-                                    // layers of the shields. first - destroy first layer, then next then next
-                                    if (players[0].playerSlotType[i1 + 2] == "shield" && players[0].playerSlotHealth[i1 + 2] > 0 && players[0].playerSlotPowered[i1 + 2] > 0)
-                                    {
-                                        // in progress !!!
-                                        resultShieldCapasityAfterDamage = players[0].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
-                                        if (resultShieldCapasityAfterDamage <= 0)
-                                        {
-                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
-                                            damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
-                                        }
-                                        else
-                                        {
-                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
-                                            damageToShip = 0;
-                                        }
-                                    }
-                                }
+            //                    for (int i1 = 0; i1 < 5; i1++)
+            //                    {
+            //                        // layers of the shields. first - destroy first layer, then next then next
+            //                        if (players[0].playerSlotType[i1 + 2] == "3" && players[0].playerSlotHealth[i1 + 2] > 0 && players[0].playerSlotPowered[i1 + 2] > 0)
+            //                        {
+            //                            // in progress !!!
+            //                            resultShieldCapasityAfterDamage = players[0].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+            //                            if (resultShieldCapasityAfterDamage <= 0)
+            //                            {
+            //                                players[0].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+            //                                damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+            //                            }
+            //                            else
+            //                            {
+            //                                players[0].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+            //                                damageToShip = 0;
+            //                            }
+            //                        }
+            //                    }
 
-                                // damage to ship if no shields (all damage in 1 take)
-                                players[0].playerShipCurrentHealth -= damageToShip;
-                                damageToShip = 0;
-                            }
-                            else if (ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
-                            {
-                                for (int i1 = 0; i1 < 5; i1++)
-                                {
-                                    // layers of the shields. first - destroy first layer, then next then next
-                                    if (players[0].playerSlotType[i1 + 2] == "shield" && players[0].playerSlotHealth[i1 + 2] > 0 && players[0].playerSlotPowered[i1 + 2] > 0)
-                                    {
-                                        // in progress !!!
-                                        resultShieldCapasityAfterDamage = players[0].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
-                                        if (resultShieldCapasityAfterDamage <= 0)
-                                        {
-                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
-                                            damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
-                                        }
-                                        else
-                                        {
-                                            players[0].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
-                                            damageToShip = 0;
-                                        }
-                                    }
-                                }
+            //                    // damage to ship if no shields (all damage in 1 take)
+            //                    players[0].playerShipCurrentHealth -= damageToShip;
+            //                    damageToShip = 0;
+            //                }
+            //                else if (ChanceToHit > 50 && ChanceToHit <= 75) // if hit the module (half damage to ship, half damage to module
+            //                {
+            //                    for (int i1 = 0; i1 < 5; i1++)
+            //                    {
+            //                        // layers of the shields. first - destroy first layer, then next then next
+            //                        if (players[0].playerSlotType[i1 + 2] == "3" && players[0].playerSlotHealth[i1 + 2] > 0 && players[0].playerSlotPowered[i1 + 2] > 0)
+            //                        {
+            //                            // in progress !!!
+            //                            resultShieldCapasityAfterDamage = players[0].playerSlotShieldCurrentCapacity[i1 + 2] - damageToShip;
+            //                            if (resultShieldCapasityAfterDamage <= 0)
+            //                            {
+            //                                players[0].playerSlotShieldCurrentCapacity[i1 + 2] = 0;
+            //                                damageToShip = Math.Abs(resultShieldCapasityAfterDamage); // set damage for be reduced in next shield layer
+            //                            }
+            //                            else
+            //                            {
+            //                                players[0].playerSlotShieldCurrentCapacity[i1 + 2] -= damageToShip;
+            //                                damageToShip = 0;
+            //                            }
+            //                        }
+            //                    }
 
 
-                                players[0].playerShipCurrentHealth -= damageToShip / 2;
-                                players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
+            //                    players[0].playerShipCurrentHealth -= damageToShip / 2;
+            //                    players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] -= damageToShip / 2;
 
                               
-                                //---
-                                if (players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] <= 0) 
-                                {
-                                    players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] = 0;
-                                    players[0].playerShipCurrentHealth -= damageToShip / 2;
+            //                    //---
+            //                    if (players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] <= 0) 
+            //                    {
+            //                        players[0].playerSlotHealth[players[1].playerWeaponSlotProjectileAimModule[i]] = 0;
+            //                        players[0].playerShipCurrentHealth -= damageToShip / 2;
 
-                                    if (players[0].playerSlotPowered[players[1].playerWeaponSlotProjectileAimModule[i]] > 0)
-                                    {
-                                        players[0].playerSlotPowered[players[1].playerWeaponSlotProjectileAimModule[i]] = 0;
-                                        players[0].playerShipFreeEnergy += 1;
+            //                        if (players[0].playerSlotPowered[players[1].playerWeaponSlotProjectileAimModule[i]] > 0)
+            //                        {
+            //                            players[0].playerSlotPowered[players[1].playerWeaponSlotProjectileAimModule[i]] = 0;
+            //                            players[0].playerShipFreeEnergy += 1;
 
-                                        if (players[0].playerSlotType[players[1].playerWeaponSlotProjectileAimModule[i]] == "weaponcontrol")
-                                        {
-                                            for (int iii = 0; iii < players[0].playerWeaponSlotPowered.Length; iii++)
-                                            {
-                                                if (players[0].playerWeaponSlotPowered[iii] > 0)
-                                                {
-                                                    players[0].playerShipFreeEnergy += 1;
-                                                    players[0].playerWeaponSlotPowered[iii] = 0;
-                                                }
-                                            }  
-                                        }
-                                    }
-                                }
+            //                            if (players[0].playerSlotType[players[1].playerWeaponSlotProjectileAimModule[i]] == "4")
+            //                            {
+            //                                for (int iii = 0; iii < players[0].playerWeaponSlotPowered.Length; iii++)
+            //                                {
+            //                                    if (players[0].playerWeaponSlotPowered[iii] > 0)
+            //                                    {
+            //                                        players[0].playerShipFreeEnergy += 1;
+            //                                        players[0].playerWeaponSlotPowered[iii] = 0;
+            //                                    }
+            //                                }  
+            //                            }
+            //                        }
+            //                    }
 
-                                damageToShip = 0;
-                            }
-                            // if missed
-                            //-- nothing(?)
+            //                    damageToShip = 0;
+            //                }
+            //                // if missed
+            //                //-- nothing(?)
 
-                            players[1].playerWeaponSlotProjectileTime1[i,ii] = -1;
-                        }
-                    }
-                }
+            //                players[1].playerWeaponSlotProjectileTime1[i,ii] = -1;
+            //            }
+            //        }
+            //    }
                 
-            }
-            //---
+            //}
+            ////---
 
         }
 
@@ -820,7 +859,7 @@ namespace Server
         // ENERGY manipulation
         public void PlayerModuleEnergyUp(int moduleSlotId, int idInArray)
         {
-            if (players[idInArray].playerSlotExist[moduleSlotId] != 0 && players[idInArray].playerSlotExist[moduleSlotId] != -1 && players[idInArray].playerSlotPowered[moduleSlotId] == 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy && players[idInArray].playerSlotHealth[moduleSlotId] > 0)
+            if (players[idInArray].playerSlotId[moduleSlotId] != 0 && players[idInArray].playerSlotId[moduleSlotId] != -1 && players[idInArray].playerSlotPowered[moduleSlotId] == 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy && players[idInArray].playerSlotHealth[moduleSlotId] > 0)
             {
                 players[idInArray].playerSlotPowered[moduleSlotId] = 1;
                 players[idInArray].playerShipFreeEnergy -= 1;
@@ -829,13 +868,13 @@ namespace Server
 
         public void PlayerModuleEnergyDown(int moduleSlotId, int idInArray)
         {
-            if (players[idInArray].playerSlotExist[moduleSlotId] != 0 && players[idInArray].playerSlotExist[moduleSlotId] != -1 && players[idInArray].playerSlotPowered[moduleSlotId] != 0 && players[idInArray].playerShipFreeEnergy >= 0 && players[idInArray].playerSlotHealth[moduleSlotId] > 0)
+            if (players[idInArray].playerSlotId[moduleSlotId] != 0 && players[idInArray].playerSlotId[moduleSlotId] != -1 && players[idInArray].playerSlotPowered[moduleSlotId] != 0 && players[idInArray].playerShipFreeEnergy >= 0 && players[idInArray].playerSlotHealth[moduleSlotId] > 0)
             {
                 players[idInArray].playerSlotPowered[moduleSlotId] = 0;
                 players[idInArray].playerShipFreeEnergy += 1;
 
                 // unpower all weapons if weapon control was unpowered
-                if (players[idInArray].playerSlotType[moduleSlotId] == "weaponcontrol") 
+                if (players[idInArray].playerSlotType[moduleSlotId] == "4") 
                 {
                     for (int i = 0; i < players[idInArray].playerWeaponSlotPowered.Length; i++)
                     {
@@ -856,14 +895,14 @@ namespace Server
         {
             bool weaponControlPowered = false;
             // check if weapon control powered - if not - power first
-            for (int i = 0; i < players[idInArray].playerSlotExist.Length; i++)
+            for (int i = 0; i < players[idInArray].playerSlotId.Length; i++)
             {
-                if (players[idInArray].playerSlotType[i] == "weaponcontrol" && players[idInArray].playerSlotPowered[i] <= 0 && players[idInArray].playerSlotHealth[i] > 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy)
+                if (players[idInArray].playerSlotType[i] == "4" && players[idInArray].playerSlotPowered[i] <= 0 && players[idInArray].playerSlotHealth[i] > 0 && players[idInArray].playerShipFreeEnergy <= players[idInArray].playerShipMaxEnergy)
                 {
                     players[idInArray].playerSlotPowered[i] += 1;
                     players[idInArray].playerShipFreeEnergy -= 1;
                 }
-                if (players[idInArray].playerSlotType[i] == "weaponcontrol" && players[idInArray].playerSlotPowered[i] > 0 && players[idInArray].playerSlotHealth[i] > 0) 
+                if (players[idInArray].playerSlotType[i] == "4" && players[idInArray].playerSlotPowered[i] > 0 && players[idInArray].playerSlotHealth[i] > 0) 
                 {
                     weaponControlPowered = true;
                 }
@@ -918,7 +957,7 @@ namespace Server
             for (int i = 0; i < players.Count; i++)
             {
             // if engine active and not destroyed and exist
-                if (players[i].playerSlotExist[0] != 0 && players[i].playerSlotExist[0] != -1 && players[i].playerSlotPowered[0] != 0 && players[i].playerSlotHealth[0] > 0)
+                if (players[i].playerSlotId[0] != 0 && players[i].playerSlotId[0] != -1 && players[i].playerSlotPowered[0] != 0 && players[i].playerSlotHealth[0] > 0)
                 {
 
                     int playerSpeed = players[i].playerShipMaxSpeed;
@@ -1276,7 +1315,9 @@ namespace Server
 
         //[ engine , cockpit, biglot1 .. 5, mediumslot 1 .. 5, smallslot 1 .. 5]
 
-        public int[] playerSlotExist { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        // player slot type: 1 - engine, 2 - cockpit, 3 - shield, 4 - weapon control
+
+        public int[] playerSlotId { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         public int[] playerSlotHealth { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         public int[] playerSlotPowered { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         public int[] playerSlotEnergyRequired { get; set; } = new int[17] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -1304,11 +1345,11 @@ namespace Server
 
         public int[] playerWeaponSlotProjectileTime { get; set; } = new int[5] { -1, -1, -1, -1, -1 }; // -1 = does not exist, 0 - hit by time, N- time
         public int[] playerWeaponSlotProjectileAimModule { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        public int[] playerWeaponSlotProjectileAimPlayer { get; set; } = new int[5] { -1, -1, -1, -1, -1 };
 
-        //test // -1 = does not exist, 0 - hit by time, N- time
-        public int[,] playerWeaponSlotProjectileTime1 { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } };
-
-        public int[] playerWeaponSlotProjectileAimModule1 { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        //test // -1 = does not exist, 0 - hit by time, N- time  // ---------- it is for N projectiles
+       // public int[,] playerWeaponSlotProjectileTime1 { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } };
+       // public int[] playerWeaponSlotProjectileAimModule1 { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
         //------------------------
 
         // Crew
