@@ -385,7 +385,6 @@ namespace Server
                         answer = answer + ";";
 
                         //--
-                        answer = answer + ";";
 
                         for (int ii = 0; ii < 5; ii++)
                         {
@@ -397,6 +396,8 @@ namespace Server
                             answer = answer + ",";
                         }
                         answer = answer.Remove(answer.Length - 1, 1); // remove last ","
+
+                        answer = answer + ";";
                         //--
 
                         answer = answer + players[i].playerShipCurrentHealth;
@@ -440,7 +441,6 @@ namespace Server
                             answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                             answer = answer + ";";
                             //--
-                            answer = answer + ";";
 
                             for (int ii = 0; ii < 5; ii++)
                             {
@@ -452,6 +452,8 @@ namespace Server
                                 answer = answer + ",";
                             }
                             answer = answer.Remove(answer.Length - 1, 1); // remove last ","
+
+                            answer = answer + ";";
                             //--
                             answer = answer + players[i].playerShipCurrentHealth;
 
@@ -1343,8 +1345,8 @@ namespace Server
             // focus
             playerFocus = 0;
 
-            playerVisionRadius = 250;
-            playerShipMaxSpeed = 5;
+            playerVisionRadius = 2500;
+            playerShipMaxSpeed = 3;
 
         }
 
