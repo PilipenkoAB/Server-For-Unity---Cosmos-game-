@@ -344,8 +344,20 @@ namespace Server
                 answer = answer + ",";
             }
 
-            answer = answer.Remove(answer.Length - 1, 1); // remove last ";"
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ","
 
+            answer = answer + ";";
+
+            for (int i = 0; i < 5; i++)
+            {
+                answer = answer + players[idInArray].playerWeaponSlotProjectileId[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotProjectileAimPlayer[i];
+                answer = answer + ",";
+                answer = answer + players[idInArray].playerWeaponSlotProjectileStatus[i];
+                answer = answer + ",";
+            }
+            answer = answer.Remove(answer.Length - 1, 1); // remove last ","
 
             //=================================
             //          other players
@@ -372,8 +384,22 @@ namespace Server
                         answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                         answer = answer + ";";
 
-                        answer = answer + players[i].playerShipCurrentHealth;
+                        //--
+                        answer = answer + ";";
 
+                        for (int ii = 0; ii < 5; ii++)
+                        {
+                            answer = answer + players[i].playerWeaponSlotProjectileId[ii];
+                            answer = answer + ",";
+                            answer = answer + players[i].playerWeaponSlotProjectileAimPlayer[ii];
+                            answer = answer + ",";
+                            answer = answer + players[i].playerWeaponSlotProjectileStatus[ii];
+                            answer = answer + ",";
+                        }
+                        answer = answer.Remove(answer.Length - 1, 1); // remove last ","
+                        //--
+
+                        answer = answer + players[i].playerShipCurrentHealth;
 
                         if (players[idInArray].playerFocus == i)
                         {
@@ -413,7 +439,20 @@ namespace Server
                             answer = answer + ",";
                             answer = answer + String.Format("{0:0.0}", players[i].playerPositionRotation);
                             answer = answer + ";";
+                            //--
+                            answer = answer + ";";
 
+                            for (int ii = 0; ii < 5; ii++)
+                            {
+                                answer = answer + players[i].playerWeaponSlotProjectileId[ii];
+                                answer = answer + ",";
+                                answer = answer + players[i].playerWeaponSlotProjectileAimPlayer[ii];
+                                answer = answer + ",";
+                                answer = answer + players[i].playerWeaponSlotProjectileStatus[ii];
+                                answer = answer + ",";
+                            }
+                            answer = answer.Remove(answer.Length - 1, 1); // remove last ","
+                            //--
                             answer = answer + players[i].playerShipCurrentHealth;
 
                             if (players[idInArray].playerFocus == i)
@@ -432,7 +471,6 @@ namespace Server
                                 }
                                 answer = answer.Remove(answer.Length - 1, 1); // remove last ","
                             }
-
                             answer = answer + "|";
                         }
                     }
@@ -613,6 +651,12 @@ namespace Server
                         players[playerId].playerWeaponSlotCurrentReloadTime[weaponIdint] = players[playerId].playerWeaponSlotReloadTime[weaponIdint];
                         players[playerId].playerWeaponSlotProjectileAimModule[weaponIdint] = moduleSlotId;
                         players[playerId].playerWeaponSlotProjectileAimPlayer[weaponIdint] = focusId;
+                        players[playerId].playerWeaponSlotProjectileStatus[weaponIdint] = 0;
+                        players[playerId].playerWeaponSlotProjectileId[weaponIdint] += 1;
+                        if (players[playerId].playerWeaponSlotProjectileId[weaponIdint] > 9) 
+                        {
+                            players[playerId].playerWeaponSlotProjectileId[weaponIdint] = 0;
+                        }
 
                         // shot is happened
                         return true;
@@ -654,6 +698,8 @@ namespace Server
 
                                 if (ChanceToHit > 0) // just hit the ship
                                 {
+                                    players[i].playerWeaponSlotProjectileStatus[ii] = 2; //
+
                                     players[players[i].playerWeaponSlotProjectileAimPlayer[ii]].playerShipCurrentHealth -= damageToShip;
                                 }
 
@@ -1383,9 +1429,12 @@ namespace Server
         public int[] playerWeaponSlotProjectileAimModule { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
         public int[] playerWeaponSlotProjectileAimPlayer { get; set; } = new int[5] { -1, -1, -1, -1, -1 };
 
+        public int[] playerWeaponSlotProjectileStatus { get; set; } = new int[5] { -1, -1, -1, -1, -1 }; // 0 - nothing , 1 - missed, 2 - hit ship, 3 - hit shield
+        public int[] playerWeaponSlotProjectileId{ get; set; } = new int[5] { 0, 0, 0, 0, 0 }; // can be from 0 to 9
+
         //test // -1 = does not exist, 0 - hit by time, N- time  // ---------- it is for N projectiles
-       // public int[,] playerWeaponSlotProjectileTime1 { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } };
-       // public int[] playerWeaponSlotProjectileAimModule1 { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
+        // public int[,] playerWeaponSlotProjectileTime1 { get; set; } = new int[5, 5] { { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 }, { -1, -1, -1, -1, -1 } };
+        // public int[] playerWeaponSlotProjectileAimModule1 { get; set; } = new int[5] { 0, 0, 0, 0, 0 };
         //------------------------
 
         // Crew
