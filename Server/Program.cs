@@ -1609,9 +1609,9 @@ namespace Server
                 IPAddress ip = IPAddress.Any;
 
                 server = new TcpListener(ip, port);
-                // Console.WriteLine("I am listening for connections on " +
-                //                                         IPAddress.Parse(((IPEndPoint)server.LocalEndpoint).Address.ToString()) +
-                //                                          "on port number " + ((IPEndPoint)server.LocalEndpoint).Port.ToString());
+                 Console.WriteLine("I am listening for connections on " +
+                                                         IPAddress.Parse(((IPEndPoint)server.LocalEndpoint).Address.ToString()) +
+                                                          "on port number " + ((IPEndPoint)server.LocalEndpoint).Port.ToString());
 
                 // Start listening for client requests.
                 server.Start();
@@ -1671,10 +1671,10 @@ namespace Server
 
 
                                     // COMPRESS DATA 
-                                    Console.WriteLine("Sent before Compression =" + msg.Length);
+                                  //  Console.WriteLine("Sent before Compression =" + msg.Length);
                                    // Console.WriteLine("Sent before Compression message =" + dataToSend);
                                     msg = CompressData(msg);
-                                    Console.WriteLine("Sent after Compression =" + msg.Length);
+                                 //   Console.WriteLine("Sent after Compression =" + msg.Length);
 
 
 

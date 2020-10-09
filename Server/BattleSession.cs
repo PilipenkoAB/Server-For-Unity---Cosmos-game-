@@ -163,7 +163,7 @@ namespace Server
             answer = answer + String.Format("{0:0.0}", players[idInArray].playerPositionRotation);
             answer = answer + ";";
 
-            answer = answer + String.Format("{0:0.0}", players[idInArray].playerVisionRadius);
+            answer = answer + players[idInArray].playerVisionRadius;
             answer = answer + ";";
 
             answer = answer + players[idInArray].playerShipMaxHealth;
@@ -1378,7 +1378,7 @@ namespace Server
 
         // player vision radious 
 
-        public double playerVisionRadius { get; set; }
+        public int playerVisionRadius { get; set; }
 
         // ship
 
